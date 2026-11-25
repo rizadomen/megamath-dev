@@ -71,7 +71,7 @@
         </div>
         <div class="space-y-1">
           <h1 class="text-xl font-black text-slate-800">Akses Panel Guru</h1>
-          <p class="text-xs font-semibold text-slate-500">Masukkan Kode Akses Guru untuk membuat dan mengelola paket Bank Soal.</p>
+          <p class="text-xs font-semibold text-slate-500">Masukkan Kode Akses Guru untuk membuat, mengedit, dan mengelola paket Bank Soal.</p>
         </div>
         <form onsubmit="loginGuru(event)" class="space-y-3 text-left">
           <div>
@@ -129,7 +129,19 @@
               <option value="SMA Kelas 10">SMA Kelas 10</option>
               <option value="SMA Kelas 11" selected>SMA Kelas 11</option>
               <option value="SMA Kelas 12">SMA Kelas 12</option>
-              <option value="UTBK / SNBT Penalaran Matematika">UTBK / SNBT (Penalaran Matematika)</option>
+              <option value="UTBK / SNBT">UTBK / SNBT (Penalaran Matematika)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenis Paket Soal</label>
+            <select id="gen-jenis" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+              <option value="Latihan Mandiri" selected>📘 Latihan Mandiri</option>
+              <option value="Kuis Bab">⚡ Kuis Bab</option>
+              <option value="Tryout / Ujian">🏆 Tryout / Ujian</option>
+              <option value="Pendalaman HOTS">🔥 Pendalaman HOTS</option>
+              <option value="Remedial">🩹 Remedial &amp; Penguatan Konsep</option>
+              <option value="Bank Soal UTBK">🎯 Bank Soal UTBK</option>
             </select>
           </div>
 
@@ -139,20 +151,21 @@
               class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
           </div>
 
-          <div>
-            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jumlah Soal (1 - 15)</label>
-            <input id="gen-jumlah" type="number" min="1" max="15" value="5" required
-              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
-          </div>
-
-          <div>
-            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Tingkat Kesulitan</label>
-            <select id="gen-tingkat" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
-              <option value="Mudah (Pemahaman Konsep Dasar)">Mudah (Pemahaman Konsep Dasar)</option>
-              <option value="Sedang (Aplikasi Rumus Standar)">Sedang (Aplikasi Rumus Standar)</option>
-              <option value="Campuran (Mudah, Sedang, HOTS)" selected>Campuran (Mudah, Sedang, HOTS)</option>
-              <option value="HOTS / Penalaran Tingkat Tinggi">HOTS / Penalaran Tingkat Tinggi</option>
-            </select>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jumlah Soal</label>
+              <input id="gen-jumlah" type="number" min="1" max="15" value="5" required
+                class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+            </div>
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Tingkat Kesulitan</label>
+              <select id="gen-tingkat" class="w-full px-3 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-xs sm:text-sm font-bold bg-[#FFFDF9]">
+                <option value="Mudah">Mudah</option>
+                <option value="Sedang">Sedang</option>
+                <option value="Campuran (Mudah, Sedang, HOTS)" selected>Campuran</option>
+                <option value="HOTS">HOTS</option>
+              </select>
+            </div>
           </div>
 
           <div class="sm:col-span-2">
@@ -194,19 +207,31 @@
               <option value="SMA Kelas 10">SMA Kelas 10</option>
               <option value="SMA Kelas 11" selected>SMA Kelas 11</option>
               <option value="SMA Kelas 12">SMA Kelas 12</option>
-              <option value="UTBK / SNBT Penalaran Matematika">UTBK / SNBT (Penalaran Matematika)</option>
+              <option value="UTBK / SNBT">UTBK / SNBT (Penalaran Matematika)</option>
             </select>
           </div>
 
           <div>
-            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Topik / Bab (Opsional, bisa deteksi otomatis)</label>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenis Paket Soal</label>
+            <select id="file-jenis" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+              <option value="Latihan Mandiri" selected>📘 Latihan Mandiri</option>
+              <option value="Kuis Bab">⚡ Kuis Bab</option>
+              <option value="Tryout / Ujian">🏆 Tryout / Ujian</option>
+              <option value="Pendalaman HOTS">🔥 Pendalaman HOTS</option>
+              <option value="Remedial">🩹 Remedial &amp; Penguatan Konsep</option>
+              <option value="Bank Soal UTBK">🎯 Bank Soal UTBK</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Topik / Bab (Opsional)</label>
             <input id="file-topik" type="text" placeholder="Contoh: Integral Tak Tentu"
               class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
           </div>
 
-          <div class="sm:col-span-2">
-            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Instruksi Ekstraksi untuk AI (Opsional)</label>
-            <input id="file-instruksi" type="text" placeholder="Contoh: Ambil hanya soal nomor 1 sampai 10 dan buatkan pembahasan lengkapnya"
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Instruksi Ekstraksi (Opsional)</label>
+            <input id="file-instruksi" type="text" placeholder="Contoh: Ambil soal nomor 1-10 saja"
               class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
           </div>
 
@@ -220,7 +245,7 @@
 
         <!-- MODE 3: BUAT PAKET SOAL MANUAL -->
         <div id="panel-manual" class="hidden space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenjang Pendidikan</label>
               <select id="man-jenjang" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
@@ -231,7 +256,18 @@
                 <option value="SMA Kelas 10">SMA Kelas 10</option>
                 <option value="SMA Kelas 11" selected>SMA Kelas 11</option>
                 <option value="SMA Kelas 12">SMA Kelas 12</option>
-                <option value="UTBK / SNBT Penalaran Matematika">UTBK / SNBT (Penalaran Matematika)</option>
+                <option value="UTBK / SNBT">UTBK / SNBT (Penalaran Matematika)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenis Paket Soal</label>
+              <select id="man-jenis" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+                <option value="Latihan Mandiri" selected>📘 Latihan Mandiri</option>
+                <option value="Kuis Bab">⚡ Kuis Bab</option>
+                <option value="Tryout / Ujian">🏆 Tryout / Ujian</option>
+                <option value="Pendalaman HOTS">🔥 Pendalaman HOTS</option>
+                <option value="Remedial">🩹 Remedial &amp; Penguatan Konsep</option>
+                <option value="Bank Soal UTBK">🎯 Bank Soal UTBK</option>
               </select>
             </div>
             <div>
@@ -242,8 +278,7 @@
           </div>
 
           <div class="p-4 rounded-2xl bg-orange-50/70 border border-orange-100 text-xs font-semibold text-slate-600 space-y-1">
-            <div>✨ <strong>Tidak perlu hafal kode LaTeX!</strong></div>
-            <div>Guru cukup klik tombol <strong>Toolbar Simbol Matematika</strong> (Pecahan, Pangkat, Akar, Integral, Derajat, dll.) di atas kolom ketik, atau ketik kalimat matematika biasa seperti <code class="px-1.5 py-0.5 rounded bg-white border border-orange-200 text-orange-700 font-bold">(2x^2 + 4)/2 = akar(16)</code> lalu klik tombol <strong>"✨ Rapikan Rumus Otomatis"</strong>!</div>
+            <div>✨ <strong>Kode Paket Angka Otomatis</strong> (Contoh: <code class="px-1.5 py-0.5 rounded bg-white border border-orange-200 text-orange-700 font-bold">2026001</code>) langsung dibuat oleh sistem agar mudah disebutkan guru di kelas dan cepat dicari siswa di HP.</div>
           </div>
 
           <button type="button" onclick="mulaiDraftManual()"
@@ -254,15 +289,27 @@
 
       </div>
 
-      <!-- PREVIEW & EDITOR INTERAKTIF (BERLAKU UNTUK AI, UPLOAD FILE, MAUPUN MANUAL) -->
+      <!-- PREVIEW & EDITOR INTERAKTIF (UNTUK BUAT BARU MAUPUN EDIT PAKET LAMA) -->
       <div id="preview-section" class="hidden space-y-5">
-        <div class="bg-white border-[1.5px] border-orange-200 shadow-lg shadow-orange-500/5 rounded-3xl p-6 space-y-4">
+        <div class="bg-white border-[1.5px] border-orange-300 shadow-xl shadow-orange-500/10 rounded-3xl p-6 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-orange-100 pb-4">
-            <div>
-              <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Editor Ramah Guru &amp; Live Preview Rumus</span>
-              <h3 class="text-lg font-black text-slate-800">Sesuaikan Soal Sebelum Publikasi</h3>
+            <div class="space-y-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span id="editor-mode-badge" class="px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[11px] font-extrabold uppercase">
+                  Draft Paket Baru
+                </span>
+                <span id="editor-kode-badge" class="px-2.5 py-0.5 rounded-full bg-slate-800 text-white text-[11px] font-extrabold tracking-wider">
+                  KODE: 2026001
+                </span>
+              </div>
+              <h3 class="text-lg font-black text-slate-800">Editor &amp; Live Preview Paket Soal</h3>
             </div>
+
             <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="tutupEditor()"
+                class="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 font-extrabold text-xs transition">
+                ✕ Batal
+              </button>
               <button type="button" onclick="tambahSoalManual()"
                 class="px-4 py-2.5 rounded-xl border border-orange-300 bg-orange-50 hover:bg-orange-100 text-orange-700 font-extrabold text-xs transition">
                 + Tambah Nomor Soal
@@ -280,14 +327,29 @@
               <input id="edit-judul" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
             </div>
             <div>
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Jenis Paket Soal</label>
+              <select id="edit-jenis" class="w-full px-3 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold bg-white">
+                <option value="Latihan Mandiri">Latihan Mandiri</option>
+                <option value="Kuis Bab">Kuis Bab</option>
+                <option value="Tryout / Ujian">Tryout / Ujian</option>
+                <option value="Pendalaman HOTS">Pendalaman HOTS</option>
+                <option value="Remedial">Remedial</option>
+                <option value="Bank Soal UTBK">Bank Soal UTBK</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Topik / Bab Materi</label>
+              <input id="edit-topik" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
+            </div>
+            <div>
               <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Jenjang</label>
               <input id="edit-jenjang" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
             </div>
             <div>
-              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Estimasi Durasi (Menit)</label>
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Durasi (Menit)</label>
               <input id="edit-durasi" type="number" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
             </div>
-            <div class="sm:col-span-4">
+            <div class="sm:col-span-2">
               <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Deskripsi Singkat Katalog</label>
               <input id="edit-deskripsi" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs font-bold" />
             </div>
@@ -301,23 +363,27 @@
             class="px-4 py-2.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-700 font-extrabold text-xs transition">
             + Tambah Nomor Soal Baru
           </button>
-          <button type="button" onclick="publishPackage()"
+          <button id="btn-publish-bottom" type="button" onclick="publishPackage()"
             class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition">
-            🚀 Publikasikan Sekarang
+            🚀 Simpan &amp; Publikasikan
           </button>
         </div>
       </div>
 
-      <!-- DAFTAR PAKET AKTIF DI KATALOG -->
+      <!-- DAFTAR PAKET AKTIF DI KATALOG (DENGAN TOMBOL EDIT & HAPUS) -->
       <div class="bg-white border-[1.5px] border-orange-100 rounded-[2rem] p-6 sm:p-8 space-y-4">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Database Google Drive</span>
             <h3 class="text-lg font-black text-slate-800">Paket Soal Aktif di Web Siswa</h3>
           </div>
-          <button type="button" onclick="loadExistingCatalog()" class="text-xs font-extrabold px-3.5 py-2 rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 transition">
-            🔄 Refresh
-          </button>
+          <div class="flex items-center gap-2">
+            <input id="search-admin-catalog" type="text" oninput="filterAdminCatalog()" placeholder="Cari bab / kode paket..."
+              class="px-3.5 py-2 rounded-xl border border-orange-200 text-xs font-bold bg-[#FFFDF9] focus:outline-none focus:border-orange-400" />
+            <button type="button" onclick="loadExistingCatalog()" class="text-xs font-extrabold px-3.5 py-2 rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 transition shrink-0">
+              🔄 Refresh
+            </button>
+          </div>
         </div>
 
         <div id="admin-catalog-list" class="space-y-3">
@@ -338,15 +404,14 @@
 
     let guruKey = sessionStorage.getItem('mm_guru_key') || '';
     let draftPackage = null;
+    let cachedCategories = [];
     let selectedFileBase64 = '';
     let selectedFileMime = '';
     let selectedFileName = '';
 
-    // Menyimpan elemen input/textarea yang terakhir diklik guru agar tombol simbol masuk tepat di posisi kursor
     let activeInputElement = null;
     let activeInputMeta = null;
 
-    // Daftar Tombol Simbol Matematika 1-Klik Ramah Guru
     const MATH_BUTTONS = [
       { label: 'Pecahan a/b', snippet: '$\\frac{a}{b}$' },
       { label: 'Pangkat x²', snippet: '$x^{2}$' },
@@ -366,7 +431,24 @@
       { label: 'Log', snippet: '$^{a}\\log b$' }
     ];
 
-    // Hybrid API Caller
+    function generateClientPreviewCode() {
+      const year = String(new Date().getFullYear());
+      let maxNumber = 0;
+      (cachedCategories || []).forEach(item => {
+        const code = String(item.kode_paket || item.id || '');
+        const match = code.match(new RegExp(`^${year}(\\d{3,})$`));
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (num > maxNumber) maxNumber = num;
+        }
+      });
+      if (maxNumber === 0 && (cachedCategories || []).length > 0) {
+        maxNumber = cachedCategories.length;
+      }
+      const nextSeq = String(maxNumber + 1).padStart(3, '0');
+      return `${year}${nextSeq}`;
+    }
+
     async function callApi(paramsObj, usePost = false) {
       if (usePost) {
         const res = await fetch(API_URL, {
@@ -488,6 +570,7 @@
         const res = await callApi({
           action: 'generateQuestionsAI',
           jenjang: document.getElementById('gen-jenjang').value,
+          jenisPaket: document.getElementById('gen-jenis').value,
           topik: document.getElementById('gen-topik').value.trim(),
           jumlah: document.getElementById('gen-jumlah').value,
           tingkat: document.getElementById('gen-tingkat').value,
@@ -559,6 +642,7 @@
           mimeType: selectedFileMime,
           fileName: selectedFileName,
           jenjang: document.getElementById('file-jenjang').value,
+          jenisPaket: document.getElementById('file-jenis').value,
           topik: document.getElementById('file-topik').value.trim(),
           instruksi: document.getElementById('file-instruksi').value.trim()
         }, true);
@@ -581,17 +665,21 @@
     }
 
     // ========================================================================
-    // MODE 3: BUAT PAKET MANUAL DARI NOL + AUTO-FORMATTER RUMUS
+    // MODE 3: BUAT PAKET MANUAL DARI NOL + AUTO KODE PAKET ANGKA MURNI
     // ========================================================================
     function mulaiDraftManual() {
       const jenjang = document.getElementById('man-jenjang').value;
+      const jenisPaket = document.getElementById('man-jenis').value;
       const topik = document.getElementById('man-topik').value.trim() || 'Latihan Matematika';
+      const autoCode = generateClientPreviewCode();
 
       draftPackage = {
-        judul: `Latihan ${topik} (${jenjang})`,
+        kode_paket: autoCode,
+        jenis_paket: jenisPaket,
+        judul: `${jenisPaket}: ${topik} (${jenjang})`,
         jenjang: jenjang,
         topik: topik,
-        deskripsi: `Latihan soal terarah materi ${topik} untuk jenjang ${jenjang}.`,
+        deskripsi: `Paket ${jenisPaket} materi ${topik} untuk jenjang ${jenjang}.`,
         durasi_menit: 15,
         soal: [
           {
@@ -606,6 +694,31 @@
       };
 
       renderPreview();
+    }
+
+    // ========================================================================
+    // MODE 4: EDIT PAKET SOAL YANG SUDAH TAYANG DI KATALOG
+    // ========================================================================
+    async function editPaketAktif(fileName) {
+      try {
+        const res = await callApi({ action: 'getPackageForEdit', file: fileName });
+        if (res.status !== 'success') {
+          alert('Gagal memuat paket untuk diedit: ' + res.message);
+          return;
+        }
+
+        draftPackage = res.data;
+        renderPreview();
+        document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        alert('Error memuat paket: ' + err.message);
+      }
+    }
+
+    function tutupEditor() {
+      if (!confirm('Tutup editor? Perubahan yang belum disimpan akan dibatalkan.')) return;
+      draftPackage = null;
+      document.getElementById('preview-section').classList.add('hidden');
     }
 
     function tambahSoalManual() {
@@ -632,12 +745,10 @@
       renderPreview();
     }
 
-    // Sisipkan simbol matematika ke kolom yang sedang aktif diketik guru
     function insertSymbolToSoal(idx, snippet) {
       let targetEl = activeInputElement;
       let meta = activeInputMeta;
 
-      // Jika guru belum klik kolom mana pun di kartu soal ini, default ke textarea pertanyaan nomor ini
       if (!targetEl || !meta || meta.idx !== idx) {
         targetEl = document.getElementById(`input-pertanyaan-${idx}`);
         meta = { idx, type: 'field', key: 'pertanyaan' };
@@ -661,7 +772,6 @@
       }
     }
 
-    // Tombol Magic AI: Merapikan ketikan biasa guru menjadi notasi LaTeX & mengisi pembahasan jika kosong
     async function rapikanRumusDenganAI(idx) {
       const item = draftPackage?.soal[idx];
       if (!item || !item.pertanyaan.trim()) {
@@ -685,11 +795,10 @@ Pembahasan Guru: ${item.pembahasan || '(Belum diisi, tolong buatkan pembahasan l
       `.trim();
 
       try {
-        // Memanfaatkan endpoint generateQuestionsAI yang sudah ada di Kode.gs tanpa perlu ubah backend!
         const res = await callApi({
           action: 'generateQuestionsAI',
           jenjang: document.getElementById('edit-jenjang').value || 'SMA',
-          topik: draftPackage.topik || 'Matematika',
+          topik: document.getElementById('edit-topik').value || 'Matematika',
           jumlah: 1,
           tingkat: item.level || 'Sedang',
           instruksi: `JANGAN buat soal baru! Tugasmu HANYA menyalin ulang 1 soal berikut persis isinya, tetapi ubah seluruh ekspresi/pecahan/akar/pangkat matematika menjadi format LaTeX ($...$) yang rapi, serta lengkapi/rapikan pembahasannya:\n${teksMentah}`
@@ -718,12 +827,27 @@ Pembahasan Guru: ${item.pembahasan || '(Belum diisi, tolong buatkan pembahasan l
     }
 
     // ========================================================================
-    // RENDER EDITOR & LIVE PREVIEW (REALTIME UPDATE RUMUS)
+    // RENDER EDITOR & LIVE PREVIEW
     // ========================================================================
     function renderPreview() {
       if (!draftPackage) return;
       document.getElementById('preview-section').classList.remove('hidden');
+
+      const isEditExisting = Boolean(draftPackage.file_name);
+      document.getElementById('editor-mode-badge').textContent = isEditExisting
+        ? `Mode Edit Paket (${draftPackage.file_name})`
+        : 'Draft Paket Baru';
+      document.getElementById('editor-kode-badge').textContent = `KODE: ${draftPackage.kode_paket || '2026001'}`;
+      document.getElementById('btn-publish').textContent = isEditExisting
+        ? '💾 Simpan Perubahan Paket'
+        : '🚀 Publikasikan ke Bank Soal Siswa';
+      document.getElementById('btn-publish-bottom').textContent = isEditExisting
+        ? '💾 Simpan Perubahan Sekarang'
+        : '🚀 Publikasikan Sekarang';
+
       document.getElementById('edit-judul').value = draftPackage.judul || '';
+      document.getElementById('edit-jenis').value = draftPackage.jenis_paket || 'Latihan Mandiri';
+      document.getElementById('edit-topik').value = draftPackage.topik || '';
       document.getElementById('edit-jenjang').value = draftPackage.jenjang || 'SMA';
       document.getElementById('edit-durasi').value = draftPackage.durasi_menit || 15;
       document.getElementById('edit-deskripsi').value = draftPackage.deskripsi || '';
@@ -743,8 +867,7 @@ Pembahasan Guru: ${item.pembahasan || '(Belum diisi, tolong buatkan pembahasan l
 
             <div class="flex flex-wrap items-center gap-2">
               <button id="btn-magic-${idx}" type="button" onclick="rapikanRumusDenganAI(${idx})"
-                class="px-3 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 font-extrabold text-xs transition"
-                title="Ketik biasa seperti (2x+1)/3 lalu klik tombol ini agar otomatis diubah AI menjadi rumus matematika rapi">
+                class="px-3 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 font-extrabold text-xs transition">
                 ✨ Rapikan Rumus AI
               </button>
               <label class="text-xs font-extrabold text-slate-600">Kunci:</label>
@@ -772,7 +895,6 @@ Pembahasan Guru: ${item.pembahasan || '(Belum diisi, tolong buatkan pembahasan l
             </div>
           </div>
 
-          <!-- GRID KIRI: FORM KETIK / EDIT | KANAN: LIVE PREVIEW RUMUS -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <!-- KOLOM EDIT -->
             <div class="space-y-3">
@@ -781,7 +903,7 @@ Pembahasan Guru: ${item.pembahasan || '(Belum diisi, tolong buatkan pembahasan l
                 <textarea id="input-pertanyaan-${idx}" rows="3"
                   onfocus="activeInputElement=this; activeInputMeta={idx:${idx}, type:'field', key:'pertanyaan'}"
                   oninput="updateField(${idx}, 'pertanyaan', this.value)"
-                  placeholder="Ketik soal di sini... (Bisa pakai tombol simbol di atas atau ketik biasa lalu klik ✨ Rapikan Rumus AI)"
+                  placeholder="Ketik soal di sini..."
                   class="w-full p-3 rounded-xl border border-orange-200 focus:border-orange-400 focus:outline-none text-xs font-bold bg-[#FFFDF9]">${escapeHtml(item.pertanyaan)}</textarea>
               </div>
 
@@ -802,7 +924,7 @@ Pembahasan Guru: ${item.pembahasan || '(Belum diisi, tolong buatkan pembahasan l
                 <textarea rows="3"
                   onfocus="activeInputElement=this; activeInputMeta={idx:${idx}, type:'field', key:'pembahasan'}"
                   oninput="updateField(${idx}, 'pembahasan', this.value)"
-                  placeholder="Tulis pembahasan langkah demi langkah (atau biarkan kosong lalu klik ✨ Rapikan Rumus AI agar dibuatkan otomatis)..."
+                  placeholder="Tulis pembahasan langkah demi langkah..."
                   class="w-full p-3 rounded-xl border border-orange-200 focus:border-orange-400 focus:outline-none text-xs font-semibold bg-[#FFFDF9]">${escapeHtml(item.pembahasan)}</textarea>
               </div>
             </div>
@@ -886,12 +1008,15 @@ Pembahasan Guru: ${item.pembahasan || '(Belum diisi, tolong buatkan pembahasan l
     async function publishPackage() {
       if (!draftPackage) return;
       const btn = document.getElementById('btn-publish');
+      const btnBottom = document.getElementById('btn-publish-bottom');
       btn.disabled = true;
+      btnBottom.disabled = true;
       btn.textContent = '⏳ Menyimpan ke Google Drive...';
 
       draftPackage.judul = document.getElementById('edit-judul').value.trim();
+      draftPackage.jenis_paket = document.getElementById('edit-jenis').value;
+      draftPackage.topik = document.getElementById('edit-topik').value.trim() || draftPackage.judul;
       draftPackage.jenjang = document.getElementById('edit-jenjang').value.trim() || 'SMA';
-      draftPackage.topik = draftPackage.topik || draftPackage.judul;
       draftPackage.durasi_menit = parseInt(document.getElementById('edit-durasi').value, 10) || 15;
       draftPackage.deskripsi = document.getElementById('edit-deskripsi').value.trim();
 
@@ -902,10 +1027,12 @@ Pembahasan Guru: ${item.pembahasan || '(Belum diisi, tolong buatkan pembahasan l
         }, true);
 
         btn.disabled = false;
+        btnBottom.disabled = false;
         btn.textContent = '🚀 Publikasikan ke Bank Soal Siswa';
+        btnBottom.textContent = '🚀 Publikasikan Sekarang';
 
         if (res.status !== 'success') {
-          alert('Gagal mempublikasikan: ' + res.message);
+          alert('Gagal menyimpan paket: ' + res.message);
           return;
         }
 
@@ -915,8 +1042,8 @@ Pembahasan Guru: ${item.pembahasan || '(Belum diisi, tolong buatkan pembahasan l
         loadExistingCatalog();
       } catch (err) {
         btn.disabled = false;
-        btn.textContent = '🚀 Publikasikan ke Bank Soal Siswa';
-        alert('Error saat publikasi: ' + err.message);
+        btnBottom.disabled = false;
+        alert('Error saat menyimpan: ' + err.message);
       }
     }
 
@@ -929,31 +1056,60 @@ Pembahasan Guru: ${item.pembahasan || '(Belum diisi, tolong buatkan pembahasan l
           return;
         }
 
-        const categories = res.data.categories || [];
-        if (categories.length === 0) {
-          listEl.innerHTML = `<p class="text-xs text-slate-400 font-bold text-center py-4">Belum ada paket soal di katalog.</p>`;
-          return;
-        }
-
-        listEl.innerHTML = categories.map(cat => `
-          <div class="p-4 rounded-2xl border border-orange-100 bg-[#FFFDF9] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-extrabold">${cat.jenjang}</span>
-                <span class="text-[11px] font-bold text-slate-400">${cat.file_name}</span>
-              </div>
-              <div class="text-sm font-extrabold text-slate-800 mt-1">${cat.topik}</div>
-              <div class="text-xs font-semibold text-slate-500">${cat.jumlah_soal} Soal • ${cat.durasi_menit} Menit</div>
-            </div>
-            <button type="button" onclick="hapusPaket('${cat.file_name}', '${cat.topik}')"
-              class="self-start sm:self-center px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-extrabold transition">
-              🗑️ Hapus
-            </button>
-          </div>
-        `).join('');
+        cachedCategories = res.data.categories || [];
+        renderAdminCatalogList(cachedCategories);
       } catch (err) {
         listEl.innerHTML = `<p class="text-xs text-red-600 font-bold">${err.message}</p>`;
       }
+    }
+
+    function filterAdminCatalog() {
+      const q = document.getElementById('search-admin-catalog').value.toLowerCase().trim();
+      if (!q) {
+        renderAdminCatalogList(cachedCategories);
+        return;
+      }
+      const filtered = cachedCategories.filter(c =>
+        (c.topik || '').toLowerCase().includes(q) ||
+        (c.judul || '').toLowerCase().includes(q) ||
+        String(c.kode_paket || '').toLowerCase().includes(q) ||
+        (c.jenis_paket || '').toLowerCase().includes(q) ||
+        (c.jenjang || '').toLowerCase().includes(q)
+      );
+      renderAdminCatalogList(filtered);
+    }
+
+    function renderAdminCatalogList(list) {
+      const listEl = document.getElementById('admin-catalog-list');
+      if (list.length === 0) {
+        listEl.innerHTML = `<p class="text-xs text-slate-400 font-bold text-center py-4">Tidak ada paket soal yang cocok.</p>`;
+        return;
+      }
+
+      listEl.innerHTML = list.map(cat => `
+        <div class="p-4 rounded-2xl border border-orange-100 bg-[#FFFDF9] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="px-2.5 py-0.5 rounded-md bg-slate-800 text-white text-[10px] font-extrabold tracking-wider">${cat.kode_paket || cat.id}</span>
+              <span class="px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-extrabold">${cat.jenjang}</span>
+              <span class="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-extrabold">${cat.jenis_paket || 'Latihan Mandiri'}</span>
+            </div>
+            <div class="text-sm font-extrabold text-slate-800">${cat.judul || cat.topik}</div>
+            <div class="text-xs font-semibold text-slate-500">Bab: ${cat.topik} • ${cat.jumlah_soal} Soal • ${cat.durasi_menit} Menit</div>
+          </div>
+
+          <div class="flex items-center gap-2 self-start sm:self-center shrink-0">
+            <button type="button" onclick="editPaketAktif('${cat.file_name}')"
+              class="px-3.5 py-2 rounded-xl border border-orange-200 bg-white hover:bg-orange-50 text-orange-700 text-xs font-extrabold transition">
+              ✏️ Edit
+            </button>
+            <button type="button" onclick="hapusPaket('${cat.file_name}', '${escapeAttr(cat.judul || cat.topik)}')"
+              class="px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-extrabold transition">
+              🗑️ Hapus
+            </button>
+          </div>
+        </div>
+      `).join('');
     }
 
     async function hapusPaket(fileName, topik) {
