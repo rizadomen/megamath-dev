@@ -28,6 +28,12 @@
       border-color: transparent;
       box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
     }
+    .math-chip {
+      transition: all 0.15s ease;
+    }
+    .math-chip:active {
+      transform: scale(0.95);
+    }
   </style>
 </head>
 <body class="min-h-screen bg-[#FFFDF9] text-slate-800 flex flex-col">
@@ -235,8 +241,9 @@
             </div>
           </div>
 
-          <div class="p-4 rounded-2xl bg-orange-50/70 border border-orange-100 text-xs font-semibold text-slate-600">
-            💡 <strong>Tips Penulisan Rumus Manual:</strong> Gunakan tanda dolar tunggal <code class="px-1.5 py-0.5 rounded bg-white border border-orange-200 text-orange-700 font-bold">$...$</code> untuk menulis rumus matematika LaTeX, misalnya <code class="px-1.5 py-0.5 rounded bg-white border border-orange-200 text-orange-700 font-bold">$\frac{3x^2 + 1}{2}$</code>.
+          <div class="p-4 rounded-2xl bg-orange-50/70 border border-orange-100 text-xs font-semibold text-slate-600 space-y-1">
+            <div>✨ <strong>Tidak perlu hafal kode LaTeX!</strong></div>
+            <div>Guru cukup klik tombol <strong>Toolbar Simbol Matematika</strong> (Pecahan, Pangkat, Akar, Integral, Derajat, dll.) di atas kolom ketik, atau ketik kalimat matematika biasa seperti <code class="px-1.5 py-0.5 rounded bg-white border border-orange-200 text-orange-700 font-bold">(2x^2 + 4)/2 = akar(16)</code> lalu klik tombol <strong>"✨ Rapikan Rumus Otomatis"</strong>!</div>
           </div>
 
           <button type="button" onclick="mulaiDraftManual()"
@@ -252,7 +259,7 @@
         <div class="bg-white border-[1.5px] border-orange-200 shadow-lg shadow-orange-500/5 rounded-3xl p-6 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-orange-100 pb-4">
             <div>
-              <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Editor &amp; Live Preview Rumus</span>
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Editor Ramah Guru &amp; Live Preview Rumus</span>
               <h3 class="text-lg font-black text-slate-800">Sesuaikan Soal Sebelum Publikasi</h3>
             </div>
             <div class="flex flex-wrap items-center gap-2">
@@ -335,7 +342,31 @@
     let selectedFileMime = '';
     let selectedFileName = '';
 
-    // Hybrid API Caller: GET untuk query ringan, POST untuk payload besar (upload file / simpan paket)
+    // Menyimpan elemen input/textarea yang terakhir diklik guru agar tombol simbol masuk tepat di posisi kursor
+    let activeInputElement = null;
+    let activeInputMeta = null;
+
+    // Daftar Tombol Simbol Matematika 1-Klik Ramah Guru
+    const MATH_BUTTONS = [
+      { label: 'Pecahan a/b', snippet: '$\\frac{a}{b}$' },
+      { label: 'Pangkat x²', snippet: '$x^{2}$' },
+      { label: 'Akar √x', snippet: '$\\sqrt{x}$' },
+      { label: 'Kali ×', snippet: '$\\times$' },
+      { label: 'Bagi ÷', snippet: '$\\div$' },
+      { label: 'Kurang/Lebih ±', snippet: '$\\pm$' },
+      { label: '≤', snippet: '$\\leq$' },
+      { label: '≥', snippet: '$\\geq$' },
+      { label: '≠', snippet: '$\\neq$' },
+      { label: 'Derajat °', snippet: '$^{\\circ}$' },
+      { label: 'π', snippet: '$\\pi$' },
+      { label: 'Sudut ∠', snippet: '$\\angle$' },
+      { label: 'Integral ∫', snippet: '$\\int_{a}^{b} f(x)\\,dx$' },
+      { label: 'Limit', snippet: '$\\lim_{x \\to 0}$' },
+      { label: 'Sigma Σ', snippet: '$\\sum_{i=1}^{n}$' },
+      { label: 'Log', snippet: '$^{a}\\log b$' }
+    ];
+
+    // Hybrid API Caller
     async function callApi(paramsObj, usePost = false) {
       if (usePost) {
         const res = await fetch(API_URL, {
@@ -550,7 +581,7 @@
     }
 
     // ========================================================================
-    // MODE 3: BUAT PAKET MANUAL DARI NOL
+    // MODE 3: BUAT PAKET MANUAL DARI NOL + AUTO-FORMATTER RUMUS
     // ========================================================================
     function mulaiDraftManual() {
       const jenjang = document.getElementById('man-jenjang').value;
@@ -566,10 +597,10 @@
           {
             nomor: 1,
             level: 'Sedang',
-            pertanyaan: 'Tentukan nilai dari $2x + 5$ jika $x = 3$!',
-            opsi: { A: '$9$', B: '$10$', C: '$11$', D: '$12$', E: '$13$' },
-            kunci: 'C',
-            pembahasan: 'Substitusikan $x = 3$ ke persamaan:\n$2(3) + 5 = 6 + 5 = 11$.\nJadi, jawaban yang tepat adalah C.'
+            pertanyaan: '',
+            opsi: { A: '', B: '', C: '', D: '', E: '' },
+            kunci: 'A',
+            pembahasan: ''
           }
         ]
       };
@@ -601,6 +632,91 @@
       renderPreview();
     }
 
+    // Sisipkan simbol matematika ke kolom yang sedang aktif diketik guru
+    function insertSymbolToSoal(idx, snippet) {
+      let targetEl = activeInputElement;
+      let meta = activeInputMeta;
+
+      // Jika guru belum klik kolom mana pun di kartu soal ini, default ke textarea pertanyaan nomor ini
+      if (!targetEl || !meta || meta.idx !== idx) {
+        targetEl = document.getElementById(`input-pertanyaan-${idx}`);
+        meta = { idx, type: 'field', key: 'pertanyaan' };
+      }
+
+      if (!targetEl) return;
+
+      const start = targetEl.selectionStart || targetEl.value.length;
+      const end = targetEl.selectionEnd || targetEl.value.length;
+      const currentVal = targetEl.value;
+      const newVal = currentVal.substring(0, start) + snippet + currentVal.substring(end);
+
+      targetEl.value = newVal;
+      targetEl.focus();
+      targetEl.setSelectionRange(start + snippet.length, start + snippet.length);
+
+      if (meta.type === 'field') {
+        updateField(idx, meta.key, newVal);
+      } else if (meta.type === 'opsi') {
+        updateOpsi(idx, meta.key, newVal);
+      }
+    }
+
+    // Tombol Magic AI: Merapikan ketikan biasa guru menjadi notasi LaTeX & mengisi pembahasan jika kosong
+    async function rapikanRumusDenganAI(idx) {
+      const item = draftPackage?.soal[idx];
+      if (!item || !item.pertanyaan.trim()) {
+        alert('Ketik dulu teks soalnya dengan bahasa biasa sebelum klik Rapikan Rumus AI.');
+        return;
+      }
+
+      const btn = document.getElementById(`btn-magic-${idx}`);
+      btn.disabled = true;
+      btn.textContent = '⏳ AI merapikan...';
+
+      const teksMentah = `
+Pertanyaan: ${item.pertanyaan}
+Opsi A: ${item.opsi.A || '-'}
+Opsi B: ${item.opsi.B || '-'}
+Opsi C: ${item.opsi.C || '-'}
+Opsi D: ${item.opsi.D || '-'}
+Opsi E: ${item.opsi.E || '-'}
+Kunci Jawaban: ${item.kunci}
+Pembahasan Guru: ${item.pembahasan || '(Belum diisi, tolong buatkan pembahasan lengkapnya)'}
+      `.trim();
+
+      try {
+        // Memanfaatkan endpoint generateQuestionsAI yang sudah ada di Kode.gs tanpa perlu ubah backend!
+        const res = await callApi({
+          action: 'generateQuestionsAI',
+          jenjang: document.getElementById('edit-jenjang').value || 'SMA',
+          topik: draftPackage.topik || 'Matematika',
+          jumlah: 1,
+          tingkat: item.level || 'Sedang',
+          instruksi: `JANGAN buat soal baru! Tugasmu HANYA menyalin ulang 1 soal berikut persis isinya, tetapi ubah seluruh ekspresi/pecahan/akar/pangkat matematika menjadi format LaTeX ($...$) yang rapi, serta lengkapi/rapikan pembahasannya:\n${teksMentah}`
+        });
+
+        btn.disabled = false;
+        btn.textContent = '✨ Rapikan Rumus AI';
+
+        if (res.status !== 'success' || !res.data?.soal?.[0]) {
+          alert('Gagal merapikan rumus: ' + (res.message || 'Respons kosong'));
+          return;
+        }
+
+        const hasilRapih = res.data.soal[0];
+        draftPackage.soal[idx].pertanyaan = hasilRapih.pertanyaan;
+        draftPackage.soal[idx].opsi = hasilRapih.opsi;
+        if (!item.pembahasan.trim()) {
+          draftPackage.soal[idx].pembahasan = hasilRapih.pembahasan;
+        }
+        renderPreview();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = '✨ Rapikan Rumus AI';
+        alert('Error: ' + err.message);
+      }
+    }
+
     // ========================================================================
     // RENDER EDITOR & LIVE PREVIEW (REALTIME UPDATE RUMUS)
     // ========================================================================
@@ -625,7 +741,12 @@
               </select>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <button id="btn-magic-${idx}" type="button" onclick="rapikanRumusDenganAI(${idx})"
+                class="px-3 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 font-extrabold text-xs transition"
+                title="Ketik biasa seperti (2x+1)/3 lalu klik tombol ini agar otomatis diubah AI menjadi rumus matematika rapi">
+                ✨ Rapikan Rumus AI
+              </button>
               <label class="text-xs font-extrabold text-slate-600">Kunci:</label>
               <select onchange="updateKunci(${idx}, this.value)" class="px-2.5 py-1 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-extrabold text-xs">
                 ${['A','B','C','D','E'].map(h => `<option value="${h}" ${item.kunci === h ? 'selected' : ''}>${h}</option>`).join('')}
@@ -636,13 +757,31 @@
             </div>
           </div>
 
+          <!-- TOOLBAR SIMBOL MATEMATIKA 1-KLIK -->
+          <div class="p-2.5 rounded-2xl bg-orange-50/60 border border-orange-100 space-y-1.5">
+            <div class="text-[10px] font-extrabold text-orange-700 uppercase tracking-wider">
+              🧮 Sisipkan Simbol Matematika (Klik kolom teks lalu pilih simbol):
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              ${MATH_BUTTONS.map(b => `
+                <button type="button" onclick='insertSymbolToSoal(${idx}, ${JSON.stringify(b.snippet)})'
+                  class="math-chip px-2.5 py-1 rounded-lg bg-white hover:bg-orange-100 border border-orange-200 text-slate-700 hover:text-orange-800 text-[11px] font-extrabold shadow-2xs">
+                  ${b.label}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
           <!-- GRID KIRI: FORM KETIK / EDIT | KANAN: LIVE PREVIEW RUMUS -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <!-- KOLOM EDIT -->
             <div class="space-y-3">
               <div>
-                <label class="block text-[11px] font-extrabold text-slate-500 mb-1">Teks Pertanyaan (Gunakan $...$ untuk LaTeX)</label>
-                <textarea rows="3" oninput="updateField(${idx}, 'pertanyaan', this.value)" placeholder="Ketik soal di sini..."
+                <label class="block text-[11px] font-extrabold text-slate-500 mb-1">Teks Pertanyaan</label>
+                <textarea id="input-pertanyaan-${idx}" rows="3"
+                  onfocus="activeInputElement=this; activeInputMeta={idx:${idx}, type:'field', key:'pertanyaan'}"
+                  oninput="updateField(${idx}, 'pertanyaan', this.value)"
+                  placeholder="Ketik soal di sini... (Bisa pakai tombol simbol di atas atau ketik biasa lalu klik ✨ Rapikan Rumus AI)"
                   class="w-full p-3 rounded-xl border border-orange-200 focus:border-orange-400 focus:outline-none text-xs font-bold bg-[#FFFDF9]">${escapeHtml(item.pertanyaan)}</textarea>
               </div>
 
@@ -650,7 +789,9 @@
                 ${['A', 'B', 'C', 'D', 'E'].map(h => `
                   <div class="flex items-center gap-2">
                     <span class="w-6 h-6 rounded-lg ${item.kunci === h ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'} text-xs font-extrabold flex items-center justify-center shrink-0">${h}</span>
-                    <input type="text" value="${escapeAttr(item.opsi[h] || '')}" oninput="updateOpsi(${idx}, '${h}', this.value)" placeholder="Opsi ${h}..."
+                    <input type="text" value="${escapeAttr(item.opsi[h] || '')}"
+                      onfocus="activeInputElement=this; activeInputMeta={idx:${idx}, type:'opsi', key:'${h}'}"
+                      oninput="updateOpsi(${idx}, '${h}', this.value)" placeholder="Opsi ${h}..."
                       class="w-full px-3 py-1.5 rounded-xl border border-slate-200 focus:border-orange-400 focus:outline-none text-xs font-bold" />
                   </div>
                 `).join('')}
@@ -658,7 +799,10 @@
 
               <div>
                 <label class="block text-[11px] font-extrabold text-slate-500 mb-1">Pembahasan Langkah demi Langkah</label>
-                <textarea rows="3" oninput="updateField(${idx}, 'pembahasan', this.value)" placeholder="Tulis pembahasan langkah demi langkah..."
+                <textarea rows="3"
+                  onfocus="activeInputElement=this; activeInputMeta={idx:${idx}, type:'field', key:'pembahasan'}"
+                  oninput="updateField(${idx}, 'pembahasan', this.value)"
+                  placeholder="Tulis pembahasan langkah demi langkah (atau biarkan kosong lalu klik ✨ Rapikan Rumus AI agar dibuatkan otomatis)..."
                   class="w-full p-3 rounded-xl border border-orange-200 focus:border-orange-400 focus:outline-none text-xs font-semibold bg-[#FFFDF9]">${escapeHtml(item.pembahasan)}</textarea>
               </div>
             </div>
