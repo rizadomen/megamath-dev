@@ -147,235 +147,211 @@
   </footer>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyJPsUAFpA1TfHWhjQ3DpG4T6AA_ye4kjsDe3X5FEIWxq_Cip4biJwkEl2BEUx7YHO84Q/exec';
-    const APP_KEY = 'MEGAMATH_DEV_2026_SECURE';
-
-    let currentFile = '';
-    let userAnswers = {};
-
-    function callApi(paramsObj) {
-      return new Promise((resolve, reject) => {
-        const callbackName = 'mm_cb_' + Math.round(1000000 * Math.random());
-        const script = document.createElement('script');
-
-        const timeout = setTimeout(() => {
-          cleanup();
-          reject(new Error('Timeout: Server Google Apps Script tidak merespons.'));
-        }, 15000);
-
-        function cleanup() {
-          clearTimeout(timeout);
-          delete window[callbackName];
-          if (script.parentNode) script.parentNode.removeChild(script);
-        }
-
-        window[callbackName] = function(data) {
-          cleanup();
-          resolve(data);
-        };
-
-        const queryParams = new URLSearchParams({
-          ...paramsObj,
-          key: APP_KEY,
-          callback: callbackName
-        });
-
-        script.src = `${API_URL}?${queryParams.toString()}`;
-        script.onerror = () => {
-          cleanup();
-          reject(new Error('Gagal terhubung ke API Google Apps Script.'));
-        };
-
-        document.body.appendChild(script);
-      });
-    }
-
-    function renderMath() {
-      if (window.renderMathInElement) {
-        renderMathInElement(document.body, {
-          delimiters: [
-            { left: '$$', right: '$$', display: true },
-            { left: '$', right: '$', display: false }
-          ],
-          throwOnError: false
+      const API_URL = 'https://script.google.com/macros/s/AKfycbyJPsUAFpA1TfHWhjQ3DpG4T6AA_ye4kjsDe3X5FEIWxq_Cip4biJwkEl2BEUx7YHO84Q/exec';
+      const APP_KEY = 'MEGAMATH_DEV_2026_SECURE';
+  
+      let currentFile = '';
+      let userAnswers = {};
+  
+      // Helper JSONP untuk menembus blokir CORS / redirect Google Apps Script
+      function callApi(paramsObj) {
+        return new Promise((resolve, reject) => {
+          const callbackName = 'mm_cb_' + Math.round(1000000 * Math.random());
+          const script = document.createElement('script');
+  
+          const timeout = setTimeout(() => {
+            cleanup();
+            reject(new Error('Timeout: Server Google Apps Script tidak merespons. Pastikan Who has access = Anyone.'));
+          }, 15000);
+  
+          function cleanup() {
+            clearTimeout(timeout);
+            delete window[callbackName];
+            if (script.parentNode) script.parentNode.removeChild(script);
+          }
+  
+          window[callbackName] = function(data) {
+            cleanup();
+            resolve(data);
+          };
+  
+          const queryParams = new URLSearchParams({
+            ...paramsObj,
+            key: APP_KEY,
+            callback: callbackName
+          });
+  
+          script.src = `${API_URL}?${queryParams.toString()}`;
+          script.onerror = () => {
+            cleanup();
+            reject(new Error('Gagal memuat skrip API. Cek izin deployment Apps Script (Who has access: Anyone).'));
+          };
+  
+          document.body.appendChild(script);
         });
       }
-    }
-
-    async function loadCatalog() {
-      const container = document.getElementById('catalog-list');
-      try {
-        const json = await callApi({ action: 'getCatalog' });
-
-        if (json.status !== 'success') {
-          container.innerHTML = `<div class="col-span-full bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4 text-xs font-bold">Gagal memuat katalog: ${json.message}</div>`;
-          return;
+  
+      function renderMath() {
+        if (window.renderMathInElement) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false }
+            ],
+            throwOnError: false
+          });
         }
-
-        container.innerHTML = json.data.categories.map(cat => `
-          <div class="bg-white border-[1.5px] border-orange-100 hover:border-orange-300 rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-4">
-            <div class="space-y-2">
-              <div class="flex items-center justify-between gap-2">
-                <span class="px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-extrabold">${cat.jenjang}</span>
-                <span class="text-[11px] font-bold text-slate-400">⏱️ ${cat.durasi_menit} Menit</span>
-              </div>
-              <h3 class="text-base sm:text-lg font-extrabold text-slate-800 leading-snug">${cat.topik}</h3>
-              <p class="text-xs text-slate-600 font-semibold leading-relaxed">${cat.deskripsi}</p>
+      }
+  
+      async function loadCatalog() {
+        const container = document.getElementById('catalog-list');
+        try {
+          const json = await callApi({ action: 'getCatalog' });
+  
+          if (json.status !== 'success') {
+            container.innerHTML = `<p style="color:red;">Gagal memuat katalog: ${json.message}</p>`;
+            return;
+          }
+  
+          container.innerHTML = json.data.categories.map(cat => `
+            <div class="catalog-item">
+              <span style="font-size:12px; font-weight:700; color:var(--primary);">${cat.jenjang}</span>
+              <h4 style="margin-top:4px;">${cat.topik}</h4>
+              <p style="font-size:14px; color:var(--muted); margin-top:4px;">${cat.deskripsi}</p>
+              <div class="meta">Jumlah: ${cat.jumlah_soal} soal • Estimasi: ${cat.durasi_menit} menit</div>
+              <button class="btn" onclick="mulaiLatihan('${cat.file_name}')">Mulai Kerjakan</button>
             </div>
-            <div class="pt-2 border-t border-orange-50 flex items-center justify-between gap-3">
-              <span class="text-xs font-extrabold text-slate-500">📝 ${cat.jumlah_soal} Soal</span>
-              <button type="button" onclick="mulaiLatihan('${cat.file_name}')"
-                class="px-4 py-2.5 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white text-xs font-extrabold shadow-md shadow-orange-500/20 transition">
-                Mulai Latihan →
+          `).join('');
+        } catch (err) {
+          container.innerHTML = `<p style="color:red;">${err.message}</p>`;
+        }
+      }
+  
+      async function mulaiLatihan(fileName) {
+        currentFile = fileName;
+        userAnswers = {};
+  
+        document.getElementById('view-catalog').classList.add('hidden');
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-quiz').classList.remove('hidden');
+        document.getElementById('soal-container').innerHTML = '<div class="card loader">Mengambil soal dari server...</div>';
+  
+        try {
+          const json = await callApi({ action: 'getQuestions', file: fileName });
+  
+          if (json.status !== 'success') {
+            alert('Error: ' + json.message);
+            return;
+          }
+  
+          document.getElementById('quiz-title').textContent = json.data.judul;
+          document.getElementById('quiz-cred').textContent = `${json.data.kredibilitas.kurikulum} • ${json.data.kredibilitas.verified_by}`;
+  
+          const htmlSoal = json.data.soal.map(item => {
+            const opsiHtml = Object.entries(item.opsi).map(([huruf, teks]) => `
+              <button type="button" class="opsi-btn" id="btn-${item.id_soal}-${huruf}" onclick="pilihJawaban('${item.id_soal}', '${huruf}')">
+                <strong>${huruf}.</strong>
+                <span>${teks}</span>
               </button>
+            `).join('');
+  
+            return `
+              <div class="card">
+                <div class="soal-header">
+                  <span><strong>Soal No. ${item.nomor}</strong> (${item.id_soal})</span>
+                  <span>Level: ${item.level}</span>
+                </div>
+                <div style="font-size:16px;">${item.pertanyaan}</div>
+                <div class="opsi-list">${opsiHtml}</div>
+              </div>
+            `;
+          }).join('');
+  
+          document.getElementById('soal-container').innerHTML = htmlSoal;
+          renderMath();
+        } catch (err) {
+          alert('Gagal memuat soal: ' + err.message);
+        }
+      }
+  
+      function pilihJawaban(idSoal, huruf) {
+        userAnswers[idSoal] = huruf;
+        ['A', 'B', 'C', 'D', 'E'].forEach(opt => {
+          const el = document.getElementById(`btn-${idSoal}-${opt}`);
+          if (el) el.classList.remove('selected');
+        });
+        const selectedEl = document.getElementById(`btn-${idSoal}-${huruf}`);
+        if (selectedEl) selectedEl.classList.add('selected');
+      }
+  
+      async function submitJawaban() {
+        const btn = document.getElementById('btn-submit');
+        btn.disabled = true;
+        btn.textContent = 'Memeriksa jawaban di server...';
+  
+        try {
+          const json = await callApi({
+            action: 'submitAnswers',
+            file: currentFile,
+            answers: JSON.stringify(userAnswers)
+          });
+  
+          btn.disabled = false;
+          btn.textContent = 'Kumpulkan & Lihat Pembahasan';
+  
+          if (json.status !== 'success') {
+            alert('Gagal menilai jawaban: ' + json.message);
+            return;
+          }
+  
+          tampilkanHasil(json);
+        } catch (err) {
+          btn.disabled = false;
+          btn.textContent = 'Kumpulkan & Lihat Pembahasan';
+          alert('Error saat submit: ' + err.message);
+        }
+      }
+  
+      function tampilkanHasil(result) {
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+  
+        document.getElementById('result-score').textContent = result.summary.skor;
+        document.getElementById('result-summary').textContent =
+          `Benar: ${result.summary.benar} • Salah: ${result.summary.salah} • Total: ${result.summary.total} Soal`;
+  
+        const detailHtml = result.detail.map(item => `
+          <div class="card">
+            <div class="soal-header">
+              <span><strong>Soal No. ${item.nomor}</strong></span>
+              <span class="${item.is_correct ? 'status-benar' : 'status-salah'}">
+                ${item.is_correct ? '✓ Jawaban Benar' : '✗ Jawaban Kurang Tepat'}
+              </span>
+            </div>
+            <div style="margin-bottom: 10px;">${item.pertanyaan}</div>
+            <p style="font-size: 14px;">
+              Jawaban Kamu: <strong>${item.jawaban_siswa || 'Tidak dijawab'}</strong> |
+              Kunci Jawaban: <strong style="color: var(--success);">${item.kunci_benar}</strong>
+            </p>
+            <div class="pembahasan-box">
+              <strong>Pembahasan Langkah demi Langkah:</strong>
+              <div style="margin-top: 6px; white-space: pre-line;">${item.pembahasan}</div>
             </div>
           </div>
         `).join('');
-      } catch (err) {
-        container.innerHTML = `<div class="col-span-full bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4 text-xs font-bold">${err.message}</div>`;
-      }
-    }
-
-    async function mulaiLatihan(fileName) {
-      currentFile = fileName;
-      userAnswers = {};
-
-      document.getElementById('view-catalog').classList.add('hidden');
-      document.getElementById('view-result').classList.add('hidden');
-      document.getElementById('view-quiz').classList.remove('hidden');
-      document.getElementById('soal-container').innerHTML = `
-        <div class="bg-white border border-orange-100 rounded-3xl p-10 text-center text-xs font-bold text-slate-400">
-          ⏳ Menyiapkan lembar soal...
-        </div>`;
-
-      try {
-        const json = await callApi({ action: 'getQuestions', file: fileName });
-
-        if (json.status !== 'success') {
-          alert('Error: ' + json.message);
-          return;
-        }
-
-        document.getElementById('quiz-title').textContent = json.data.judul;
-        document.getElementById('quiz-cred').textContent = `${json.data.kredibilitas.kurikulum} • ${json.data.kredibilitas.verified_by}`;
-
-        const htmlSoal = json.data.soal.map(item => {
-          const opsiHtml = Object.entries(item.opsi).map(([huruf, teks]) => `
-            <button type="button" id="btn-${item.id_soal}-${huruf}" onclick="pilihJawaban('${item.id_soal}', '${huruf}')"
-              class="opsi-btn w-full flex items-center gap-3 text-left p-3.5 rounded-2xl border-[1.5px] border-slate-200 hover:border-orange-300 bg-white transition">
-              <span class="opsi-badge w-8 h-8 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-extrabold text-xs flex items-center justify-center shrink-0">
-                ${huruf}
-              </span>
-              <span class="text-xs sm:text-sm font-bold text-slate-700 leading-relaxed">${teks}</span>
-            </button>
-          `).join('');
-
-          return `
-            <div class="bg-white border-[1.5px] border-orange-100 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
-              <div class="flex items-center justify-between gap-2 pb-3 border-b border-orange-50">
-                <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-orange-600">
-                  <span class="px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700">Soal No. ${item.nomor}</span>
-                  <span class="text-slate-400 font-bold">(${item.id_soal})</span>
-                </span>
-                <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-extrabold">${item.level}</span>
-              </div>
-              <div class="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">${item.pertanyaan}</div>
-              <div class="grid grid-cols-1 gap-2.5 pt-1">${opsiHtml}</div>
-            </div>
-          `;
-        }).join('');
-
-        document.getElementById('soal-container').innerHTML = htmlSoal;
+  
+        document.getElementById('result-detail').innerHTML = detailHtml;
         renderMath();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-      } catch (err) {
-        alert('Gagal memuat soal: ' + err.message);
       }
-    }
-
-    function pilihJawaban(idSoal, huruf) {
-      userAnswers[idSoal] = huruf;
-      ['A', 'B', 'C', 'D', 'E'].forEach(opt => {
-        const el = document.getElementById(`btn-${idSoal}-${opt}`);
-        if (el) el.classList.remove('selected');
-      });
-      const selectedEl = document.getElementById(`btn-${idSoal}-${huruf}`);
-      if (selectedEl) selectedEl.classList.add('selected');
-    }
-
-    async function submitJawaban() {
-      const btn = document.getElementById('btn-submit');
-      btn.disabled = true;
-      btn.textContent = '⏳ Memeriksa jawaban...';
-
-      try {
-        const json = await callApi({
-          action: 'submitAnswers',
-          file: currentFile,
-          answers: JSON.stringify(userAnswers)
-        });
-
-        btn.disabled = false;
-        btn.textContent = 'Kumpulkan & Lihat Pembahasan 🚀';
-
-        if (json.status !== 'success') {
-          alert('Gagal menilai jawaban: ' + json.message);
-          return;
-        }
-
-        tampilkanHasil(json);
-      } catch (err) {
-        btn.disabled = false;
-        btn.textContent = 'Kumpulkan & Lihat Pembahasan 🚀';
-        alert('Error saat submit: ' + err.message);
+  
+      function kembaliKeKatalog() {
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-catalog').classList.remove('hidden');
       }
-    }
-
-    function tampilkanHasil(result) {
-      document.getElementById('view-quiz').classList.add('hidden');
-      document.getElementById('view-result').classList.remove('hidden');
-
-      document.getElementById('result-score').textContent = result.summary.skor;
-      document.getElementById('result-summary').textContent =
-        `✅ Benar: ${result.summary.benar}  •  ❌ Salah: ${result.summary.salah}  •  Total: ${result.summary.total} Soal`;
-
-      const detailHtml = result.detail.map(item => `
-        <div class="bg-white border-[1.5px] ${item.is_correct ? 'border-emerald-200' : 'border-rose-200'} rounded-3xl p-5 sm:p-6 shadow-sm space-y-3">
-          <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
-            <span class="text-xs font-extrabold text-slate-700">Soal No. ${item.nomor}</span>
-            <span class="px-3 py-1 rounded-full text-[11px] font-extrabold ${item.is_correct ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
-              ${item.is_correct ? '✓ Jawaban Benar' : '✗ Kurang Tepat'}
-            </span>
-          </div>
-          <div class="text-sm font-bold text-slate-800 leading-relaxed">${item.pertanyaan}</div>
-          <div class="flex flex-wrap gap-3 text-xs font-extrabold pt-1">
-            <span class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700">
-              Jawaban Kamu: ${item.jawaban_siswa || 'Tidak dijawab'}
-            </span>
-            <span class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200">
-              Kunci Jawaban: ${item.kunci_benar}
-            </span>
-          </div>
-          <div class="p-4 rounded-2xl bg-orange-50/70 border border-orange-100 text-xs sm:text-sm text-slate-700 space-y-1.5">
-            <div class="font-extrabold text-orange-700">💡 Pembahasan Langkah demi Langkah:</div>
-            <div class="font-semibold leading-relaxed whitespace-pre-line">${item.pembahasan}</div>
-          </div>
-        </div>
-      `).join('');
-
-      document.getElementById('result-detail').innerHTML = detailHtml;
-      renderMath();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function kembaliKeKatalog() {
-      document.getElementById('view-quiz').classList.add('hidden');
-      document.getElementById('view-result').classList.add('hidden');
-      document.getElementById('view-catalog').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    window.addEventListener('DOMContentLoaded', loadCatalog);
-  </script>
+  
+      window.addEventListener('DOMContentLoaded', loadCatalog);
+    </script>
 </body>
 </html>
