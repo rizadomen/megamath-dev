@@ -196,7 +196,11 @@
 
     async function loadCatalog() {
       try {
-        const res = await fetch(`${API_URL}?action=getCatalog&key=${APP_KEY}`);
+        // Ubah baris fetch di dalam loadCatalog() dan mulaiLatihan() menjadi seperti ini:
+        const res = await fetch(`${API_URL}?action=getCatalog&key=${APP_KEY}`, {
+          method: 'GET',
+          redirect: 'follow'
+        });
         const json = await res.json();
         const container = document.getElementById('catalog-list');
 
@@ -229,7 +233,10 @@
       document.getElementById('soal-container').innerHTML = '<div class="card loader">Mengambil soal dari server...</div>';
 
       try {
-        const res = await fetch(`${API_URL}?action=getQuestions&file=${encodeURIComponent(fileName)}&key=${APP_KEY}`);
+        const res = await fetch(`${API_URL}?action=getCatalog&key=${APP_KEY}`, {
+          method: 'GET',
+          redirect: 'follow'
+        });
         const json = await res.json();
 
         if (json.status !== 'success') {
