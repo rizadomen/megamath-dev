@@ -9,7 +9,7 @@
   <link rel="apple-touch-icon" href="https://megamath.my.id/favicon-megamath.png" />
   <title>Bank Soal Interaktif — Mega Math Bimbel Private</title>
 
-  <!-- Tailwind CSS & Google Font Nunito (Sesuai Tema Utama Mega Math) -->
+  <!-- Tailwind CSS & Google Font Nunito (Tema Resmi Mega Math) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
 
@@ -153,7 +153,27 @@
     let currentFile = '';
     let userAnswers = {};
 
-    function callApi(paramsObj) {
+    // Dual-Mode API Caller: Mencoba fetch standar lebih dulu, lalu otomatis fallback ke JSONP jika diblokir CORS
+    async function callApi(paramsObj) {
+      const baseQuery = new URLSearchParams({
+        ...paramsObj,
+        key: APP_KEY
+      });
+
+      // 1. Coba Fetch Standar (yang sebelumnya sudah berhasil di browser kamu)
+      try {
+        const res = await fetch(`${API_URL}?${baseQuery.toString()}`, {
+          method: 'GET',
+          redirect: 'follow'
+        });
+        if (res.ok) {
+          return await res.json();
+        }
+      } catch (e) {
+        // Lanjut ke JSONP fallback di bawah jika fetch standar terhambat
+      }
+
+      // 2. Fallback JSONP
       return new Promise((resolve, reject) => {
         const callbackName = 'mm_cb_' + Math.round(1000000 * Math.random());
         const script = document.createElement('script');
@@ -174,16 +194,11 @@
           resolve(data);
         };
 
-        const queryParams = new URLSearchParams({
-          ...paramsObj,
-          key: APP_KEY,
-          callback: callbackName
-        });
-
-        script.src = `${API_URL}?${queryParams.toString()}`;
+        baseQuery.set('callback', callbackName);
+        script.src = `${API_URL}?${baseQuery.toString()}`;
         script.onerror = () => {
           cleanup();
-          reject(new Error('Gagal terhubung ke API Google Apps Script.'));
+          reject(new Error('Gagal terhubung ke API Google Apps Script. Cek kembali URL deployment Apps Script.'));
         };
 
         document.body.appendChild(script);
