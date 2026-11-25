@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#FB923C" />
   <link rel="icon" type="image/png" href="https://megamath.my.id/favicon-megamath.png" />
-  <title>Panel Guru AI — Mega Math Bank Soal</title>
+  <title>Studio Guru AI — Mega Math Bank Soal</title>
 
   <!-- Tailwind CSS & Google Font Nunito (Tema Resmi Mega Math) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -21,6 +21,12 @@
       font-family: 'Nunito', sans-serif;
       -webkit-tap-highlight-color: transparent;
       scroll-behavior: smooth;
+    }
+    .tab-mode.active {
+      background: linear-gradient(135deg, #fb923c, #ea580c);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
     }
   </style>
 </head>
@@ -59,12 +65,12 @@
         </div>
         <div class="space-y-1">
           <h1 class="text-xl font-black text-slate-800">Akses Panel Guru</h1>
-          <p class="text-xs font-semibold text-slate-500">Masukkan Kode Akses Guru untuk membuat dan mengelola paket Bank Soal AI.</p>
+          <p class="text-xs font-semibold text-slate-500">Masukkan Kode Akses Guru untuk membuat dan mengelola paket Bank Soal.</p>
         </div>
         <form onsubmit="loginGuru(event)" class="space-y-3 text-left">
           <div>
             <label class="block text-xs font-extrabold text-slate-700 mb-1">Kode Akses Guru</label>
-            <input id="input-guru-key" type="password" required placeholder="Contoh: GURU_MEGAMATH_2026"
+            <input id="input-guru-key" type="password" required placeholder="Masukkan Kode Akses Guru..."
               class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
           </div>
           <button id="btn-login" type="submit"
@@ -78,19 +84,35 @@
     <!-- VIEW 2: DASHBOARD STUDIO GURU -->
     <section id="view-dashboard" class="hidden space-y-8">
 
-      <!-- FORM GENERATOR AI -->
+      <!-- PILIHAN 3 MODE PEMBUATAN SOAL -->
       <div class="bg-white border-[1.5px] border-orange-100 shadow-xl shadow-orange-500/5 rounded-[2rem] p-6 sm:p-8 space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-orange-50 pb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-orange-50 pb-4">
           <div>
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-extrabold mb-1.5">
-              <span>✨</span><span>Powered by Gemini AI</span>
+              <span>✨</span><span>3 Metode Penyusunan Soal</span>
             </span>
-            <h2 class="text-xl sm:text-2xl font-black text-slate-800">Buat Paket Soal Otomatis</h2>
+            <h2 class="text-xl sm:text-2xl font-black text-slate-800">Buat Paket Soal Baru</h2>
           </div>
-          <p class="text-xs font-bold text-slate-500">Rumus LaTeX &amp; pembahasan disusun otomatis</p>
+
+          <!-- TAB SWITCHER -->
+          <div class="grid grid-cols-3 gap-1.5 bg-orange-50/70 p-1.5 rounded-2xl border border-orange-100">
+            <button type="button" id="tab-ai" onclick="switchMode('ai')"
+              class="tab-mode active px-3 py-2 rounded-xl text-xs font-extrabold transition">
+              🪄 AI Topik
+            </button>
+            <button type="button" id="tab-file" onclick="switchMode('file')"
+              class="tab-mode px-3 py-2 rounded-xl text-xs font-extrabold text-slate-600 hover:text-orange-700 transition">
+              📄 Upload File
+            </button>
+            <button type="button" id="tab-manual" onclick="switchMode('manual')"
+              class="tab-mode px-3 py-2 rounded-xl text-xs font-extrabold text-slate-600 hover:text-orange-700 transition">
+              ✍️ Ketik Manual
+            </button>
+          </div>
         </div>
 
-        <form onsubmit="generateSoal(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- MODE 1: GENERATE OTOMATIS DARI TOPIK -->
+        <form id="panel-ai" onsubmit="generateSoal(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenjang Pendidikan</label>
             <select id="gen-jenjang" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
@@ -140,39 +162,143 @@
             </button>
           </div>
         </form>
+
+        <!-- MODE 2: UPLOAD FILE PDF / DOC / DOCX / JPEG / PNG -->
+        <form id="panel-file" onsubmit="uploadDanEkstrakFile(event)" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Pilih File Soal (PDF, Word DOC/DOCX, atau Foto JPEG/PNG)</label>
+            <div class="border-2 border-dashed border-orange-200 hover:border-orange-400 rounded-2xl p-5 bg-[#FFFDF9] text-center space-y-2 transition">
+              <input id="file-upload-input" type="file" required
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png,image/webp"
+                onchange="handleFileSelected(this)"
+                class="block w-full text-xs text-slate-600 font-bold file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200 cursor-pointer" />
+              <p id="file-info-text" class="text-[11px] font-semibold text-slate-500">
+                Maksimal 8 MB • Mendukung foto lembar soal tulisan/cetakan, LKS PDF, atau dokumen Word (.doc/.docx).
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenjang Pendidikan</label>
+            <select id="file-jenjang" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+              <option value="SD Kelas 4-6">SD (Kelas 4 - 6)</option>
+              <option value="SMP Kelas 7">SMP Kelas 7</option>
+              <option value="SMP Kelas 8">SMP Kelas 8</option>
+              <option value="SMP Kelas 9">SMP Kelas 9</option>
+              <option value="SMA Kelas 10">SMA Kelas 10</option>
+              <option value="SMA Kelas 11" selected>SMA Kelas 11</option>
+              <option value="SMA Kelas 12">SMA Kelas 12</option>
+              <option value="UTBK / SNBT Penalaran Matematika">UTBK / SNBT (Penalaran Matematika)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Topik / Bab (Opsional, bisa deteksi otomatis)</label>
+            <input id="file-topik" type="text" placeholder="Contoh: Integral Tak Tentu"
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Instruksi Ekstraksi untuk AI (Opsional)</label>
+            <input id="file-instruksi" type="text" placeholder="Contoh: Ambil hanya soal nomor 1 sampai 10 dan buatkan pembahasan lengkapnya"
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          </div>
+
+          <div class="sm:col-span-2 pt-2">
+            <button id="btn-upload-ai" type="submit"
+              class="w-full py-3.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 active:scale-[0.99] text-white font-extrabold text-sm shadow-lg shadow-orange-500/25 transition disabled:opacity-60">
+              📄 Baca File &amp; Susun Soal Otomatis via Gemini AI
+            </button>
+          </div>
+        </form>
+
+        <!-- MODE 3: BUAT PAKET SOAL MANUAL -->
+        <div id="panel-manual" class="hidden space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenjang Pendidikan</label>
+              <select id="man-jenjang" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+                <option value="SD Kelas 4-6">SD (Kelas 4 - 6)</option>
+                <option value="SMP Kelas 7">SMP Kelas 7</option>
+                <option value="SMP Kelas 8">SMP Kelas 8</option>
+                <option value="SMP Kelas 9">SMP Kelas 9</option>
+                <option value="SMA Kelas 10">SMA Kelas 10</option>
+                <option value="SMA Kelas 11" selected>SMA Kelas 11</option>
+                <option value="SMA Kelas 12">SMA Kelas 12</option>
+                <option value="UTBK / SNBT Penalaran Matematika">UTBK / SNBT (Penalaran Matematika)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Topik / Bab Materi</label>
+              <input id="man-topik" type="text" placeholder="Contoh: Matriks dan Determinan"
+                class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-orange-50/70 border border-orange-100 text-xs font-semibold text-slate-600">
+            💡 <strong>Tips Penulisan Rumus Manual:</strong> Gunakan tanda dolar tunggal <code class="px-1.5 py-0.5 rounded bg-white border border-orange-200 text-orange-700 font-bold">$...$</code> untuk menulis rumus matematika LaTeX, misalnya <code class="px-1.5 py-0.5 rounded bg-white border border-orange-200 text-orange-700 font-bold">$\frac{3x^2 + 1}{2}$</code>.
+          </div>
+
+          <button type="button" onclick="mulaiDraftManual()"
+            class="w-full py-3.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-extrabold text-sm shadow-lg shadow-orange-500/25 transition">
+            ✍️ Mulai Lembar Kerja Soal Manual
+          </button>
+        </div>
+
       </div>
 
-      <!-- PREVIEW & EDITOR HASIL GENERATE -->
+      <!-- PREVIEW & EDITOR INTERAKTIF (BERLAKU UNTUK AI, UPLOAD FILE, MAUPUN MANUAL) -->
       <div id="preview-section" class="hidden space-y-5">
         <div class="bg-white border-[1.5px] border-orange-200 shadow-lg shadow-orange-500/5 rounded-3xl p-6 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-orange-100 pb-4">
             <div>
-              <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Draft Hasil AI (Bisa Diedit Sebelum Tayang)</span>
-              <h3 class="text-lg font-black text-slate-800">Review &amp; Publikasi Paket Soal</h3>
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Editor &amp; Live Preview Rumus</span>
+              <h3 class="text-lg font-black text-slate-800">Sesuaikan Soal Sebelum Publikasi</h3>
             </div>
-            <button id="btn-publish" type="button" onclick="publishPackage()"
-              class="px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition disabled:opacity-60">
-              🚀 Publikasikan ke Bank Soal Siswa
-            </button>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="tambahSoalManual()"
+                class="px-4 py-2.5 rounded-xl border border-orange-300 bg-orange-50 hover:bg-orange-100 text-orange-700 font-extrabold text-xs transition">
+                + Tambah Nomor Soal
+              </button>
+              <button id="btn-publish" type="button" onclick="publishPackage()"
+                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition disabled:opacity-60">
+                🚀 Publikasikan ke Bank Soal Siswa
+              </button>
+            </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div class="sm:col-span-2">
               <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Judul Paket Soal</label>
               <input id="edit-judul" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
             </div>
             <div>
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Jenjang</label>
+              <input id="edit-jenjang" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
+            </div>
+            <div>
               <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Estimasi Durasi (Menit)</label>
               <input id="edit-durasi" type="number" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
             </div>
-            <div class="sm:col-span-3">
+            <div class="sm:col-span-4">
               <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Deskripsi Singkat Katalog</label>
               <input id="edit-deskripsi" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs font-bold" />
             </div>
           </div>
         </div>
 
-        <div id="preview-soal-list" class="space-y-4"></div>
+        <div id="preview-soal-list" class="space-y-5"></div>
+
+        <div class="flex justify-between items-center bg-white border border-orange-100 rounded-2xl p-4">
+          <button type="button" onclick="tambahSoalManual()"
+            class="px-4 py-2.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-700 font-extrabold text-xs transition">
+            + Tambah Nomor Soal Baru
+          </button>
+          <button type="button" onclick="publishPackage()"
+            class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition">
+            🚀 Publikasikan Sekarang
+          </button>
+        </div>
       </div>
 
       <!-- DAFTAR PAKET AKTIF DI KATALOG -->
@@ -205,8 +331,11 @@
 
     let guruKey = sessionStorage.getItem('mm_guru_key') || '';
     let draftPackage = null;
+    let selectedFileBase64 = '';
+    let selectedFileMime = '';
+    let selectedFileName = '';
 
-    // Hybrid API Caller: GET untuk query ringan, POST untuk payload besar (savePackageToDrive)
+    // Hybrid API Caller: GET untuk query ringan, POST untuk payload besar (upload file / simpan paket)
     async function callApi(paramsObj, usePost = false) {
       if (usePost) {
         const res = await fetch(API_URL, {
@@ -230,7 +359,7 @@
         const timeout = setTimeout(() => {
           cleanup();
           reject(new Error('Timeout: Server Google Apps Script terlalu lama merespons.'));
-        }, 45000); // 45 detik karena generate AI butuh waktu ~8-15 detik
+        }, 60000);
 
         function cleanup() {
           clearTimeout(timeout);
@@ -246,9 +375,9 @@
       });
     }
 
-    function renderMath() {
-      if (window.renderMathInElement) {
-        renderMathInElement(document.body, {
+    function renderMathInContainer(el) {
+      if (window.renderMathInElement && el) {
+        renderMathInElement(el, {
           delimiters: [
             { left: '$$', right: '$$', display: true },
             { left: '$', right: '$', display: false }
@@ -256,6 +385,22 @@
           throwOnError: false
         });
       }
+    }
+
+    function switchMode(mode) {
+      ['ai', 'file', 'manual'].forEach(m => {
+        const btn = document.getElementById(`tab-${m}`);
+        const panel = document.getElementById(`panel-${m}`);
+        if (m === mode) {
+          btn.classList.add('active');
+          btn.classList.remove('text-slate-600');
+          panel.classList.remove('hidden');
+        } else {
+          btn.classList.remove('active');
+          btn.classList.add('text-slate-600');
+          panel.classList.add('hidden');
+        }
+      });
     }
 
     async function loginGuru(e) {
@@ -299,6 +444,9 @@
       loadExistingCatalog();
     }
 
+    // ========================================================================
+    // MODE 1: GENERATE AI DARI TOPIK
+    // ========================================================================
     async function generateSoal(e) {
       e.preventDefault();
       const btn = document.getElementById('btn-generate');
@@ -332,58 +480,263 @@
       }
     }
 
+    // ========================================================================
+    // MODE 2: UPLOAD FILE PDF / DOC / DOCX / JPEG / PNG
+    // ========================================================================
+    function handleFileSelected(input) {
+      const file = input.files[0];
+      const infoText = document.getElementById('file-info-text');
+      if (!file) {
+        selectedFileBase64 = '';
+        return;
+      }
+
+      if (file.size > 8 * 1024 * 1024) {
+        alert('Ukuran file maksimal 8 MB agar pemrosesan berjalan cepat.');
+        input.value = '';
+        selectedFileBase64 = '';
+        return;
+      }
+
+      selectedFileName = file.name;
+      selectedFileMime = file.type || 'application/octet-stream';
+      infoText.innerHTML = `✅ File siap diproses: <strong class="text-orange-700">${file.name}</strong> (${(file.size / 1024).toFixed(1)} KB)`;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const dataUrl = evt.target.result;
+        selectedFileBase64 = dataUrl.split(',')[1];
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function uploadDanEkstrakFile(e) {
+      e.preventDefault();
+      if (!selectedFileBase64) {
+        alert('Pilih file PDF, Word, atau Gambar terlebih dahulu.');
+        return;
+      }
+
+      const btn = document.getElementById('btn-upload-ai');
+      btn.disabled = true;
+      btn.textContent = '⏳ Gemini AI sedang membaca dokumen & menyusun soal... (15-25 detik)';
+
+      try {
+        const res = await callApi({
+          action: 'parseUploadedFileAI',
+          fileBase64: selectedFileBase64,
+          mimeType: selectedFileMime,
+          fileName: selectedFileName,
+          jenjang: document.getElementById('file-jenjang').value,
+          topik: document.getElementById('file-topik').value.trim(),
+          instruksi: document.getElementById('file-instruksi').value.trim()
+        }, true);
+
+        btn.disabled = false;
+        btn.textContent = '📄 Baca File & Susun Soal Otomatis via Gemini AI';
+
+        if (res.status !== 'success') {
+          alert('Gagal memproses file: ' + res.message);
+          return;
+        }
+
+        draftPackage = res.data;
+        renderPreview();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = '📄 Baca File & Susun Soal Otomatis via Gemini AI';
+        alert('Error upload/ekstrak: ' + err.message);
+      }
+    }
+
+    // ========================================================================
+    // MODE 3: BUAT PAKET MANUAL DARI NOL
+    // ========================================================================
+    function mulaiDraftManual() {
+      const jenjang = document.getElementById('man-jenjang').value;
+      const topik = document.getElementById('man-topik').value.trim() || 'Latihan Matematika';
+
+      draftPackage = {
+        judul: `Latihan ${topik} (${jenjang})`,
+        jenjang: jenjang,
+        topik: topik,
+        deskripsi: `Latihan soal terarah materi ${topik} untuk jenjang ${jenjang}.`,
+        durasi_menit: 15,
+        soal: [
+          {
+            nomor: 1,
+            level: 'Sedang',
+            pertanyaan: 'Tentukan nilai dari $2x + 5$ jika $x = 3$!',
+            opsi: { A: '$9$', B: '$10$', C: '$11$', D: '$12$', E: '$13$' },
+            kunci: 'C',
+            pembahasan: 'Substitusikan $x = 3$ ke persamaan:\n$2(3) + 5 = 6 + 5 = 11$.\nJadi, jawaban yang tepat adalah C.'
+          }
+        ]
+      };
+
+      renderPreview();
+    }
+
+    function tambahSoalManual() {
+      if (!draftPackage) return;
+      const nextNum = draftPackage.soal.length + 1;
+      draftPackage.soal.push({
+        nomor: nextNum,
+        level: 'Sedang',
+        pertanyaan: '',
+        opsi: { A: '', B: '', C: '', D: '', E: '' },
+        kunci: 'A',
+        pembahasan: ''
+      });
+      renderPreview();
+    }
+
+    function hapusSoalDraft(idx) {
+      if (!draftPackage || draftPackage.soal.length <= 1) {
+        alert('Minimal harus ada 1 soal dalam paket.');
+        return;
+      }
+      draftPackage.soal.splice(idx, 1);
+      draftPackage.soal.forEach((s, i) => s.nomor = i + 1);
+      renderPreview();
+    }
+
+    // ========================================================================
+    // RENDER EDITOR & LIVE PREVIEW (REALTIME UPDATE RUMUS)
+    // ========================================================================
     function renderPreview() {
       if (!draftPackage) return;
       document.getElementById('preview-section').classList.remove('hidden');
       document.getElementById('edit-judul').value = draftPackage.judul || '';
+      document.getElementById('edit-jenjang').value = draftPackage.jenjang || 'SMA';
       document.getElementById('edit-durasi').value = draftPackage.durasi_menit || 15;
       document.getElementById('edit-deskripsi').value = draftPackage.deskripsi || '';
 
       const container = document.getElementById('preview-soal-list');
       container.innerHTML = draftPackage.soal.map((item, idx) => `
         <div class="bg-white border-[1.5px] border-orange-100 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
-          <div class="flex items-center justify-between border-b border-orange-50 pb-3">
-            <span class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-extrabold">
-              Soal No. ${item.nomor} • Level: ${item.level}
-            </span>
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-orange-50 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-extrabold">
+                Soal No. ${idx + 1}
+              </span>
+              <select onchange="updateField(${idx}, 'level', this.value)" class="px-2.5 py-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-extrabold text-xs">
+                ${['Mudah', 'Sedang', 'HOTS'].map(lv => `<option value="${lv}" ${item.level === lv ? 'selected' : ''}>${lv}</option>`).join('')}
+              </select>
+            </div>
+
             <div class="flex items-center gap-2">
               <label class="text-xs font-extrabold text-slate-600">Kunci:</label>
               <select onchange="updateKunci(${idx}, this.value)" class="px-2.5 py-1 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-extrabold text-xs">
                 ${['A','B','C','D','E'].map(h => `<option value="${h}" ${item.kunci === h ? 'selected' : ''}>${h}</option>`).join('')}
               </select>
+              <button type="button" onclick="hapusSoalDraft(${idx})" class="px-2.5 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-extrabold transition" title="Hapus nomor ini">
+                🗑️
+              </button>
             </div>
           </div>
 
-          <!-- Preview Rendered Math -->
-          <div class="p-4 rounded-2xl bg-[#FFFDF9] border border-orange-100 space-y-2">
-            <div class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600">Preview Tampilan Siswa:</div>
-            <div class="text-sm font-bold text-slate-800 leading-relaxed">${item.pertanyaan}</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 text-xs font-bold text-slate-700">
-              ${Object.entries(item.opsi).map(([h, t]) => `
-                <div class="p-2.5 rounded-xl border ${item.kunci === h ? 'border-emerald-300 bg-emerald-50/70 text-emerald-900' : 'border-slate-200 bg-white'}">
-                  <strong>${h}.</strong> ${t}
+          <!-- GRID KIRI: FORM KETIK / EDIT | KANAN: LIVE PREVIEW RUMUS -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- KOLOM EDIT -->
+            <div class="space-y-3">
+              <div>
+                <label class="block text-[11px] font-extrabold text-slate-500 mb-1">Teks Pertanyaan (Gunakan $...$ untuk LaTeX)</label>
+                <textarea rows="3" oninput="updateField(${idx}, 'pertanyaan', this.value)" placeholder="Ketik soal di sini..."
+                  class="w-full p-3 rounded-xl border border-orange-200 focus:border-orange-400 focus:outline-none text-xs font-bold bg-[#FFFDF9]">${escapeHtml(item.pertanyaan)}</textarea>
+              </div>
+
+              <div class="grid grid-cols-1 gap-2">
+                ${['A', 'B', 'C', 'D', 'E'].map(h => `
+                  <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg ${item.kunci === h ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'} text-xs font-extrabold flex items-center justify-center shrink-0">${h}</span>
+                    <input type="text" value="${escapeAttr(item.opsi[h] || '')}" oninput="updateOpsi(${idx}, '${h}', this.value)" placeholder="Opsi ${h}..."
+                      class="w-full px-3 py-1.5 rounded-xl border border-slate-200 focus:border-orange-400 focus:outline-none text-xs font-bold" />
+                  </div>
+                `).join('')}
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-extrabold text-slate-500 mb-1">Pembahasan Langkah demi Langkah</label>
+                <textarea rows="3" oninput="updateField(${idx}, 'pembahasan', this.value)" placeholder="Tulis pembahasan langkah demi langkah..."
+                  class="w-full p-3 rounded-xl border border-orange-200 focus:border-orange-400 focus:outline-none text-xs font-semibold bg-[#FFFDF9]">${escapeHtml(item.pembahasan)}</textarea>
+              </div>
+            </div>
+
+            <!-- KOLOM LIVE PREVIEW -->
+            <div id="live-box-${idx}" class="p-4 rounded-2xl bg-[#FFFDF9] border border-orange-100 space-y-3 flex flex-col justify-between">
+              <div class="space-y-2.5">
+                <div class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600">👁️ Live Preview Tampilan Siswa:</div>
+                <div class="text-sm font-bold text-slate-800 leading-relaxed">${item.pertanyaan || '<span class="text-slate-400 italic">Pertanyaan belum diisi...</span>'}</div>
+                <div class="space-y-1.5 pt-1 text-xs font-bold text-slate-700">
+                  ${['A', 'B', 'C', 'D', 'E'].map(h => `
+                    <div class="p-2 rounded-xl border ${item.kunci === h ? 'border-emerald-300 bg-emerald-50/70 text-emerald-900' : 'border-slate-200 bg-white'}">
+                      <strong>${h}.</strong> ${item.opsi[h] || '-'}
+                    </div>
+                  `).join('')}
                 </div>
-              `).join('')}
+              </div>
+              <div class="p-3 rounded-xl bg-orange-50/70 border border-orange-100 text-xs text-slate-700 space-y-1">
+                <div class="font-extrabold text-orange-700">💡 Preview Pembahasan:</div>
+                <div class="font-semibold whitespace-pre-line leading-relaxed">${item.pembahasan || '-'}</div>
+              </div>
             </div>
-          </div>
-
-          <!-- Pembahasan -->
-          <div class="p-4 rounded-2xl bg-orange-50/60 border border-orange-100 text-xs text-slate-700 space-y-1">
-            <div class="font-extrabold text-orange-700">💡 Pembahasan Resmi:</div>
-            <div class="font-semibold whitespace-pre-line leading-relaxed">${item.pembahasan}</div>
           </div>
         </div>
       `).join('');
 
-      renderMath();
-      document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth' });
+      renderMathInContainer(container);
     }
 
-    function updateKunci(index, newKey) {
-      if (draftPackage && draftPackage.soal[index]) {
-        draftPackage.soal[index].kunci = newKey;
-        renderPreview();
-      }
+    function updateField(idx, field, val) {
+      if (!draftPackage || !draftPackage.soal[idx]) return;
+      draftPackage.soal[idx][field] = val;
+      refreshSinglePreview(idx);
+    }
+
+    function updateOpsi(idx, huruf, val) {
+      if (!draftPackage || !draftPackage.soal[idx]) return;
+      draftPackage.soal[idx].opsi[huruf] = val;
+      refreshSinglePreview(idx);
+    }
+
+    function updateKunci(idx, newKey) {
+      if (!draftPackage || !draftPackage.soal[idx]) return;
+      draftPackage.soal[idx].kunci = newKey;
+      renderPreview();
+    }
+
+    function refreshSinglePreview(idx) {
+      const item = draftPackage.soal[idx];
+      const box = document.getElementById(`live-box-${idx}`);
+      if (!box || !item) return;
+
+      box.innerHTML = `
+        <div class="space-y-2.5">
+          <div class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600">👁️ Live Preview Tampilan Siswa:</div>
+          <div class="text-sm font-bold text-slate-800 leading-relaxed">${item.pertanyaan || '<span class="text-slate-400 italic">Pertanyaan belum diisi...</span>'}</div>
+          <div class="space-y-1.5 pt-1 text-xs font-bold text-slate-700">
+            ${['A', 'B', 'C', 'D', 'E'].map(h => `
+              <div class="p-2 rounded-xl border ${item.kunci === h ? 'border-emerald-300 bg-emerald-50/70 text-emerald-900' : 'border-slate-200 bg-white'}">
+                <strong>${h}.</strong> ${item.opsi[h] || '-'}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="p-3 rounded-xl bg-orange-50/70 border border-orange-100 text-xs text-slate-700 space-y-1">
+          <div class="font-extrabold text-orange-700">💡 Preview Pembahasan:</div>
+          <div class="font-semibold whitespace-pre-line leading-relaxed">${item.pembahasan || '-'}</div>
+        </div>
+      `;
+      renderMathInContainer(box);
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function escapeAttr(str) {
+      return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     async function publishPackage() {
@@ -393,6 +746,8 @@
       btn.textContent = '⏳ Menyimpan ke Google Drive...';
 
       draftPackage.judul = document.getElementById('edit-judul').value.trim();
+      draftPackage.jenjang = document.getElementById('edit-jenjang').value.trim() || 'SMA';
+      draftPackage.topik = draftPackage.topik || draftPackage.judul;
       draftPackage.durasi_menit = parseInt(document.getElementById('edit-durasi').value, 10) || 15;
       draftPackage.deskripsi = document.getElementById('edit-deskripsi').value.trim();
 
@@ -400,7 +755,7 @@
         const res = await callApi({
           action: 'savePackageToDrive',
           packageData: draftPackage
-        }, true); // Kirim lewat POST karena payload JSON soal cukup panjang
+        }, true);
 
         btn.disabled = false;
         btn.textContent = '🚀 Publikasikan ke Bank Soal Siswa';
