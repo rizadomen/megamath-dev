@@ -9,11 +9,9 @@
   <link rel="apple-touch-icon" href="https://megamath.my.id/favicon-megamath.png" />
   <title>Bank Soal Interaktif — Mega Math Bimbel Private</title>
 
-  <!-- Tailwind CSS & Google Font Nunito (Tema Resmi Mega Math) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
 
-  <!-- KaTeX untuk Render Rumus Matematika -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
@@ -34,9 +32,30 @@
       color: #ffffff;
       border-color: transparent;
     }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-pop {
+      animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-[#FFFDF9] text-slate-800 flex flex-col">
+
+  <!-- CUSTOM POP-UP MODAL SISWA -->
+  <div id="mm-modal-overlay" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div id="mm-modal-box" class="modal-pop bg-white border-[1.5px] border-orange-100 shadow-2xl rounded-[2rem] max-w-sm w-full p-6 sm:p-7 text-center space-y-4">
+      <div id="mm-modal-icon" class="w-16 h-16 mx-auto rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-3xl">
+        ✨
+      </div>
+      <div class="space-y-1.5">
+        <h3 id="mm-modal-title" class="text-lg sm:text-xl font-black text-slate-800">Pemberitahuan</h3>
+        <p id="mm-modal-message" class="text-xs sm:text-sm font-semibold text-slate-600 leading-relaxed whitespace-pre-line">Pesan notifikasi.</p>
+      </div>
+      <div id="mm-modal-actions" class="pt-2 flex items-center justify-center gap-2.5"></div>
+    </div>
+  </div>
 
   <!-- NAVBAR -->
   <header class="sticky top-0 z-30 bg-[#FFFDF9]/90 backdrop-blur-md border-b border-orange-100">
@@ -73,7 +92,7 @@
           </div>
           <h1 class="text-xl sm:text-2xl font-black text-slate-800">Bank Soal Mega Math</h1>
           <p class="text-xs sm:text-sm text-slate-600 font-semibold">
-            Pilih paket soal berdasarkan bab, jenis latihan, atau ketik kode angka paket dari gurumu (contoh: <strong>2026001</strong>).
+            Pilih paket soal berdasarkan bab, jenis latihan, atau ketik kode 4 digit dari gurumu (contoh: <strong>2601</strong>).
           </p>
         </div>
         <div class="shrink-0 bg-orange-50/80 border border-orange-100 rounded-2xl px-4 py-3 text-center">
@@ -82,9 +101,8 @@
         </div>
       </div>
 
-      <!-- FILTER & PENCARIAN PAKET -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <input id="siswa-search" type="text" oninput="filterKatalogSiswa()" placeholder="🔍 Cari bab materi atau kode paket (misal: 2026001)..."
+        <input id="siswa-search" type="text" oninput="filterKatalogSiswa()" placeholder="🔍 Cari bab materi atau kode paket (misal: 2601)..."
           class="sm:col-span-2 px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-xs sm:text-sm font-bold bg-white" />
         <select id="siswa-filter-jenis" onchange="filterKatalogSiswa()"
           class="px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-xs sm:text-sm font-bold bg-white">
@@ -110,12 +128,12 @@
       <div class="bg-white border-[1.5px] border-orange-100 shadow-md shadow-orange-500/5 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="space-y-1">
           <div class="flex flex-wrap items-center gap-2">
-            <span id="quiz-kode" class="px-2.5 py-0.5 rounded-md bg-slate-800 text-white text-[10px] font-extrabold tracking-wider">2026001</span>
+            <span id="quiz-kode" class="px-2.5 py-0.5 rounded-md bg-slate-800 text-white text-[10px] font-extrabold tracking-wider">2601</span>
             <span id="quiz-cred" class="text-[11px] font-extrabold text-orange-600 uppercase tracking-wider">Kurikulum</span>
           </div>
           <h2 id="quiz-title" class="text-lg sm:text-xl font-black text-slate-800">Judul Paket Soal</h2>
         </div>
-        <button type="button" onclick="kembaliKeKatalog()"
+        <button type="button" onclick="konfirmasiKembali()"
           class="self-start sm:self-center inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-orange-200 bg-white hover:bg-orange-50 text-orange-700 text-xs font-extrabold transition">
           <span>←</span><span>Kembali ke Daftar</span>
         </button>
@@ -124,7 +142,7 @@
       <div id="soal-container" class="space-y-4"></div>
 
       <div class="bg-white border-[1.5px] border-orange-100 rounded-3xl p-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p class="text-xs font-bold text-slate-500">Pastikan seluruh soal sudah terisi sebelum mengumpulkan jawaban.</p>
+        <p id="quiz-progress-text" class="text-xs font-bold text-slate-500">Pastikan seluruh soal sudah terisi sebelum mengumpulkan jawaban.</p>
         <button id="btn-submit" type="button" onclick="submitJawaban()"
           class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-orange-500/25 transition disabled:opacity-60">
           Kumpulkan &amp; Lihat Pembahasan 🚀
@@ -154,7 +172,6 @@
 
   </main>
 
-  <!-- FOOTER -->
   <footer class="border-t border-orange-100 bg-white py-6 px-4 text-center text-xs text-slate-500 font-semibold">
     <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
       <span>© 2026 Mega Math - Bimbel Private</span>
@@ -170,8 +187,91 @@
     const APP_KEY = 'MEGAMATH_DEV_2026_SECURE';
 
     let currentFile = '';
+    let currentTotalQuestions = 0;
     let userAnswers = {};
     let allCatalogItems = [];
+
+    // ========================================================================
+    // CUSTOM POP-UP ENGINE SISWA
+    // ========================================================================
+    function showCustomModal({ type = 'info', title = '', message = '', confirmText = 'OK', cancelText = 'Batal', showCancel = false }) {
+      return new Promise((resolve) => {
+        const overlay = document.getElementById('mm-modal-overlay');
+        const box = document.getElementById('mm-modal-box');
+        const iconEl = document.getElementById('mm-modal-icon');
+        const titleEl = document.getElementById('mm-modal-title');
+        const msgEl = document.getElementById('mm-modal-message');
+        const actionsEl = document.getElementById('mm-modal-actions');
+
+        const styles = {
+          success: {
+            icon: '🎉',
+            iconBg: 'bg-emerald-100 text-emerald-600',
+            border: 'border-emerald-200',
+            btnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20'
+          },
+          error: {
+            icon: '❌',
+            iconBg: 'bg-rose-100 text-rose-600',
+            border: 'border-rose-200',
+            btnClass: 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20'
+          },
+          warning: {
+            icon: '⚠️',
+            iconBg: 'bg-amber-100 text-amber-600',
+            border: 'border-amber-200',
+            btnClass: 'bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-orange-500/25'
+          },
+          confirm: {
+            icon: '🚀',
+            iconBg: 'bg-orange-100 text-orange-600',
+            border: 'border-orange-200',
+            btnClass: 'bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-orange-500/25'
+          }
+        };
+
+        const cfg = styles[type] || styles.warning;
+        box.className = `modal-pop bg-white border-[1.5px] ${cfg.border} shadow-2xl rounded-[2rem] max-w-sm w-full p-6 sm:p-7 text-center space-y-4`;
+        iconEl.className = `w-16 h-16 mx-auto rounded-2xl ${cfg.iconBg} flex items-center justify-center text-3xl`;
+        iconEl.textContent = cfg.icon;
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+
+        actionsEl.innerHTML = '';
+
+        function closeWith(val) {
+          overlay.classList.add('hidden');
+          resolve(val);
+        }
+
+        if (showCancel) {
+          const btnCancel = document.createElement('button');
+          btnCancel.type = 'button';
+          btnCancel.className = 'flex-1 py-3 px-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold text-xs sm:text-sm transition';
+          btnCancel.textContent = cancelText;
+          btnCancel.onclick = () => closeWith(false);
+          actionsEl.appendChild(btnCancel);
+        }
+
+        const btnOk = document.createElement('button');
+        btnOk.type = 'button';
+        btnOk.className = `flex-1 py-3 px-4 rounded-2xl ${cfg.btnClass} font-extrabold text-xs sm:text-sm shadow-lg transition`;
+        btnOk.textContent = confirmText;
+        btnOk.onclick = () => closeWith(true);
+        actionsEl.appendChild(btnOk);
+
+        overlay.classList.remove('hidden');
+        btnOk.focus();
+      });
+    }
+
+    function mmAlert(title, message, type = 'warning') {
+      return showCustomModal({ type, title, message, confirmText: 'Mengerti', showCancel: false });
+    }
+
+    function mmConfirm(title, message, confirmText = 'Ya, Kumpulkan') {
+      return showCustomModal({ type: 'confirm', title, message, confirmText, cancelText: 'Cek Lagi', showCancel: true });
+    }
 
     async function callApi(paramsObj) {
       const baseQuery = new URLSearchParams({
@@ -314,9 +414,13 @@
         const json = await callApi({ action: 'getQuestions', file: fileName });
 
         if (json.status !== 'success') {
-          alert('Error: ' + json.message);
+          await mmAlert('Gagal Memuat Soal', json.message, 'error');
+          kembaliKeKatalog();
           return;
         }
+
+        currentTotalQuestions = json.data.soal.length;
+        updateProgressText();
 
         document.getElementById('quiz-kode').textContent = json.data.kode_paket || json.data.paket_id;
         document.getElementById('quiz-title').textContent = json.data.judul;
@@ -352,12 +456,22 @@
         renderMath();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (err) {
-        alert('Gagal memuat soal: ' + err.message);
+        await mmAlert('Koneksi Bermasalah', err.message, 'error');
+        kembaliKeKatalog();
+      }
+    }
+
+    function updateProgressText() {
+      const answeredCount = Object.keys(userAnswers).length;
+      const el = document.getElementById('quiz-progress-text');
+      if (el) {
+        el.innerHTML = `Terjawab: <strong class="text-orange-600">${answeredCount} dari ${currentTotalQuestions} soal</strong>`;
       }
     }
 
     function pilihJawaban(idSoal, huruf) {
       userAnswers[idSoal] = huruf;
+      updateProgressText();
       ['A', 'B', 'C', 'D', 'E'].forEach(opt => {
         const el = document.getElementById(`btn-${idSoal}-${opt}`);
         if (el) el.classList.remove('selected');
@@ -366,7 +480,33 @@
       if (selectedEl) selectedEl.classList.add('selected');
     }
 
+    async function konfirmasiKembali() {
+      const answeredCount = Object.keys(userAnswers).length;
+      if (answeredCount > 0) {
+        const ok = await showCustomModal({
+          type: 'warning',
+          title: 'Keluar dari Latihan?',
+          message: `Kamu sudah menjawab ${answeredCount} soal. Jika kembali ke daftar, jawaban sementara akan direset.`,
+          confirmText: 'Ya, Keluar',
+          cancelText: 'Lanjut Mengerjakan',
+          showCancel: true
+        });
+        if (!ok) return;
+      }
+      kembaliKeKatalog();
+    }
+
     async function submitJawaban() {
+      const answeredCount = Object.keys(userAnswers).length;
+      const unanswered = currentTotalQuestions - answeredCount;
+
+      const confirmMsg = unanswered > 0
+        ? `Kamu baru menjawab ${answeredCount} dari ${currentTotalQuestions} soal (masih ada ${unanswered} soal kosong).\n\nYakin ingin mengumpulkan sekarang?`
+        : `Seluruh ${currentTotalQuestions} soal sudah kamu jawab!\n\nKumpulkan jawaban sekarang untuk melihat skor dan pembahasan?`;
+
+      const ok = await mmConfirm('Kumpulkan Jawaban?', confirmMsg, 'Ya, Kumpulkan Sekarang');
+      if (!ok) return;
+
       const btn = document.getElementById('btn-submit');
       btn.disabled = true;
       btn.textContent = '⏳ Memeriksa jawaban...';
@@ -382,7 +522,7 @@
         btn.textContent = 'Kumpulkan & Lihat Pembahasan 🚀';
 
         if (json.status !== 'success') {
-          alert('Gagal menilai jawaban: ' + json.message);
+          await mmAlert('Gagal Menilai Jawaban', json.message, 'error');
           return;
         }
 
@@ -390,7 +530,7 @@
       } catch (err) {
         btn.disabled = false;
         btn.textContent = 'Kumpulkan & Lihat Pembahasan 🚀';
-        alert('Error saat submit: ' + err.message);
+        await mmAlert('Koneksi Bermasalah', err.message, 'error');
       }
     }
 
