@@ -73,13 +73,29 @@
           </div>
           <h1 class="text-xl sm:text-2xl font-black text-slate-800">Bank Soal Mega Math</h1>
           <p class="text-xs sm:text-sm text-slate-600 font-semibold">
-            Pilih paket latihan sesuai jenjang dan materi untuk menguji pemahaman konsep secara mandiri.
+            Pilih paket soal berdasarkan bab, jenis latihan, atau ketik kode angka paket dari gurumu (contoh: <strong>2026001</strong>).
           </p>
         </div>
         <div class="shrink-0 bg-orange-50/80 border border-orange-100 rounded-2xl px-4 py-3 text-center">
           <span class="block text-[10px] font-extrabold uppercase tracking-wider text-orange-600">Sistem Penilaian</span>
           <span class="block text-xs font-extrabold text-slate-700 mt-0.5">🔒 Server-Side Grading</span>
         </div>
+      </div>
+
+      <!-- FILTER & PENCARIAN PAKET -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <input id="siswa-search" type="text" oninput="filterKatalogSiswa()" placeholder="🔍 Cari bab materi atau kode paket (misal: 2026001)..."
+          class="sm:col-span-2 px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-xs sm:text-sm font-bold bg-white" />
+        <select id="siswa-filter-jenis" onchange="filterKatalogSiswa()"
+          class="px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-xs sm:text-sm font-bold bg-white">
+          <option value="ALL">Semua Jenis Paket</option>
+          <option value="Latihan Mandiri">📘 Latihan Mandiri</option>
+          <option value="Kuis Bab">⚡ Kuis Bab</option>
+          <option value="Tryout / Ujian">🏆 Tryout / Ujian</option>
+          <option value="Pendalaman HOTS">🔥 Pendalaman HOTS</option>
+          <option value="Remedial">🩹 Remedial</option>
+          <option value="Bank Soal UTBK">🎯 Bank Soal UTBK</option>
+        </select>
       </div>
 
       <div id="catalog-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -92,8 +108,11 @@
     <!-- VIEW 2: PENGERJAAN SOAL -->
     <section id="view-quiz" class="hidden space-y-5">
       <div class="bg-white border-[1.5px] border-orange-100 shadow-md shadow-orange-500/5 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <span id="quiz-cred" class="inline-block text-[11px] font-extrabold text-orange-600 uppercase tracking-wider mb-1">Kurikulum</span>
+        <div class="space-y-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="quiz-kode" class="px-2.5 py-0.5 rounded-md bg-slate-800 text-white text-[10px] font-extrabold tracking-wider">2026001</span>
+            <span id="quiz-cred" class="text-[11px] font-extrabold text-orange-600 uppercase tracking-wider">Kurikulum</span>
+          </div>
           <h2 id="quiz-title" class="text-lg sm:text-xl font-black text-slate-800">Judul Paket Soal</h2>
         </div>
         <button type="button" onclick="kembaliKeKatalog()"
@@ -152,15 +171,14 @@
 
     let currentFile = '';
     let userAnswers = {};
+    let allCatalogItems = [];
 
-    // Dual-Mode API Caller: Mencoba fetch standar lebih dulu, lalu otomatis fallback ke JSONP jika diblokir CORS
     async function callApi(paramsObj) {
       const baseQuery = new URLSearchParams({
         ...paramsObj,
         key: APP_KEY
       });
 
-      // 1. Coba Fetch Standar (yang sebelumnya sudah berhasil di browser kamu)
       try {
         const res = await fetch(`${API_URL}?${baseQuery.toString()}`, {
           method: 'GET',
@@ -169,11 +187,8 @@
         if (res.ok) {
           return await res.json();
         }
-      } catch (e) {
-        // Lanjut ke JSONP fallback di bawah jika fetch standar terhambat
-      }
+      } catch (e) {}
 
-      // 2. Fallback JSONP
       return new Promise((resolve, reject) => {
         const callbackName = 'mm_cb_' + Math.round(1000000 * Math.random());
         const script = document.createElement('script');
@@ -198,7 +213,7 @@
         script.src = `${API_URL}?${baseQuery.toString()}`;
         script.onerror = () => {
           cleanup();
-          reject(new Error('Gagal terhubung ke API Google Apps Script. Cek kembali URL deployment Apps Script.'));
+          reject(new Error('Gagal terhubung ke API Google Apps Script.'));
         };
 
         document.body.appendChild(script);
@@ -227,28 +242,60 @@
           return;
         }
 
-        container.innerHTML = json.data.categories.map(cat => `
-          <div class="bg-white border-[1.5px] border-orange-100 hover:border-orange-300 rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-4">
-            <div class="space-y-2">
-              <div class="flex items-center justify-between gap-2">
-                <span class="px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-extrabold">${cat.jenjang}</span>
-                <span class="text-[11px] font-bold text-slate-400">⏱️ ${cat.durasi_menit} Menit</span>
-              </div>
-              <h3 class="text-base sm:text-lg font-extrabold text-slate-800 leading-snug">${cat.topik}</h3>
-              <p class="text-xs text-slate-600 font-semibold leading-relaxed">${cat.deskripsi}</p>
-            </div>
-            <div class="pt-2 border-t border-orange-50 flex items-center justify-between gap-3">
-              <span class="text-xs font-extrabold text-slate-500">📝 ${cat.jumlah_soal} Soal</span>
-              <button type="button" onclick="mulaiLatihan('${cat.file_name}')"
-                class="px-4 py-2.5 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white text-xs font-extrabold shadow-md shadow-orange-500/20 transition">
-                Mulai Latihan →
-              </button>
-            </div>
-          </div>
-        `).join('');
+        allCatalogItems = json.data.categories || [];
+        renderCatalogCards(allCatalogItems);
       } catch (err) {
         container.innerHTML = `<div class="col-span-full bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4 text-xs font-bold">${err.message}</div>`;
       }
+    }
+
+    function filterKatalogSiswa() {
+      const q = document.getElementById('siswa-search').value.toLowerCase().trim();
+      const jenis = document.getElementById('siswa-filter-jenis').value;
+
+      const filtered = allCatalogItems.filter(cat => {
+        const matchJenis = jenis === 'ALL' || (cat.jenis_paket || 'Latihan Mandiri') === jenis;
+        const matchQuery = !q ||
+          (cat.topik || '').toLowerCase().includes(q) ||
+          (cat.judul || '').toLowerCase().includes(q) ||
+          String(cat.kode_paket || '').toLowerCase().includes(q) ||
+          (cat.jenjang || '').toLowerCase().includes(q);
+        return matchJenis && matchQuery;
+      });
+
+      renderCatalogCards(filtered);
+    }
+
+    function renderCatalogCards(items) {
+      const container = document.getElementById('catalog-list');
+      if (items.length === 0) {
+        container.innerHTML = `<div class="col-span-full bg-white border border-orange-100 rounded-3xl p-8 text-center text-xs font-bold text-slate-400">Tidak ada paket soal yang sesuai filter pencarian.</div>`;
+        return;
+      }
+
+      container.innerHTML = items.map(cat => `
+        <div class="bg-white border-[1.5px] border-orange-100 hover:border-orange-300 rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-4">
+          <div class="space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2.5 py-0.5 rounded-md bg-slate-800 text-white text-[10px] font-extrabold tracking-wider">${cat.kode_paket || cat.id}</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[10px] font-extrabold">${cat.jenjang}</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-extrabold">${cat.jenis_paket || 'Latihan Mandiri'}</span>
+              </div>
+              <span class="text-[11px] font-bold text-slate-400">⏱️ ${cat.durasi_menit} Menit</span>
+            </div>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-800 leading-snug">${cat.judul || cat.topik}</h3>
+            <p class="text-xs text-slate-600 font-semibold leading-relaxed">${cat.deskripsi}</p>
+          </div>
+          <div class="pt-2 border-t border-orange-50 flex items-center justify-between gap-3">
+            <span class="text-xs font-extrabold text-slate-500">📚 Bab: ${cat.topik} • 📝 ${cat.jumlah_soal} Soal</span>
+            <button type="button" onclick="mulaiLatihan('${cat.file_name}')"
+              class="px-4 py-2.5 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white text-xs font-extrabold shadow-md shadow-orange-500/20 transition shrink-0">
+              Mulai →
+            </button>
+          </div>
+        </div>
+      `).join('');
     }
 
     async function mulaiLatihan(fileName) {
@@ -271,8 +318,9 @@
           return;
         }
 
+        document.getElementById('quiz-kode').textContent = json.data.kode_paket || json.data.paket_id;
         document.getElementById('quiz-title').textContent = json.data.judul;
-        document.getElementById('quiz-cred').textContent = `${json.data.kredibilitas.kurikulum} • ${json.data.kredibilitas.verified_by}`;
+        document.getElementById('quiz-cred').textContent = `${json.data.jenis_paket || 'Latihan Mandiri'} • ${json.data.kredibilitas.verified_by}`;
 
         const htmlSoal = json.data.soal.map(item => {
           const opsiHtml = Object.entries(item.opsi).map(([huruf, teks]) => `
