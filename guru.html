@@ -432,11 +432,11 @@
     ];
 
     function generateClientPreviewCode() {
-      const year = String(new Date().getFullYear());
+      const shortYear = String(new Date().getFullYear()).slice(-2); // "26"
       let maxNumber = 0;
       (cachedCategories || []).forEach(item => {
         const code = String(item.kode_paket || item.id || '');
-        const match = code.match(new RegExp(`^${year}(\\d{3,})$`));
+        const match = code.match(new RegExp(`^${shortYear}(\\d{2,})$`));
         if (match) {
           const num = parseInt(match[1], 10);
           if (num > maxNumber) maxNumber = num;
@@ -445,8 +445,8 @@
       if (maxNumber === 0 && (cachedCategories || []).length > 0) {
         maxNumber = cachedCategories.length;
       }
-      const nextSeq = String(maxNumber + 1).padStart(3, '0');
-      return `${year}${nextSeq}`;
+      const nextSeq = String(maxNumber + 1).padStart(2, '0');
+      return `${shortYear}${nextSeq}`;
     }
 
     async function callApi(paramsObj, usePost = false) {
