@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#FB923C" />
+  <link rel="icon" type="image/png" href="https://megamath.my.id/favicon-megamath.png" />
+  <title>Panel Guru AI — Mega Math Bank Soal</title>
+
+  <!-- Tailwind CSS & Google Font Nunito (Tema Resmi Mega Math) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- KaTeX untuk Preview Rumus Matematika -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#FFFDF9] text-slate-800 flex flex-col">
+
+  <!-- NAVBAR -->
+  <header class="sticky top-0 z-30 bg-[#FFFDF9]/90 backdrop-blur-md border-b border-orange-100">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <a href="index.html" class="flex items-center gap-2.5 min-w-0">
+        <img src="https://megamath.my.id/favicon-megamath.png" alt="Mega Math" class="w-10 h-8 object-contain mix-blend-multiply shrink-0" />
+        <div class="min-w-0">
+          <span class="block text-sm sm:text-base font-extrabold text-slate-800 truncate">Mega Math</span>
+          <span class="block text-[10px] font-bold text-orange-600 uppercase tracking-wider truncate">Studio Guru AI</span>
+        </div>
+      </a>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="index.html" target="_blank"
+          class="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-2 rounded-xl border border-orange-200 bg-white hover:bg-orange-50 text-orange-700 transition">
+          <span>👁️</span><span>Lihat Web Siswa</span>
+        </a>
+        <button id="btn-logout" type="button" onclick="logoutGuru()" class="hidden text-xs font-extrabold px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+          Keluar
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 pt-6 pb-16">
+
+    <!-- VIEW 1: LOGIN GURU -->
+    <section id="view-login" class="max-w-md mx-auto mt-8">
+      <div class="bg-white border-[1.5px] border-orange-100 shadow-xl shadow-orange-500/5 rounded-[2rem] p-6 sm:p-8 space-y-5 text-center">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl font-black">
+          🔐
+        </div>
+        <div class="space-y-1">
+          <h1 class="text-xl font-black text-slate-800">Akses Panel Guru</h1>
+          <p class="text-xs font-semibold text-slate-500">Masukkan Kode Akses Guru untuk membuat dan mengelola paket Bank Soal AI.</p>
+        </div>
+        <form onsubmit="loginGuru(event)" class="space-y-3 text-left">
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1">Kode Akses Guru</label>
+            <input id="input-guru-key" type="password" required placeholder="Contoh: GURU_MEGAMATH_2026"
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          </div>
+          <button id="btn-login" type="submit"
+            class="w-full py-3.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-extrabold text-sm shadow-lg shadow-orange-500/25 transition">
+            Masuk ke Studio Guru →
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- VIEW 2: DASHBOARD STUDIO GURU -->
+    <section id="view-dashboard" class="hidden space-y-8">
+
+      <!-- FORM GENERATOR AI -->
+      <div class="bg-white border-[1.5px] border-orange-100 shadow-xl shadow-orange-500/5 rounded-[2rem] p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-orange-50 pb-4">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-extrabold mb-1.5">
+              <span>✨</span><span>Powered by Gemini AI</span>
+            </span>
+            <h2 class="text-xl sm:text-2xl font-black text-slate-800">Buat Paket Soal Otomatis</h2>
+          </div>
+          <p class="text-xs font-bold text-slate-500">Rumus LaTeX &amp; pembahasan disusun otomatis</p>
+        </div>
+
+        <form onsubmit="generateSoal(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenjang Pendidikan</label>
+            <select id="gen-jenjang" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+              <option value="SD Kelas 4-6">SD (Kelas 4 - 6)</option>
+              <option value="SMP Kelas 7">SMP Kelas 7</option>
+              <option value="SMP Kelas 8">SMP Kelas 8</option>
+              <option value="SMP Kelas 9">SMP Kelas 9</option>
+              <option value="SMA Kelas 10">SMA Kelas 10</option>
+              <option value="SMA Kelas 11" selected>SMA Kelas 11</option>
+              <option value="SMA Kelas 12">SMA Kelas 12</option>
+              <option value="UTBK / SNBT Penalaran Matematika">UTBK / SNBT (Penalaran Matematika)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Topik / Bab Materi</label>
+            <input id="gen-topik" type="text" required placeholder="Contoh: Turunan Fungsi Aljabar"
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jumlah Soal (1 - 15)</label>
+            <input id="gen-jumlah" type="number" min="1" max="15" value="5" required
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Tingkat Kesulitan</label>
+            <select id="gen-tingkat" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+              <option value="Mudah (Pemahaman Konsep Dasar)">Mudah (Pemahaman Konsep Dasar)</option>
+              <option value="Sedang (Aplikasi Rumus Standar)">Sedang (Aplikasi Rumus Standar)</option>
+              <option value="Campuran (Mudah, Sedang, HOTS)" selected>Campuran (Mudah, Sedang, HOTS)</option>
+              <option value="HOTS / Penalaran Tingkat Tinggi">HOTS / Penalaran Tingkat Tinggi</option>
+            </select>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Instruksi Tambahan untuk AI (Opsional)</label>
+            <input id="gen-instruksi" type="text" placeholder="Contoh: Sertakan 2 soal cerita aplikasi kehidupan sehari-hari"
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          </div>
+
+          <div class="sm:col-span-2 pt-2">
+            <button id="btn-generate" type="submit"
+              class="w-full py-3.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 active:scale-[0.99] text-white font-extrabold text-sm shadow-lg shadow-orange-500/25 transition disabled:opacity-60">
+              🪄 Generate Soal dengan Gemini AI
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PREVIEW & EDITOR HASIL GENERATE -->
+      <div id="preview-section" class="hidden space-y-5">
+        <div class="bg-white border-[1.5px] border-orange-200 shadow-lg shadow-orange-500/5 rounded-3xl p-6 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-orange-100 pb-4">
+            <div>
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Draft Hasil AI (Bisa Diedit Sebelum Tayang)</span>
+              <h3 class="text-lg font-black text-slate-800">Review &amp; Publikasi Paket Soal</h3>
+            </div>
+            <button id="btn-publish" type="button" onclick="publishPackage()"
+              class="px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition disabled:opacity-60">
+              🚀 Publikasikan ke Bank Soal Siswa
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Judul Paket Soal</label>
+              <input id="edit-judul" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Estimasi Durasi (Menit)</label>
+              <input id="edit-durasi" type="number" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
+            </div>
+            <div class="sm:col-span-3">
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Deskripsi Singkat Katalog</label>
+              <input id="edit-deskripsi" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs font-bold" />
+            </div>
+          </div>
+        </div>
+
+        <div id="preview-soal-list" class="space-y-4"></div>
+      </div>
+
+      <!-- DAFTAR PAKET AKTIF DI KATALOG -->
+      <div class="bg-white border-[1.5px] border-orange-100 rounded-[2rem] p-6 sm:p-8 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Database Google Drive</span>
+            <h3 class="text-lg font-black text-slate-800">Paket Soal Aktif di Web Siswa</h3>
+          </div>
+          <button type="button" onclick="loadExistingCatalog()" class="text-xs font-extrabold px-3.5 py-2 rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 transition">
+            🔄 Refresh
+          </button>
+        </div>
+
+        <div id="admin-catalog-list" class="space-y-3">
+          <div class="text-center py-6 text-xs font-bold text-slate-400">Memuat daftar paket soal...</div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <footer class="border-t border-orange-100 bg-white py-6 px-4 text-center text-xs text-slate-500 font-semibold">
+    © 2026 Mega Math - Bimbel Private • Studio Guru AI
+  </footer>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyJPsUAFpA1TfHWhjQ3DpG4T6AA_ye4kjsDe3X5FEIWxq_Cip4biJwkEl2BEUx7YHO84Q/exec';
+    const APP_KEY = 'MEGAMATH_DEV_2026_SECURE';
+
+    let guruKey = sessionStorage.getItem('mm_guru_key') || '';
+    let draftPackage = null;
+
+    // Hybrid API Caller: GET untuk query ringan, POST untuk payload besar (savePackageToDrive)
+    async function callApi(paramsObj, usePost = false) {
+      if (usePost) {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ ...paramsObj, key: APP_KEY, guruKey })
+        });
+        return await res.json();
+      }
+
+      const query = new URLSearchParams({ ...paramsObj, key: APP_KEY, guruKey });
+
+      try {
+        const res = await fetch(`${API_URL}?${query.toString()}`, { method: 'GET', redirect: 'follow' });
+        if (res.ok) return await res.json();
+      } catch (e) {}
+
+      return new Promise((resolve, reject) => {
+        const cbName = 'mm_guru_cb_' + Math.round(1000000 * Math.random());
+        const script = document.createElement('script');
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error('Timeout: Server Google Apps Script terlalu lama merespons.'));
+        }, 45000); // 45 detik karena generate AI butuh waktu ~8-15 detik
+
+        function cleanup() {
+          clearTimeout(timeout);
+          delete window[cbName];
+          if (script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        window[cbName] = (data) => { cleanup(); resolve(data); };
+        query.set('callback', cbName);
+        script.src = `${API_URL}?${query.toString()}`;
+        script.onerror = () => { cleanup(); reject(new Error('Gagal terhubung ke server Apps Script.')); };
+        document.body.appendChild(script);
+      });
+    }
+
+    function renderMath() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    async function loginGuru(e) {
+      e.preventDefault();
+      const inputVal = document.getElementById('input-guru-key').value.trim();
+      const btn = document.getElementById('btn-login');
+      btn.disabled = true;
+      btn.textContent = 'Memverifikasi...';
+
+      guruKey = inputVal;
+      try {
+        const res = await callApi({ action: 'verifyGuru' });
+        btn.disabled = false;
+        btn.textContent = 'Masuk ke Studio Guru →';
+
+        if (res.status !== 'success') {
+          guruKey = '';
+          alert(res.message);
+          return;
+        }
+
+        sessionStorage.setItem('mm_guru_key', guruKey);
+        showDashboard();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Masuk ke Studio Guru →';
+        alert('Error: ' + err.message);
+      }
+    }
+
+    function logoutGuru() {
+      sessionStorage.removeItem('mm_guru_key');
+      guruKey = '';
+      location.reload();
+    }
+
+    function showDashboard() {
+      document.getElementById('view-login').classList.add('hidden');
+      document.getElementById('view-dashboard').classList.remove('hidden');
+      document.getElementById('btn-logout').classList.remove('hidden');
+      loadExistingCatalog();
+    }
+
+    async function generateSoal(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-generate');
+      btn.disabled = true;
+      btn.textContent = '⏳ Gemini AI sedang menyusun soal & pembahasan... (10-15 detik)';
+
+      try {
+        const res = await callApi({
+          action: 'generateQuestionsAI',
+          jenjang: document.getElementById('gen-jenjang').value,
+          topik: document.getElementById('gen-topik').value.trim(),
+          jumlah: document.getElementById('gen-jumlah').value,
+          tingkat: document.getElementById('gen-tingkat').value,
+          instruksi: document.getElementById('gen-instruksi').value.trim()
+        });
+
+        btn.disabled = false;
+        btn.textContent = '🪄 Generate Soal dengan Gemini AI';
+
+        if (res.status !== 'success') {
+          alert('Gagal generate soal: ' + res.message);
+          return;
+        }
+
+        draftPackage = res.data;
+        renderPreview();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = '🪄 Generate Soal dengan Gemini AI';
+        alert('Error: ' + err.message);
+      }
+    }
+
+    function renderPreview() {
+      if (!draftPackage) return;
+      document.getElementById('preview-section').classList.remove('hidden');
+      document.getElementById('edit-judul').value = draftPackage.judul || '';
+      document.getElementById('edit-durasi').value = draftPackage.durasi_menit || 15;
+      document.getElementById('edit-deskripsi').value = draftPackage.deskripsi || '';
+
+      const container = document.getElementById('preview-soal-list');
+      container.innerHTML = draftPackage.soal.map((item, idx) => `
+        <div class="bg-white border-[1.5px] border-orange-100 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-orange-50 pb-3">
+            <span class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-extrabold">
+              Soal No. ${item.nomor} • Level: ${item.level}
+            </span>
+            <div class="flex items-center gap-2">
+              <label class="text-xs font-extrabold text-slate-600">Kunci:</label>
+              <select onchange="updateKunci(${idx}, this.value)" class="px-2.5 py-1 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-extrabold text-xs">
+                ${['A','B','C','D','E'].map(h => `<option value="${h}" ${item.kunci === h ? 'selected' : ''}>${h}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+
+          <!-- Preview Rendered Math -->
+          <div class="p-4 rounded-2xl bg-[#FFFDF9] border border-orange-100 space-y-2">
+            <div class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600">Preview Tampilan Siswa:</div>
+            <div class="text-sm font-bold text-slate-800 leading-relaxed">${item.pertanyaan}</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 text-xs font-bold text-slate-700">
+              ${Object.entries(item.opsi).map(([h, t]) => `
+                <div class="p-2.5 rounded-xl border ${item.kunci === h ? 'border-emerald-300 bg-emerald-50/70 text-emerald-900' : 'border-slate-200 bg-white'}">
+                  <strong>${h}.</strong> ${t}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Pembahasan -->
+          <div class="p-4 rounded-2xl bg-orange-50/60 border border-orange-100 text-xs text-slate-700 space-y-1">
+            <div class="font-extrabold text-orange-700">💡 Pembahasan Resmi:</div>
+            <div class="font-semibold whitespace-pre-line leading-relaxed">${item.pembahasan}</div>
+          </div>
+        </div>
+      `).join('');
+
+      renderMath();
+      document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function updateKunci(index, newKey) {
+      if (draftPackage && draftPackage.soal[index]) {
+        draftPackage.soal[index].kunci = newKey;
+        renderPreview();
+      }
+    }
+
+    async function publishPackage() {
+      if (!draftPackage) return;
+      const btn = document.getElementById('btn-publish');
+      btn.disabled = true;
+      btn.textContent = '⏳ Menyimpan ke Google Drive...';
+
+      draftPackage.judul = document.getElementById('edit-judul').value.trim();
+      draftPackage.durasi_menit = parseInt(document.getElementById('edit-durasi').value, 10) || 15;
+      draftPackage.deskripsi = document.getElementById('edit-deskripsi').value.trim();
+
+      try {
+        const res = await callApi({
+          action: 'savePackageToDrive',
+          packageData: draftPackage
+        }, true); // Kirim lewat POST karena payload JSON soal cukup panjang
+
+        btn.disabled = false;
+        btn.textContent = '🚀 Publikasikan ke Bank Soal Siswa';
+
+        if (res.status !== 'success') {
+          alert('Gagal mempublikasikan: ' + res.message);
+          return;
+        }
+
+        alert('✅ ' + res.message);
+        document.getElementById('preview-section').classList.add('hidden');
+        draftPackage = null;
+        loadExistingCatalog();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = '🚀 Publikasikan ke Bank Soal Siswa';
+        alert('Error saat publikasi: ' + err.message);
+      }
+    }
+
+    async function loadExistingCatalog() {
+      const listEl = document.getElementById('admin-catalog-list');
+      try {
+        const res = await callApi({ action: 'getCatalog' });
+        if (res.status !== 'success') {
+          listEl.innerHTML = `<p class="text-xs text-red-600 font-bold">${res.message}</p>`;
+          return;
+        }
+
+        const categories = res.data.categories || [];
+        if (categories.length === 0) {
+          listEl.innerHTML = `<p class="text-xs text-slate-400 font-bold text-center py-4">Belum ada paket soal di katalog.</p>`;
+          return;
+        }
+
+        listEl.innerHTML = categories.map(cat => `
+          <div class="p-4 rounded-2xl border border-orange-100 bg-[#FFFDF9] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-extrabold">${cat.jenjang}</span>
+                <span class="text-[11px] font-bold text-slate-400">${cat.file_name}</span>
+              </div>
+              <div class="text-sm font-extrabold text-slate-800 mt-1">${cat.topik}</div>
+              <div class="text-xs font-semibold text-slate-500">${cat.jumlah_soal} Soal • ${cat.durasi_menit} Menit</div>
+            </div>
+            <button type="button" onclick="hapusPaket('${cat.file_name}', '${cat.topik}')"
+              class="self-start sm:self-center px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-extrabold transition">
+              🗑️ Hapus
+            </button>
+          </div>
+        `).join('');
+      } catch (err) {
+        listEl.innerHTML = `<p class="text-xs text-red-600 font-bold">${err.message}</p>`;
+      }
+    }
+
+    async function hapusPaket(fileName, topik) {
+      if (!confirm(`Yakin ingin menghapus paket soal "${topik}" (${fileName})?`)) return;
+
+      try {
+        const res = await callApi({ action: 'deletePackage', file: fileName });
+        if (res.status !== 'success') {
+          alert('Gagal menghapus: ' + res.message);
+          return;
+        }
+        loadExistingCatalog();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (guruKey) showDashboard();
+    });
+  </script>
+</body>
+</html>
