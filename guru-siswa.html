@@ -1,306 +1,237 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Siswa Saya - MegaMath Guru</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#FB923C" />
+  <link rel="icon" type="image/png" href="https://megamath.my.id/favicon-megamath.png" />
+  <title>Siswa Saya — Mega Math Studio Guru</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+
   <style>
-    :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --primary-light: #eff6ff;
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #e2e8f0;
-      --success: #10b981;
-      --warning: #f59e0b;
+    body {
+      font-family: 'Nunito', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      scroll-behavior: smooth;
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
-
-    /* Topbar & Sub-Menu Navigasi Guru (Sticky) */
-    .header-wrapper {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--card);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    .subnav-pill.active {
+      background: linear-gradient(135deg, #fb923c, #ea580c);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
     }
-    .topbar {
-      background: var(--primary);
-      color: #fff;
-      padding: 14px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
     }
-    .topbar-left h1 { font-size: 1.05rem; font-weight: 700; }
-    .topbar-left span { font-size: 0.78rem; opacity: 0.9; }
-    .btn-logout {
-      background: rgba(255,255,255,0.18);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.3);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    /* Sub-Menu Horizontal Scrollable untuk Mobile-First */
-    .guru-subnav {
-      display: flex;
-      overflow-x: auto;
-      background: #fff;
-      border-bottom: 1px solid var(--border);
-      padding: 0 12px;
-      gap: 6px;
-      scrollbar-width: none;
-    }
-    .guru-subnav::-webkit-scrollbar { display: none; }
-    .subnav-item {
-      text-decoration: none;
-      color: var(--muted);
-      font-size: 0.85rem;
-      font-weight: 600;
-      padding: 12px 14px;
-      white-space: nowrap;
-      border-bottom: 3px solid transparent;
-      transition: all 0.2s;
-    }
-    .subnav-item:hover { color: var(--primary); }
-    .subnav-item.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-
-    /* Container & Filter */
-    .container { max-width: 760px; margin: 16px auto; padding: 0 16px; }
-
-    .summary-strip {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--primary-light);
-      border: 1px solid #bfdbfe;
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin-bottom: 14px;
-    }
-    .summary-strip span { font-size: 0.85rem; color: var(--primary-dark); font-weight: 600; }
-    .summary-count {
-      background: var(--primary);
-      color: #fff;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 700;
-    }
-
-    .filter-bar {
-      display: grid;
-      grid-template-columns: 1fr 140px;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    input[type="text"], select {
-      width: 100%;
-      padding: 11px 12px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 0.9rem;
-      background: #fff;
-      outline: none;
-    }
-    input[type="text"]:focus, select:focus { border-color: var(--primary); }
-
-    /* Kartu Siswa */
-    .siswa-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-    }
-    .siswa-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
-    }
-    .siswa-nama { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .badge-kelas {
-      display: inline-block;
-      background: #f1f5f9;
-      color: #334155;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 3px 9px;
-      border-radius: 6px;
-    }
-    .badge-aktif {
-      background: #dcfce7;
-      color: #15803d;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 20px;
-    }
-
-    /* Tombol Aksi Cepat ke Halaman Detail Siswa */
-    .siswa-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
-    .btn-action {
-      text-decoration: none;
-      text-align: center;
-      padding: 9px 10px;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      transition: opacity 0.2s;
-    }
-    .btn-action:active { opacity: 0.8; }
-    .btn-materi {
-      background: #fef3c7;
-      color: #b45309;
-    }
-    .btn-progress {
-      background: var(--primary-light);
-      color: var(--primary-dark);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 36px 20px;
-      background: #fff;
-      border-radius: 14px;
-      border: 1px dashed var(--border);
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    /* Custom UI Pop-up */
-    .popup-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.55);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      padding: 20px;
-    }
-    .popup-box {
-      background: #fff;
-      border-radius: 16px;
-      padding: 22px;
-      max-width: 350px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    }
-    .popup-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
-    .popup-msg { font-size: 0.9rem; color: var(--muted); margin-bottom: 18px; }
-    .popup-btn {
-      width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      background: var(--primary);
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
+    .modal-pop {
+      animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
   </style>
 </head>
-<body>
+<body class="min-h-screen bg-[#FFFDF9] text-slate-800 flex flex-col">
 
-  <!-- Header & Navigasi Sub-Menu Guru -->
-  <div class="header-wrapper">
-    <div class="topbar">
-      <div class="topbar-left">
-        <h1>Portal Guru MegaMath</h1>
-        <span id="guruNameLabel">Memuat profil...</span>
+  <!-- CUSTOM POP-UP MODAL (SAMA PERSIS DENGAN GURU.HTML) -->
+  <div id="mm-modal-overlay" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div id="mm-modal-box" class="modal-pop bg-white border-[1.5px] border-orange-100 shadow-2xl rounded-[2rem] max-w-sm w-full p-6 sm:p-7 text-center space-y-4">
+      <div id="mm-modal-icon" class="w-16 h-16 mx-auto rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-3xl shadow-inner">
+        ✨
       </div>
-      <button class="btn-logout" id="btnLogout">Keluar</button>
-    </div>
-
-    <nav class="guru-subnav">
-      <a href="guru.html" class="subnav-item">Bank Soal</a>
-      <a href="guru-siswa.html" class="subnav-item active">Siswa Saya</a>
-      <a href="guru-materi-siswa.html" class="subnav-item">PR & Kisi-Kisi</a>
-      <a href="guru-progress.html" class="subnav-item">Progress Belajar</a>
-    </nav>
-  </div>
-
-  <div class="container">
-    <!-- Ringkasan Jumlah Siswa -->
-    <div class="summary-strip">
-      <span>Total Siswa Bimbingan Aktif</span>
-      <span class="summary-count" id="totalSiswaCount">0</span>
-    </div>
-
-    <!-- Bar Pencarian & Filter Kelas -->
-    <div class="filter-bar">
-      <input type="text" id="searchSiswa" placeholder="Cari nama siswa...">
-      <select id="filterKelas">
-        <option value="ALL">Semua Kelas</option>
-        <option value="7 SMP">7 SMP</option>
-        <option value="8 SMP">8 SMP</option>
-        <option value="9 SMP">9 SMP</option>
-        <option value="10 SMA">10 SMA</option>
-        <option value="11 SMA">11 SMA</option>
-        <option value="12 SMA">12 SMA</option>
-      </select>
-    </div>
-
-    <!-- Daftar Siswa Bimbingan -->
-    <div id="siswaListContainer">
-      <div class="empty-state">Memuat daftar siswa bimbingan...</div>
+      <div class="space-y-1.5">
+        <h3 id="mm-modal-title" class="text-lg sm:text-xl font-black text-slate-800">Pemberitahuan</h3>
+        <p id="mm-modal-message" class="text-xs sm:text-sm font-semibold text-slate-600 leading-relaxed whitespace-pre-line">Pesan notifikasi.</p>
+      </div>
+      <div id="mm-modal-actions" class="pt-2 flex items-center justify-center gap-2.5"></div>
     </div>
   </div>
 
-  <!-- Custom Pop-up -->
-  <div class="popup-overlay" id="customPopup">
-    <div class="popup-box">
-      <div class="popup-title" id="popupTitle">Informasi</div>
-      <div class="popup-msg" id="popupMsg">Pesan</div>
-      <button class="popup-btn" onclick="document.getElementById('customPopup').style.display='none'">Oke</button>
+  <!-- NAVBAR + SUB-MENU GURU -->
+  <header class="sticky top-0 z-30 bg-[#FFFDF9]/90 backdrop-blur-md border-b border-orange-100">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <a href="index.html" class="flex items-center gap-2.5 min-w-0">
+        <img src="https://megamath.my.id/favicon-megamath.png" alt="Mega Math" class="w-10 h-8 object-contain mix-blend-multiply shrink-0" />
+        <div class="min-w-0">
+          <span class="block text-sm sm:text-base font-extrabold text-slate-800 truncate">Mega Math</span>
+          <span class="block text-[10px] font-bold text-orange-600 uppercase tracking-wider truncate" id="guru-name-badge">Studio Guru AI</span>
+        </div>
+      </a>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="index.html" target="_blank"
+          class="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-2 rounded-xl border border-orange-200 bg-white hover:bg-orange-50 text-orange-700 transition">
+          <span>👁️</span><span class="hidden sm:inline">Lihat Web Siswa</span>
+        </a>
+        <button id="btn-logout" type="button"
+          class="text-xs font-extrabold px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+          Keluar
+        </button>
+      </div>
     </div>
-  </div>
+
+    <!-- SUB-MENU NAVIGASI PORTAL GURU (MOBILE-FIRST SCROLLABLE PILLS) -->
+    <div class="max-w-5xl mx-auto px-4 pb-3">
+      <nav class="flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-orange-50/70 p-1.5 rounded-2xl border border-orange-100">
+        <a href="guru.html"
+          class="subnav-pill px-3.5 py-2 rounded-xl text-xs font-extrabold text-slate-600 hover:text-orange-700 whitespace-nowrap transition">
+          🪄 Bank Soal
+        </a>
+        <a href="guru-siswa.html"
+          class="subnav-pill active px-3.5 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition">
+          👨‍🎓 Siswa Saya
+        </a>
+        <a href="guru-materi-siswa.html"
+          class="subnav-pill px-3.5 py-2 rounded-xl text-xs font-extrabold text-slate-600 hover:text-orange-700 whitespace-nowrap transition">
+          📂 PR &amp; Kisi-Kisi
+        </a>
+        <a href="guru-progress.html"
+          class="subnav-pill px-3.5 py-2 rounded-xl text-xs font-extrabold text-slate-600 hover:text-orange-700 whitespace-nowrap transition">
+          📈 Progress Belajar
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 pt-6 pb-16 space-y-6">
+    <!-- HEADER & FILTER DAFTAR SISWA -->
+    <section class="bg-white border-[1.5px] border-orange-100 shadow-xl shadow-orange-500/5 rounded-[2rem] p-6 sm:p-8 space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-orange-50 pb-4">
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-extrabold mb-1.5">
+            <span>👨‍🏫</span><span>Daftar Siswa Bimbingan</span>
+          </span>
+          <h1 class="text-xl sm:text-2xl font-black text-slate-800">Siswa Saya</h1>
+        </div>
+
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-orange-50 border border-orange-200 self-start sm:self-center">
+          <span class="text-xs font-extrabold text-orange-800">Total Aktif:</span>
+          <span id="total-siswa-count" class="px-2.5 py-0.5 rounded-full bg-orange-500 text-white text-xs font-black">0</span>
+        </div>
+      </div>
+
+      <!-- SEARCH & FILTER KELAS -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="sm:col-span-2">
+          <input id="search-siswa" type="text" placeholder="🔍 Cari nama siswa bimbingan..."
+            class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-xs sm:text-sm font-bold bg-[#FFFDF9]" />
+        </div>
+        <div>
+          <select id="filter-kelas"
+            class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-xs sm:text-sm font-bold bg-[#FFFDF9]">
+            <option value="ALL">Semua Kelas</option>
+            <option value="SD Kelas 4-6">SD (Kelas 4 - 6)</option>
+            <option value="SMP Kelas 7">SMP Kelas 7</option>
+            <option value="SMP Kelas 8">SMP Kelas 8</option>
+            <option value="SMP Kelas 9">SMP Kelas 9</option>
+            <option value="SMA Kelas 10">SMA Kelas 10</option>
+            <option value="SMA Kelas 11">SMA Kelas 11</option>
+            <option value="SMA Kelas 12">SMA Kelas 12</option>
+            <option value="UTBK / SNBT">UTBK / SNBT</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- GRID DAFTAR SISWA -->
+      <div id="siswa-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2 text-center py-8 text-xs font-bold text-slate-400">
+          Memuat daftar siswa bimbingan...
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-orange-100 bg-white py-6 px-4 text-center text-xs text-slate-500 font-semibold">
+    © 2026 Mega Math - Bimbel Private • Studio Guru AI
+  </footer>
 
   <script type="module">
-    import { auth, db } from "./js/firebase-config.js";
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
-      collection, query, where, doc, getDoc, onSnapshot
+      getFirestore, collection, query, where, doc, getDoc, onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // GANTI DENGAN CONFIG FIREBASE MEGAMATH LU
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
     let myStudents = [];
 
-    function showPopup(title, msg) {
-      document.getElementById('popupTitle').textContent = title;
-      document.getElementById('popupMsg').textContent = msg;
-      document.getElementById('customPopup').style.display = 'flex';
+    // ========================================================================
+    // CUSTOM POP-UP ENGINE (IDENTIK DENGAN GURU.HTML)
+    // ========================================================================
+    function showCustomModal({ type = 'info', title = '', message = '', confirmText = 'OK', cancelText = 'Batal', showCancel = false }) {
+      return new Promise((resolve) => {
+        const overlay = document.getElementById('mm-modal-overlay');
+        const box = document.getElementById('mm-modal-box');
+        const iconEl = document.getElementById('mm-modal-icon');
+        const titleEl = document.getElementById('mm-modal-title');
+        const msgEl = document.getElementById('mm-modal-message');
+        const actionsEl = document.getElementById('mm-modal-actions');
+
+        const styles = {
+          success: { icon: '✅', iconBg: 'bg-emerald-100 text-emerald-600', border: 'border-emerald-200', btnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20' },
+          error: { icon: '❌', iconBg: 'bg-rose-100 text-rose-600', border: 'border-rose-200', btnClass: 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20' },
+          warning: { icon: '⚠️', iconBg: 'bg-amber-100 text-amber-600', border: 'border-amber-200', btnClass: 'bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-orange-500/25' },
+          confirm: { icon: '🤔', iconBg: 'bg-orange-100 text-orange-600', border: 'border-orange-200', btnClass: 'bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-orange-500/25' }
+        };
+
+        const cfg = styles[type] || styles.warning;
+        box.className = `modal-pop bg-white border-[1.5px] ${cfg.border} shadow-2xl rounded-[2rem] max-w-sm w-full p-6 sm:p-7 text-center space-y-4`;
+        iconEl.className = `w-16 h-16 mx-auto rounded-2xl ${cfg.iconBg} flex items-center justify-center text-3xl`;
+        iconEl.textContent = cfg.icon;
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        actionsEl.innerHTML = '';
+
+        const closeWith = (val) => { overlay.classList.add('hidden'); resolve(val); };
+
+        if (showCancel) {
+          const btnCancel = document.createElement('button');
+          btnCancel.type = 'button';
+          btnCancel.className = 'flex-1 py-3 px-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold text-xs sm:text-sm transition';
+          btnCancel.textContent = cancelText;
+          btnCancel.onclick = () => closeWith(false);
+          actionsEl.appendChild(btnCancel);
+        }
+
+        const btnOk = document.createElement('button');
+        btnOk.type = 'button';
+        btnOk.className = `flex-1 py-3 px-4 rounded-2xl ${cfg.btnClass} font-extrabold text-xs sm:text-sm shadow-lg transition`;
+        btnOk.textContent = confirmText;
+        btnOk.onclick = () => closeWith(true);
+        actionsEl.appendChild(btnOk);
+
+        overlay.classList.remove('hidden');
+        btnOk.focus();
+      });
     }
 
+    const mmAlert = (title, message, type = 'warning') => showCustomModal({ type, title, message, confirmText: 'Mengerti', showCancel: false });
+    const mmConfirm = (title, message, confirmText = 'Ya, Lanjutkan') =>
+      showCustomModal({ type: 'confirm', title, message, confirmText, cancelText: 'Batal', showCancel: true });
+
     // Logout
-    document.getElementById('btnLogout').addEventListener('click', async () => {
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      const ok = await mmConfirm('Keluar dari Panel Guru?', 'Sesi login kamu di browser ini akan diakhiri.', 'Ya, Keluar');
+      if (!ok) return;
       await signOut(auth);
       window.location.href = 'index.html';
     });
 
-    // Guard Autentikasi: Hanya role 'guru' (atau 'admin')
+    // Guard Autentikasi: Hanya role 'guru' atau 'admin'
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = 'index.html';
@@ -310,28 +241,25 @@
       try {
         const userSnap = await getDoc(doc(db, 'users', user.uid));
         if (!userSnap.exists() || !userSnap.data().status_aktif) {
-          showPopup('Akses Ditolak', 'Akun pengajar tidak ditemukan atau nonaktif.');
-          setTimeout(() => window.location.href = 'index.html', 1500);
+          await mmAlert('Akses Ditolak', 'Akun pengajar tidak ditemukan atau nonaktif.', 'error');
+          window.location.href = 'index.html';
           return;
         }
 
         const userData = userSnap.data();
         if (userData.role !== 'guru' && userData.role !== 'admin') {
-          showPopup('Akses Dibatasi', 'Halaman ini khusus untuk akun Guru.');
-          setTimeout(() => {
-            window.location.href = userData.role === 'staff' ? 'staff.html' : 'index.html';
-          }, 1500);
+          await mmAlert('Akses Dibatasi', 'Halaman ini khusus untuk akun Guru.', 'warning');
+          window.location.href = userData.role === 'staff' ? 'staff.html' : 'index.html';
           return;
         }
 
-        document.getElementById('guruNameLabel').textContent = userData.nama || user.email;
+        document.getElementById('guru-name-badge').textContent = `Guru: ${userData.nama || user.email}`;
         listenMyStudents(user.uid);
       } catch (err) {
-        showPopup('Error', err.message);
+        await mmAlert('Error Autentikasi', err.message, 'error');
       }
     });
 
-    // Ambil Daftar Siswa dari Koleksi 'plotting_guru_siswa' milik Guru yang Login
     function listenMyStudents(guruUid) {
       const q = query(
         collection(db, 'plotting_guru_siswa'),
@@ -345,20 +273,29 @@
           myStudents.push({ id: docSnap.id, ...docSnap.data() });
         });
 
-        // Urutkan nama siswa secara alfabetis
         myStudents.sort((a, b) => (a.siswa_nama || '').localeCompare(b.siswa_nama || ''));
-        document.getElementById('totalSiswaCount').textContent = myStudents.length;
+        document.getElementById('total-siswa-count').textContent = myStudents.length;
         renderStudents();
       }, (err) => {
-        document.getElementById('siswaListContainer').innerHTML =
-          `<div class="empty-state" style="color:#ef4444;">Gagal memuat data: ${err.message}</div>`;
+        document.getElementById('siswa-list-container').innerHTML =
+          `<div class="sm:col-span-2 text-center py-6 text-xs font-bold text-rose-600">Gagal memuat data: ${err.message}</div>`;
       });
     }
 
     function renderStudents() {
-      const keyword = document.getElementById('searchSiswa').value.toLowerCase();
-      const kelasFilter = document.getElementById('filterKelas').value;
-      const container = document.getElementById('siswaListContainer');
+      const keyword = document.getElementById('search-siswa').value.toLowerCase().trim();
+      const kelasFilter = document.getElementById('filter-kelas').value;
+      const container = document.getElementById('siswa-list-container');
+
+      if (myStudents.length === 0) {
+        container.innerHTML = `
+          <div class="sm:col-span-2 p-6 rounded-2xl bg-[#FFFDF9] border border-dashed border-orange-200 text-center space-y-1">
+            <div class="text-sm font-extrabold text-slate-700">Belum ada siswa yang di-plotting ke akun Anda.</div>
+            <p class="text-xs font-semibold text-slate-500">Hubungi Staff Operasional untuk pembagian jadwal dan siswa bimbingan.</p>
+          </div>
+        `;
+        return;
+      }
 
       const filtered = myStudents.filter(s => {
         const matchNama = (s.siswa_nama || '').toLowerCase().includes(keyword);
@@ -366,45 +303,41 @@
         return matchNama && matchKelas;
       });
 
-      if (myStudents.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <strong>Belum ada siswa yang di-plotting ke akun Anda.</strong><br>
-            Hubungi Staff Operasional untuk pembagian jadwal/siswa bimbingan.
-          </div>
-        `;
-        return;
-      }
-
       if (filtered.length === 0) {
-        container.innerHTML = `<div class="empty-state">Tidak ada siswa yang cocok dengan pencarian.</div>`;
+        container.innerHTML = `<div class="sm:col-span-2 text-center py-6 text-xs font-bold text-slate-400">Tidak ada siswa yang cocok dengan filter.</div>`;
         return;
       }
 
       container.innerHTML = filtered.map(s => `
-        <div class="siswa-card">
-          <div class="siswa-header">
-            <div>
-              <div class="siswa-nama">${s.siswa_nama}</div>
-              <span class="badge-kelas">${s.siswa_kelas || 'Kelas Belum Diatur'}</span>
+        <div class="p-4 sm:p-5 rounded-2xl border border-orange-100 bg-[#FFFDF9] hover:border-orange-300 transition flex flex-col justify-between gap-4">
+          <div class="flex items-start justify-between gap-2">
+            <div class="space-y-1 min-w-0">
+              <span class="inline-block px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-extrabold">
+                ${s.siswa_kelas || 'Kelas Belum Diatur'}
+              </span>
+              <h3 class="text-base font-black text-slate-800 truncate">${s.siswa_nama}</h3>
             </div>
-            <span class="badge-aktif">Aktif</span>
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold shrink-0">
+              Aktif
+            </span>
           </div>
 
-          <div class="siswa-actions">
-            <a href="guru-materi-siswa.html?siswa_id=${encodeURIComponent(s.siswa_id)}&nama=${encodeURIComponent(s.siswa_nama)}" class="btn-action btn-materi">
-              Cek PR & Kisi-Kisi
+          <div class="grid grid-cols-2 gap-2 pt-3 border-t border-orange-100/80">
+            <a href="guru-materi-siswa.html?siswa_id=${encodeURIComponent(s.siswa_id)}&nama=${encodeURIComponent(s.siswa_nama)}"
+              class="text-center px-3 py-2 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-extrabold transition">
+              📂 PR &amp; Kisi-Kisi
             </a>
-            <a href="guru-progress.html?siswa_id=${encodeURIComponent(s.siswa_id)}&nama=${encodeURIComponent(s.siswa_nama)}" class="btn-action btn-progress">
-              Lihat Progress
+            <a href="guru-progress.html?siswa_id=${encodeURIComponent(s.siswa_id)}&nama=${encodeURIComponent(s.siswa_nama)}"
+              class="text-center px-3 py-2 rounded-xl border border-orange-200 bg-white hover:bg-orange-50 text-orange-700 text-xs font-extrabold transition">
+              📈 Progress
             </a>
           </div>
         </div>
       `).join('');
     }
 
-    document.getElementById('searchSiswa').addEventListener('input', renderStudents);
-    document.getElementById('filterKelas').addEventListener('change', renderStudents);
+    document.getElementById('search-siswa').addEventListener('input', renderStudents);
+    document.getElementById('filter-kelas').addEventListener('change', renderStudents);
   </script>
 </body>
 </html>
