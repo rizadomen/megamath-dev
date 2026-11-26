@@ -5,1739 +5,1491 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#FB923C" />
   <link rel="icon" type="image/png" href="https://megamath.my.id/favicon-megamath.png" />
-  <title>Portal Guru Lengkap - Mega Math</title>
+  <title>Studio Guru — Mega Math Bank Soal</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
-  <!-- MathLive: Equation Editor Visual seperti Microsoft Word -->
-  <script defer src="https://cdn.jsdelivr.net/npm/mathlive"></script>
-  <!-- KaTeX untuk merender rumus di Bank Soal & Lembar Siswa -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
+
+  <!-- KaTeX untuk Render Rumus Cepat -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-  <!-- PDF.js, Mammoth (DOCX), Tesseract (OCR Gambar) untuk Salin Mentah Tanpa AI -->
+
+  <!-- MathLive: Visual Equation Editor ala MS Word -->
+  <script defer src="https://unpkg.com/mathlive"></script>
+
+  <!-- Pure Client-Side Parsers (Tanpa AI): Mammoth (DOCX), PDF.js (PDF), Tesseract.js (OCR Gambar) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
   <style>
     body {
       font-family: 'Nunito', sans-serif;
       -webkit-tap-highlight-color: transparent;
+      scroll-behavior: smooth;
     }
-    .word-btn {
-      padding: 0.35rem 0.6rem;
-      border-radius: 0.55rem;
-      font-weight: 800;
-      font-size: 0.75rem;
-      background: #FFFFFF;
-      border: 1px solid #FED7AA;
-      color: #334155;
+    .tab-mode.active {
+      background: linear-gradient(135deg, #fb923c, #ea580c);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+    }
+    .math-chip {
       transition: all 0.12s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
+      font-family: 'STIX Two Text', 'Nunito', serif;
     }
-    .word-btn:hover {
-      background: #FFF7ED;
-      border-color: #FB923C;
-      color: #EA580C;
+    .math-chip:active {
+      transform: scale(0.94);
     }
-    .word-btn:active {
-      transform: scale(0.96);
-    }
-    /* Lembar tulis ala Microsoft Word */
-    #word-editor {
-      min-height: 190px;
-      outline: none;
-      line-height: 1.75;
-    }
-    #word-editor:empty:before {
-      content: attr(data-placeholder);
-      color: #94A3B8;
-      font-weight: 600;
-    }
-    .frac-inline {
-      display: inline-flex;
-      flex-direction: column;
-      vertical-align: middle;
-      text-align: center;
-      font-size: 0.85em;
-      line-height: 1.1;
-      margin: 0 3px;
-    }
-    .frac-inline .num {
-      border-bottom: 1.5px solid #1E293B;
-      padding: 0 3px;
-    }
-    .frac-inline .den {
-      padding: 0 3px;
+    .science-var {
+      font-family: 'STIX Two Text', Times, serif;
+      font-style: italic;
     }
     math-field {
+      font-size: 1.25rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: 1rem;
+      border: 1.5px solid #fdba74;
+      background: #fffdf9;
       width: 100%;
-      font-size: 1.15rem;
-      padding: 0.5rem 0.75rem;
-      border-radius: 0.85rem;
-      border: 1.5px solid #FDBA74;
-      background: #FFFFFF;
+      outline: none;
+    }
+    math-field:focus-within {
+      border-color: #ea580c;
+      box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.2);
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-pop {
+      animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
   </style>
 </head>
-<body class="min-h-screen bg-[#FFFDF9] text-slate-800 px-3 py-4 sm:p-6">
+<body class="min-h-screen bg-[#FFFDF9] text-slate-800 flex flex-col">
 
-  <!-- LOADER -->
-  <div id="loader" class="fixed inset-0 bg-[#FFFDF9]/85 backdrop-blur-sm z-50 hidden flex-col items-center justify-center px-4">
-    <div class="w-11 h-11 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
-    <p id="loader-text" class="mt-3 text-xs sm:text-sm font-bold text-orange-600 text-center">Memproses data...</p>
-  </div>
-
-  <!-- MODAL NOTIFIKASI -->
-  <div id="modal-notif" class="fixed inset-0 bg-slate-900/45 z-50 hidden items-center justify-center p-3 sm:p-4">
-    <div class="w-full max-w-sm bg-white border-[1.5px] border-orange-200 shadow-xl rounded-3xl p-5 sm:p-6 text-center space-y-4">
-      <div id="notif-icon" class="text-4xl">📘</div>
-      <h3 id="notif-title" class="text-base sm:text-lg font-extrabold text-slate-800">Informasi</h3>
-      <p id="notif-message" class="text-xs text-slate-600 leading-relaxed font-semibold">-</p>
-      <button type="button" id="btn-tutup-notif"
-        class="w-full bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-extrabold text-sm py-3 rounded-2xl shadow-md shadow-orange-500/25 transition">
-        Oke, Mengerti
-      </button>
+  <!-- CUSTOM POP-UP MODAL -->
+  <div id="mm-modal-overlay" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div id="mm-modal-box" class="modal-pop bg-white border-[1.5px] border-orange-100 shadow-2xl rounded-[2rem] max-w-sm w-full p-6 sm:p-7 text-center space-y-4">
+      <div id="mm-modal-icon" class="w-16 h-16 mx-auto rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-3xl shadow-inner">
+        ✨
+      </div>
+      <div class="space-y-1.5">
+        <h3 id="mm-modal-title" class="text-lg sm:text-xl font-black text-slate-800">Pemberitahuan</h3>
+        <p id="mm-modal-message" class="text-xs sm:text-sm font-semibold text-slate-600 leading-relaxed whitespace-pre-line">Pesan notifikasi.</p>
+      </div>
+      <div id="mm-modal-actions" class="pt-2 flex items-center justify-center gap-2.5"></div>
     </div>
   </div>
 
-  <!-- MODAL KONFIRMASI HAPUS -->
-  <div id="modal-confirm" class="fixed inset-0 bg-slate-900/45 z-50 hidden items-center justify-center p-3 sm:p-4">
-    <div class="w-full max-w-sm bg-white border-[1.5px] border-orange-200 shadow-xl rounded-3xl p-5 sm:p-6 text-center space-y-4">
-      <div class="text-4xl">🗑️</div>
-      <h3 class="text-base sm:text-lg font-extrabold text-slate-800">Hapus Soal Ini?</h3>
-      <p id="confirm-message" class="text-xs text-slate-600 leading-relaxed font-semibold">Tindakan ini akan menghapus soal dari bank soal.</p>
-      <div class="grid grid-cols-2 gap-2.5">
-        <button type="button" id="btn-batal-hapus"
-          class="w-full bg-white border border-slate-200 text-slate-700 font-extrabold text-xs sm:text-sm py-2.5 rounded-2xl hover:bg-slate-50 transition">
-          Batal
-        </button>
-        <button type="button" id="btn-ya-hapus"
-          class="w-full bg-gradient-to-br from-rose-500 to-rose-600 text-white font-extrabold text-xs sm:text-sm py-2.5 rounded-2xl shadow-md shadow-rose-500/20 transition">
-          Ya, Hapus
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL EQUATION VISUAL ALA WORD (MathLive) -->
-  <div id="modal-equation" class="fixed inset-0 bg-slate-900/45 z-50 hidden items-center justify-center p-3 sm:p-4">
-    <div class="w-full max-w-lg bg-white border-[1.5px] border-orange-200 shadow-xl rounded-3xl p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-orange-100 pb-2.5">
-        <h3 class="text-sm sm:text-base font-extrabold text-orange-600">∑ Insert Equation (Seperti Word)</h3>
-        <button type="button" id="btn-tutup-eq" class="text-xs font-extrabold text-slate-400 hover:text-slate-700">✕ Tutup</button>
-      </div>
-
-      <p class="text-[11px] font-semibold text-slate-500">
-        Ketik langsung atau klik tombol rumus di bawah: tekan <kbd class="px-1.5 py-0.5 bg-slate-100 rounded border">/</kbd> untuk pecahan atas-bawah, <kbd class="px-1.5 py-0.5 bg-slate-100 rounded border">^</kbd> untuk pangkat.
-      </p>
-
-      <!-- Tombol Preset Equation Cepat -->
-      <div class="flex flex-wrap gap-1.5">
-        <button type="button" class="word-btn" data-eq-latex="\frac{a}{b}">Pecahan a/b</button>
-        <button type="button" class="word-btn" data-eq-latex="x^{2}">Pangkat x²</button>
-        <button type="button" class="word-btn" data-eq-latex="\sqrt{x}">Akar √x</button>
-        <button type="button" class="word-btn" data-eq-latex="\sqrt[3]{x}">Akar Pangkat 3</button>
-        <button type="button" class="word-btn" data-eq-latex="\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}">Rumus ABC</button>
-        <button type="button" class="word-btn" data-eq-latex="\pi r^{2}">Luas Lingkaran</button>
-        <button type="button" class="word-btn" data-eq-latex="\sin\alpha">sin α</button>
-        <button type="button" class="word-btn" data-eq-latex="\log_{a}{b}">Logaritma</button>
-      </div>
-
-      <math-field id="math-equation-field" virtual-keyboard-mode="manual"></math-field>
-
-      <div class="flex justify-end gap-2 pt-1">
-        <button type="button" id="btn-batal-eq"
-          class="px-4 py-2.5 rounded-2xl border border-slate-200 text-slate-600 font-extrabold text-xs">
-          Batal
-        </button>
-        <button type="button" id="btn-sisip-eq"
-          class="px-5 py-2.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-white font-extrabold text-xs shadow-md shadow-orange-500/25">
-          Sisipkan ke Lembar Soal
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- KONTAINER UTAMA (SUSUNAN TETAP SEPERTI SEBELUMNYA) -->
-  <div class="max-w-5xl mx-auto space-y-4 pb-16">
-
-    <!-- HEADER GURU -->
-    <div class="bg-white border-[1.5px] border-orange-100 shadow-lg shadow-orange-500/5 rounded-3xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3 min-w-0">
-        <img src="favicon-megamath.png" alt="Mega Math" class="w-11 h-9 object-contain mix-blend-multiply shrink-0">
-        <div class="min-w-0">
-          <div class="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700 mb-0.5">
-            <span>👩‍🏫 Workspace Pengajar</span>
-          </div>
-          <h1 class="text-base sm:text-xl font-extrabold text-slate-800 truncate">Portal Guru Mega Math</h1>
-          <p id="guru-session-info" class="text-[11px] sm:text-xs font-bold text-slate-500 truncate">
-            Siap digunakan langsung tanpa login awal
-          </p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2 shrink-0">
-        <a href="lab-fitur.html"
-          class="text-xs font-extrabold px-3 py-2 rounded-xl border border-orange-200 text-orange-700 bg-orange-50/70 hover:bg-orange-100 transition">
-          🧪 Lab
-        </a>
-        <a href="admin.html"
-          class="text-xs font-extrabold px-3.5 py-2 rounded-xl border border-orange-200 text-orange-600 bg-white hover:bg-orange-50 transition">
-          ← Admin
-        </a>
-      </div>
-    </div>
-
-    <!-- FILTER MENU PER KELAS & SUB-MENU BAB + PENOMORAN PAKET -->
-    <div class="bg-white border-[1.5px] border-orange-100 shadow-lg shadow-orange-500/5 rounded-3xl p-4 sm:p-5 space-y-4 text-xs">
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <span class="font-extrabold uppercase tracking-wide text-orange-600">📚 Menu Kelas, Sub-Menu Bab &amp; Nomor Paket</span>
-        <span class="text-[11px] font-semibold text-slate-500">Data terfilter per Kelas &amp; Bab agar Firestore tetap ringan</span>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+  <!-- VISUAL EQUATION BUILDER MODAL (ALA MS WORD EQUATION) -->
+  <div id="eq-modal-overlay" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="modal-pop bg-white border-[1.5px] border-orange-200 shadow-2xl rounded-[2rem] max-w-lg w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-orange-100 pb-3">
         <div>
-          <label class="block font-bold text-slate-600 mb-1">Menu Kelas</label>
-          <select id="filter-kelas"
-            class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-extrabold text-slate-800 focus:outline-none focus:border-orange-400">
-            <option value="4 SD">4 SD</option>
-            <option value="5 SD" selected>5 SD</option>
-            <option value="6 SD">6 SD</option>
-            <option value="7 SMP">7 SMP</option>
-            <option value="8 SMP">8 SMP</option>
-            <option value="9 SMP">9 SMP</option>
-            <option value="10 SMA">10 SMA</option>
-            <option value="11 SMA">11 SMA</option>
-            <option value="12 SMA">12 SMA</option>
-          </select>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600">MS Word Style Equation</span>
+          <h3 class="text-lg font-black text-slate-800">Sisipkan Rumus / Equation</h3>
         </div>
-
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">Sub-Menu Bab</label>
-          <select id="filter-bab"
-            class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-extrabold text-slate-800 focus:outline-none focus:border-orange-400">
-          </select>
-        </div>
-
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">Tambah Sub-Menu Bab Baru</label>
-          <div class="flex gap-1.5">
-            <input type="text" id="input-bab-baru" placeholder="Nama bab baru..."
-              class="w-full px-3 py-2.5 rounded-2xl bg-white border border-orange-200 font-bold text-slate-800 focus:outline-none focus:border-orange-400">
-            <button type="button" id="btn-tambah-bab"
-              class="px-3.5 py-2.5 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold shrink-0 transition">
-              + Bab
-            </button>
-          </div>
-        </div>
+        <button type="button" onclick="tutupEquationBuilder()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-sm">✕</button>
       </div>
 
-      <!-- PENGATURAN PENOMORAN PAKET (ANGKA MURNI 2026001) -->
-      <div class="p-3.5 rounded-2xl bg-orange-50/60 border border-orange-200/80 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Tahun Paket (Angka Murni)</label>
-          <input type="number" id="paket-tahun" value="2026" min="2020" max="2099"
-            class="w-full px-3.5 py-2 rounded-xl bg-white border border-orange-200 font-extrabold text-slate-800 focus:outline-none focus:border-orange-400">
-        </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Nomor Urut Berikutnya</label>
-          <input type="number" id="paket-urutan" value="1" min="1" max="9999"
-            class="w-full px-3.5 py-2 rounded-xl bg-white border border-orange-200 font-extrabold text-slate-800 focus:outline-none focus:border-orange-400">
-        </div>
-        <div class="flex items-center justify-between gap-2 bg-white px-3.5 py-2 rounded-xl border border-orange-200">
-          <div>
-            <div class="text-[10px] font-bold text-slate-400 uppercase">Kode Paket Aktif</div>
-            <div id="preview-kode-paket" class="text-sm font-extrabold text-orange-600">2026001</div>
-          </div>
-          <button type="button" id="btn-simpan-paket-cfg"
-            class="px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[11px] transition">
-            Simpan
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- NAVIGASI 5 TAB UTAMA (SAMA PERSIS SEPERTI SEBELUMNYA) -->
-    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
-      <button type="button" data-guru-tab="soal" id="guru-tab-soal"
-        class="bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-md shadow-orange-500/25 py-2.5 px-3 rounded-2xl text-xs font-extrabold transition">
-        ✍️ Input &amp; Bank Soal
-      </button>
-      <button type="button" data-guru-tab="catatan" id="guru-tab-catatan"
-        class="bg-white text-slate-600 border-[1.5px] border-orange-300/80 hover:bg-orange-50/50 py-2.5 px-3 rounded-2xl text-xs font-extrabold transition">
-        📝 Catatan &amp; Beri PR
-      </button>
-      <button type="button" data-guru-tab="pantau" id="guru-tab-pantau"
-        class="bg-white text-slate-600 border-[1.5px] border-orange-300/80 hover:bg-orange-50/50 py-2.5 px-3 rounded-2xl text-xs font-extrabold transition">
-        📋 Pantau PR Siswa
-      </button>
-      <button type="button" data-guru-tab="latihan" id="guru-tab-latihan"
-        class="bg-white text-slate-600 border-[1.5px] border-orange-300/80 hover:bg-orange-50/50 py-2.5 px-3 rounded-2xl text-xs font-extrabold transition">
-        🎯 Pengerjaan &amp; Nilai
-      </button>
-      <button type="button" data-guru-tab="integrasi" id="guru-tab-integrasi"
-        class="bg-white text-slate-600 border-[1.5px] border-orange-300/80 hover:bg-orange-50/50 py-2.5 px-3 rounded-2xl text-xs font-extrabold transition col-span-2 sm:col-span-1">
-        🔌 Drive, GAS &amp; AI
-      </button>
-    </div>
-
-    <!-- ========================================================= -->
-    <!-- TAB 1: PEMBUATAN SOAL (DIPERBAIKI ALA WORD) + BANK SOAL   -->
-    <!-- ========================================================= -->
-    <section id="guru-panel-soal" class="bg-white border-[1.5px] border-orange-100 shadow-lg shadow-orange-500/5 rounded-3xl p-4 sm:p-6 space-y-4 text-xs">
-      <div class="border-b border-orange-100 pb-3 flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 id="judul-form-soal" class="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-orange-600">
-            ✍️ PEMBUATAN SOAL MANUAL (UTAMA — LEMBAR KERJA ALA WORD)
-          </h2>
-          <p class="text-slate-500 font-semibold mt-0.5">
-            Tulis langsung di lembar soal di bawah menggunakan toolbar seperti Microsoft Word.
-          </p>
-        </div>
-        <div class="flex items-center gap-2">
-          <span id="badge-paket-aktif" class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-extrabold">
-            Paket #2026001
-          </span>
-          <span id="badge-kelas-bab-soal" class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 font-extrabold">
-            5 SD • Pecahan
-          </span>
-        </div>
-      </div>
-
-      <!-- 1. UTAMA: EDITOR PENULISAN SOAL MANUAL ALA MICROSOFT WORD -->
-      <form id="form-simpan-soal" class="space-y-3">
-        <input type="hidden" id="edit-soal-id" value="">
-
-        <!-- RIBBON TOOLBAR ALA MICROSOFT WORD -->
-        <div class="rounded-2xl border border-orange-200 bg-[#FFFDF9] overflow-hidden">
-          <!-- Baris 1: Font Format, Pangkat/Indeks, Pecahan & Insert Equation -->
-          <div class="p-2.5 bg-orange-50/70 border-b border-orange-200/80 flex flex-wrap items-center gap-1.5">
-            <button type="button" class="word-btn" data-cmd="bold" title="Tebal (Ctrl+B)"><strong>B</strong></button>
-            <button type="button" class="word-btn" data-cmd="italic" title="Miring / Variabel Science (Ctrl+I)"><em>I</em></button>
-            <button type="button" class="word-btn" data-cmd="underline" title="Garis Bawah"><u>U</u></button>
-            <span class="text-orange-200 mx-0.5">|</span>
-            <button type="button" class="word-btn" data-cmd="superscript" title="Pangkat Atas (x²)">x<sup>2</sup></button>
-            <button type="button" class="word-btn" data-cmd="subscript" title="Indeks Bawah (x₂)">x<sub>2</sub></button>
-            <button type="button" id="btn-insert-pecahan" class="word-btn text-orange-700 border-orange-300" title="Sisip Pecahan Atas-Bawah">
-              <span class="leading-none text-[10px]">a<br>―<br>b</span> Pecahan
-            </button>
-            <button type="button" id="btn-open-equation" class="word-btn bg-orange-500 text-white border-orange-500 hover:bg-orange-600 hover:text-white">
-              ∑ Insert Equation
-            </button>
-            <span class="text-orange-200 mx-0.5">|</span>
-            <button type="button" class="word-btn" data-cmd="undo" title="Undo">↩ Undo</button>
-            <button type="button" id="btn-clear-word" class="word-btn text-rose-600 border-rose-200">Bersihkan</button>
-          </div>
-
-          <!-- Baris 2: Simbol Matematika & Huruf Science Sekali Klik -->
-          <div class="px-2.5 py-2 border-b border-orange-100 flex flex-wrap items-center gap-1">
-            <span class="text-[10px] font-extrabold uppercase text-slate-400 mr-1">Simbol &amp; Science:</span>
-            <button type="button" class="word-btn" data-word-symbol="π">π</button>
-            <button type="button" class="word-btn" data-word-symbol="√">√</button>
-            <button type="button" class="word-btn" data-word-symbol="×">×</button>
-            <button type="button" class="word-btn" data-word-symbol="÷">÷</button>
-            <button type="button" class="word-btn" data-word-symbol="±">±</button>
-            <button type="button" class="word-btn" data-word-symbol="≠">≠</button>
-            <button type="button" class="word-btn" data-word-symbol="≤">≤</button>
-            <button type="button" class="word-btn" data-word-symbol="≥">≥</button>
-            <button type="button" class="word-btn" data-word-symbol="°">°</button>
-            <button type="button" class="word-btn" data-word-symbol="∠">∠</button>
-            <button type="button" class="word-btn" data-word-symbol="△">△</button>
-            <button type="button" class="word-btn" data-word-symbol="∈">∈</button>
-            <button type="button" class="word-btn" data-word-symbol="∪">∪</button>
-            <button type="button" class="word-btn" data-word-symbol="∩">∩</button>
-            <button type="button" class="word-btn" data-word-symbol="α">α</button>
-            <button type="button" class="word-btn" data-word-symbol="β">β</button>
-            <button type="button" class="word-btn" data-word-symbol="θ">θ</button>
-            <button type="button" class="word-btn" data-word-symbol="∞">∞</button>
-          </div>
-
-          <!-- Baris 3: Sisip Form / Lembar Pengerjaan -->
-          <div class="px-2.5 py-2 border-b border-orange-100 flex flex-wrap items-center gap-1.5 bg-white">
-            <span class="text-[10px] font-extrabold uppercase text-slate-400 mr-1">Lembar Pengerjaan:</span>
-            <button type="button" class="word-btn" data-word-block="nomor">+ Nomor Soal</button>
-            <button type="button" class="word-btn" data-word-block="pg">+ Pilihan Ganda (A–D)</button>
-            <button type="button" class="word-btn" data-word-block="uraian">+ Kotak Diketahui / Ditanya / Jawab</button>
-            <button type="button" class="word-btn" data-word-block="isian">+ Garis Isian Jawab</button>
-          </div>
-
-          <!-- LEMBAR TULIS SOAL VISUAL (CONTENTEDITABLE ALA WORD) -->
-          <div id="word-editor" contenteditable="true"
-            data-placeholder="Tulis naskah soal langsung di lembar ini seperti mengetik di Microsoft Word..."
-            class="p-4 bg-white text-sm font-semibold text-slate-800"></div>
-        </div>
-
-        <!-- DETAIL PAKET, TIPE & KUNCI -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block font-bold text-slate-600 mb-1">Nomor Paket (Angka)</label>
-            <input type="text" id="input-kode-paket" required placeholder="2026001"
-              class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-extrabold text-slate-800 focus:outline-none focus:border-orange-400">
-          </div>
-          <div>
-            <label class="block font-bold text-slate-600 mb-1">Tipe Soal</label>
-            <select id="tipe-soal"
-              class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-bold text-slate-800 focus:outline-none focus:border-orange-400">
-              <option value="uraian">Uraian / Langkah Pengerjaan</option>
-              <option value="pilihan_ganda">Pilihan Ganda</option>
-              <option value="isian">Isian Singkat</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-bold text-slate-600 mb-1">Kunci Jawaban</label>
-            <input type="text" id="kunci-soal" placeholder="Contoh: 616 cm² atau B"
-              class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-bold text-slate-800 focus:outline-none focus:border-orange-400">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block font-bold text-slate-600 mb-1">Link Gambar / Drive (Opsional)</label>
-            <input type="url" id="link-gambar-soal" placeholder="https://drive.google.com/..."
-              class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-semibold text-slate-800 focus:outline-none focus:border-orange-400">
-          </div>
-          <div>
-            <label class="block font-bold text-slate-600 mb-1">Pembahasan / Feedback Kunci</label>
-            <input type="text" id="pembahasan-soal" placeholder="Penjelasan langkah penyelesaian atau poin penting..."
-              class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-semibold text-slate-800 focus:outline-none focus:border-orange-400">
-          </div>
-        </div>
-
-        <div class="flex flex-wrap gap-2">
-          <button type="submit" id="btn-submit-soal"
-            class="flex-1 bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm py-3 px-4 rounded-2xl shadow-md shadow-orange-500/25 transition">
-            Simpan Soal ke Bank Soal
-          </button>
-          <button type="button" id="btn-batal-edit"
-            class="hidden px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-600 font-extrabold text-xs sm:text-sm hover:bg-slate-50 transition">
-            Batal Edit
-          </button>
-        </div>
-      </form>
-
-      <!-- 2. PENDUKUNG: UPLOAD / SALIN TEKS MENTAH DARI PDF / DOCX / JPEG (TANPA AI REWRITE) -->
-      <details class="rounded-2xl bg-orange-50/50 border border-orange-200/80 p-3.5">
-        <summary class="font-extrabold text-slate-700 cursor-pointer select-none">
-          📄 Opsi Pendukung 1: Ambil Teks Mentah dari PDF / DOCX / JPEG (Tanpa Rewrite AI)
-        </summary>
-        <div class="mt-3 space-y-2">
-          <p class="text-[11px] font-semibold text-slate-500">
-            Menyalin teks dari file dokumen atau foto soal langsung ke lembar Word di atas tanpa diubah-ubah redaksinya oleh AI.
-          </p>
-          <div class="flex flex-col sm:flex-row gap-2">
-            <input type="file" id="file-ekstrak-soal" accept=".pdf,.docx,image/jpeg,image/png,image/webp"
-              class="flex-1 text-xs font-semibold text-slate-600 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-orange-500 file:text-white hover:file:bg-orange-600 cursor-pointer">
-            <button type="button" id="btn-proses-ekstrak"
-              class="px-4 py-2 rounded-xl bg-white border border-orange-300 text-orange-700 font-extrabold hover:bg-orange-100 transition shrink-0">
-              Salin ke Lembar Soal
-            </button>
-          </div>
-        </div>
-      </details>
-
-      <!-- 3. PILIHAN TERAKHIR: BANTUAN DRAF SOAL AI -->
-      <details class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5">
-        <summary class="font-extrabold text-slate-600 cursor-pointer select-none">
-          🤖 Pilihan Terakhir: Bantuan Draf Soal AI (Gemini / Groq)
-        </summary>
-        <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
-          <span class="text-[11px] font-semibold text-slate-500">
-            Gunakan hanya jika butuh inspirasi draf soal cepat untuk Kelas &amp; Bab aktif (atur API key di tab Drive, GAS &amp; AI).
-          </span>
-          <button type="button" id="btn-ai-bantu-soal-inline"
-            class="px-3.5 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-extrabold text-[11px] transition shrink-0">
-            Buat 1 Draf Soal ke Lembar
-          </button>
-        </div>
-      </details>
-
-      <!-- BANK SOAL DENGAN EDIT, DUPLIKASI & HAPUS -->
-      <div class="border-t border-orange-100 pt-4 space-y-2.5">
-        <div class="flex items-center justify-between">
-          <span class="font-extrabold text-slate-700">Bank Soal pada Kelas &amp; Bab Ini</span>
-          <button type="button" id="btn-refresh-soal" class="font-extrabold text-orange-600 hover:underline">Refresh</button>
-        </div>
-        <div id="list-bank-soal" class="space-y-2.5">
-          <p class="text-slate-400 text-center py-3">Memuat daftar soal...</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- TAB 2: CATATAN SISWA & TUGASKAN PR                      -->
-    <!-- ========================================================= -->
-    <section id="guru-panel-catatan" class="bg-white border-[1.5px] border-orange-100 shadow-lg shadow-orange-500/5 rounded-3xl p-4 sm:p-6 space-y-4 text-xs hidden">
-      <div class="border-b border-orange-100 pb-3">
-        <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-orange-600">
-          📝 INPUT CATATAN BELAJAR &amp; TUGASKAN PR
-        </h2>
-        <p class="text-slate-500 font-semibold mt-0.5">
-          Catat hasil pertemuan dan tugaskan PR sesuai siswa, kelas, dan bab aktif.
-        </p>
-      </div>
-
-      <form id="form-catatan-pr" class="space-y-3">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block font-bold text-slate-600 mb-1">Pilih Siswa</label>
-            <select id="select-siswa-catatan" required
-              class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-bold text-slate-800 focus:outline-none focus:border-orange-400">
-              <option value="">Memuat daftar siswa...</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-bold text-slate-600 mb-1">Tanggal Pertemuan</label>
-            <input type="date" id="tanggal-catatan" required
-              class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-bold text-slate-800 focus:outline-none focus:border-orange-400">
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">Catatan Perkembangan Siswa</label>
-          <textarea id="input-catatan-siswa" rows="3" required placeholder="Contoh: Sudah paham konsep pecahan senilai, perlu latihan soal cerita."
-            class="w-full p-3.5 rounded-2xl bg-white border border-orange-200 font-semibold text-slate-800 focus:outline-none focus:border-orange-400"></textarea>
-        </div>
-
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">Instruksi PR / Soal yang Ditugaskan</label>
-          <textarea id="input-pr-siswa" rows="3" placeholder="Tuliskan PR atau nomor soal yang ditugaskan..."
-            class="w-full p-3.5 rounded-2xl bg-white border border-orange-200 font-semibold text-slate-800 focus:outline-none focus:border-orange-400"></textarea>
-        </div>
-
-        <button type="submit"
-          class="w-full bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm py-3 rounded-2xl shadow-md shadow-orange-500/25 transition">
-          Simpan Catatan &amp; Tugaskan PR
-        </button>
-      </form>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- TAB 3: PANTAU PR SISWA SESUAI SISWA YANG DITUGASKAN     -->
-    <!-- ========================================================= -->
-    <section id="guru-panel-pantau" class="bg-white border-[1.5px] border-orange-100 shadow-lg shadow-orange-500/5 rounded-3xl p-4 sm:p-6 space-y-4 text-xs hidden">
-      <div class="border-b border-orange-100 pb-3 flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-orange-600">
-            📋 PANTAU PR PER SISWA YANG DITUGASKAN
-          </h2>
-          <p class="text-slate-500 font-semibold mt-0.5">
-            Hanya menampilkan catatan dan PR yang ditugaskan kepada siswa terpilih.
-          </p>
-        </div>
-        <button type="button" id="btn-refresh-pantau" class="font-extrabold text-orange-600 hover:underline">Refresh</button>
+      <!-- Tombol Struktur Cepat di Dalam Equation Builder -->
+      <div class="flex flex-wrap gap-1.5 bg-orange-50/70 p-2.5 rounded-2xl border border-orange-100">
+        <button type="button" onclick="eqInsertCmd('\\frac{#0}{#?}')" class="math-chip px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-xs font-bold hover:bg-orange-100">Pecahan 𝑎/𝑏</button>
+        <button type="button" onclick="eqInsertCmd('#0^{#?}')" class="math-chip px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-xs font-bold hover:bg-orange-100">Pangkat 𝑥ⁿ</button>
+        <button type="button" onclick="eqInsertCmd('#0_{#?}')" class="math-chip px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-xs font-bold hover:bg-orange-100">Indeks 𝑥ₙ</button>
+        <button type="button" onclick="eqInsertCmd('\\sqrt{#0}')" class="math-chip px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-xs font-bold hover:bg-orange-100">Akar √𝑥</button>
+        <button type="button" onclick="eqInsertCmd('\\sqrt[#?]{#0}')" class="math-chip px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-xs font-bold hover:bg-orange-100">Akar ⁿ√𝑥</button>
+        <button type="button" onclick="eqInsertCmd('\\int_{#?}^{#?} #0 \\,dx')" class="math-chip px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-xs font-bold hover:bg-orange-100">Integral ∫</button>
+        <button type="button" onclick="eqInsertCmd('\\lim_{x \\to #?} #0')" class="math-chip px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-xs font-bold hover:bg-orange-100">Limit</button>
+        <button type="button" onclick="eqInsertCmd('\\sum_{i=1}^{#?} #0')" class="math-chip px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-xs font-bold hover:bg-orange-100">Sigma Σ</button>
+        <button type="button" onclick="eqInsertCmd('\\begin{pmatrix} #0 & #? \\\\ #? & #? \\end{pmatrix}')" class="math-chip px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-xs font-bold hover:bg-orange-100">Matriks 2×2</button>
+        <button type="button" onclick="eqInsertCmd('\\log_{#?}(#0)')" class="math-chip px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-xs font-bold hover:bg-orange-100">Log</button>
       </div>
 
       <div>
-        <label class="block font-bold text-slate-600 mb-1">Pilih Siswa</label>
-        <select id="filter-siswa-pantau"
-          class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-extrabold text-slate-800 focus:outline-none focus:border-orange-400">
-          <option value="">-- Pilih Siswa untuk Melihat PR --</option>
-        </select>
+        <label class="block text-[11px] font-extrabold text-slate-600 mb-1.5">Ketik rumus langsung di kotak bawah (otomatis huruf science miring):</label>
+        <math-field id="visual-math-field" virtual-keyboard-mode="manual"></math-field>
+        <p class="text-[11px] font-semibold text-slate-400 mt-1.5">Tips: Ketik <code class="bg-slate-100 px-1 rounded">/</code> untuk pecahan, <code class="bg-slate-100 px-1 rounded">^</code> untuk pangkat, atau gunakan tombol di atas.</p>
       </div>
 
-      <div id="list-pr-siswa" class="space-y-3">
-        <p class="text-slate-400 text-center py-4">Pilih siswa terlebih dahulu untuk melihat daftar PR.</p>
-      </div>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- TAB 4: ALUR PENGERJAAN INTERAKTIF SISWA & PENILAIAN DETAIL-->
-    <!-- ========================================================= -->
-    <section id="guru-panel-latihan" class="bg-white border-[1.5px] border-orange-100 shadow-lg shadow-orange-500/5 rounded-3xl p-4 sm:p-6 space-y-4 text-xs hidden">
-      <div class="border-b border-orange-100 pb-3 flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-orange-600">
-            🎯 ALUR PENGERJAAN INTERAKTIF SISWA &amp; PENILAIAN DETAIL PER SOAL
-          </h2>
-          <p class="text-slate-500 font-semibold mt-0.5">
-            Jalankan pengerjaan soal pada kelas/bab aktif dengan penilaian serta feedback detail tiap nomor soal.
-          </p>
-        </div>
-        <button type="button" id="btn-muat-sesi-latihan"
-          class="px-3.5 py-2 rounded-xl bg-orange-50 text-orange-700 border border-orange-200 font-extrabold hover:bg-orange-100 transition">
-          Muat Soal Kelas &amp; Bab
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" onclick="tutupEquationBuilder()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold text-xs">
+          Batal
+        </button>
+        <button type="button" onclick="masukkanEquationKeSoal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-extrabold text-xs shadow-md shadow-orange-500/25">
+          ✓ Sisipkan ke Lembar Soal
         </button>
       </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">Siswa yang Mengerjakan</label>
-          <select id="latihan-siswa"
-            class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-bold text-slate-800 focus:outline-none focus:border-orange-400">
-            <option value="">-- Pilih Siswa (Opsional untuk Simulasi) --</option>
-          </select>
-        </div>
-        <div class="p-3 rounded-2xl bg-orange-50/70 border border-orange-200 flex items-center justify-between">
-          <span class="font-bold text-slate-600">Rekap Nilai Sesi:</span>
-          <span id="skor-interaktif" class="text-sm font-extrabold text-orange-600">0 / 0</span>
-        </div>
-      </div>
-
-      <div id="area-pengerjaan-interaktif" class="space-y-3">
-        <p class="text-slate-400 text-center py-4">Klik "Muat Soal Kelas &amp; Bab" untuk mulai mengerjakan soal secara interaktif.</p>
-      </div>
-
-      <button type="button" id="btn-nilai-semua-soal"
-        class="w-full bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-extrabold text-xs sm:text-sm py-3 rounded-2xl shadow-md shadow-orange-500/25 transition">
-        Nilai &amp; Tampilkan Feedback Detail per Soal
-      </button>
-    </section>
-
-    <!-- ========================================================= -->
-    <!-- TAB 5: GOOGLE DRIVE / GAS (Kode.gs) & AI PENDUKUNG        -->
-    <!-- ========================================================= -->
-    <section id="guru-panel-integrasi" class="bg-white border-[1.5px] border-orange-100 shadow-lg shadow-orange-500/5 rounded-3xl p-4 sm:p-6 space-y-5 text-xs hidden">
-      <!-- GOOGLE APPS SCRIPT (Kode.gs) & GOOGLE DRIVE -->
-      <div class="space-y-3 border-b border-orange-100 pb-5">
-        <div class="border-b border-orange-100 pb-2">
-          <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-orange-600">
-            📁 PENYIMPANAN FILE KE GOOGLE DRIVE VIA GOOGLE APPS SCRIPT (Kode.gs)
-          </h2>
-          <p class="text-slate-500 font-semibold mt-0.5">
-            Kirim file gambar/dokumen soal atau PR ke endpoint web app <code class="text-orange-700 font-bold">Kode.gs</code> agar tersimpan di Google Drive dan mengembalikan tautan file.
-          </p>
-        </div>
-
-        <div>
-          <label class="block font-bold text-slate-600 mb-1">URL Web App Google Apps Script (<code class="text-orange-700">Kode.gs</code>)</label>
-          <input type="url" id="gas-endpoint-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec"
-            class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-bold text-slate-800 focus:outline-none focus:border-orange-400">
-        </div>
-
-        <div class="flex flex-col sm:flex-row gap-2">
-          <input type="file" id="file-upload-drive"
-            class="flex-1 text-xs font-semibold text-slate-600 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-orange-500 file:text-white hover:file:bg-orange-600 cursor-pointer">
-          <button type="button" id="btn-upload-gas-drive"
-            class="px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold shrink-0 transition">
-            Upload ke Drive via GAS
-          </button>
-        </div>
-
-        <div id="hasil-gas-drive" class="p-3 rounded-2xl bg-orange-50/50 border border-orange-200 text-slate-700 font-semibold hidden"></div>
-      </div>
-
-      <!-- AI PENDUKUNG (PILIHAN TERAKHIR) -->
-      <div class="space-y-3">
-        <div>
-          <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-orange-600">
-            🤖 PENGATURAN AI PENDUKUNG (PILIHAN TERAKHIR — GEMINI / GROQ)
-          </h2>
-          <p class="text-slate-500 font-semibold mt-0.5">
-            Opsional sebagai pilihan terakhir untuk membantu menyusun draf soal.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block font-bold text-slate-600 mb-1">Provider AI</label>
-            <select id="ai-provider"
-              class="w-full px-3 py-2.5 rounded-2xl bg-white border border-orange-200 font-bold text-slate-800 focus:outline-none focus:border-orange-400">
-              <option value="gemini">Gemini API</option>
-              <option value="groq">Groq API</option>
-            </select>
-          </div>
-          <div class="sm:col-span-2">
-            <label class="block font-bold text-slate-600 mb-1">API Key (Disimpan Lokal di Browser Ini Saja)</label>
-            <input type="password" id="ai-api-key" placeholder="Masukkan API key jika ingin memakai bantuan AI..."
-              class="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-orange-200 font-bold text-slate-800 focus:outline-none focus:border-orange-400">
-          </div>
-        </div>
-
-        <div class="flex flex-wrap gap-2">
-          <button type="button" id="btn-simpan-ai-cfg"
-            class="px-4 py-2 rounded-xl bg-white border border-orange-300 text-orange-700 font-extrabold hover:bg-orange-50 transition">
-            Simpan Pengaturan Integrasi
-          </button>
-          <button type="button" id="btn-ai-bantu-soal"
-            class="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold transition">
-            Bantu Buat 1 Draf Soal Bab Ini
-          </button>
-        </div>
-      </div>
-    </section>
-
+    </div>
   </div>
 
-  <!-- FIREBASE COMPAT SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <!-- NAVBAR -->
+  <header class="sticky top-0 z-30 bg-[#FFFDF9]/95 backdrop-blur-md border-b border-orange-100">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <a href="index.html" class="flex items-center gap-2.5 min-w-0">
+        <img src="https://megamath.my.id/favicon-megamath.png" alt="Mega Math" class="w-10 h-8 object-contain mix-blend-multiply shrink-0" />
+        <div class="min-w-0">
+          <span class="block text-sm sm:text-base font-extrabold text-slate-800 truncate">Mega Math</span>
+          <span class="block text-[10px] font-bold text-orange-600 uppercase tracking-wider truncate">Studio Penulisan Soal</span>
+        </div>
+      </a>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="index.html" target="_blank"
+          class="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-2 rounded-xl border border-orange-200 bg-white hover:bg-orange-50 text-orange-700 transition">
+          <span>👁️</span><span>Lihat Web Siswa</span>
+        </a>
+        <button id="btn-logout" type="button" onclick="logoutGuru()" class="hidden text-xs font-extrabold px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+          Keluar
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 pt-6 pb-16">
+
+    <!-- VIEW 2: DASHBOARD STUDIO GURU -->
+    <section id="view-dashboard" class="hidden space-y-6">
+
+      <!-- HEADER PEMBUATAN PAKET SOAL (DEFAULT: TULIS MANUAL) -->
+      <div class="bg-white border-[1.5px] border-orange-100 shadow-xl shadow-orange-500/5 rounded-[2rem] p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-orange-50 pb-4">
+          <div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-extrabold mb-1.5">
+              <span>✍️</span><span>Equation Editor &amp; Parser Dokumen Langsung</span>
+            </span>
+            <h2 class="text-xl sm:text-2xl font-black text-slate-800">Buat Paket Soal Baru</h2>
+          </div>
+
+          <!-- TAB SWITCHER (UTAMA: TULIS MANUAL) -->
+          <div class="grid grid-cols-3 gap-1.5 bg-orange-50/70 p-1.5 rounded-2xl border border-orange-100">
+            <button type="button" id="tab-manual" onclick="switchMode('manual')"
+              class="tab-mode active px-3 py-2 rounded-xl text-xs font-extrabold transition">
+              ✍️ Tulis Manual
+            </button>
+            <button type="button" id="tab-file" onclick="switchMode('file')"
+              class="tab-mode px-3 py-2 rounded-xl text-xs font-extrabold text-slate-600 hover:text-orange-700 transition">
+              📄 Import File
+            </button>
+            <button type="button" id="tab-ai" onclick="switchMode('ai')"
+              class="tab-mode px-3 py-2 rounded-xl text-xs font-extrabold text-slate-600 hover:text-orange-700 transition">
+              🪄 AI Topik
+            </button>
+          </div>
+        </div>
+
+        <!-- MODE 1 (UTAMA): TULIS MANUAL DENGAN EQUATION EDITOR ALA WORD -->
+        <div id="panel-manual" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenjang Pendidikan</label>
+              <select id="man-jenjang" onchange="syncMetaDariFormUtama()" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+                <option value="SD Kelas 4-6">SD (Kelas 4 - 6)</option>
+                <option value="SMP Kelas 7">SMP Kelas 7</option>
+                <option value="SMP Kelas 8">SMP Kelas 8</option>
+                <option value="SMP Kelas 9">SMP Kelas 9</option>
+                <option value="SMA Kelas 10">SMA Kelas 10</option>
+                <option value="SMA Kelas 11" selected>SMA Kelas 11</option>
+                <option value="SMA Kelas 12">SMA Kelas 12</option>
+                <option value="UTBK / SNBT">UTBK / SNBT (Penalaran Matematika)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenis Paket Soal</label>
+              <select id="man-jenis" onchange="syncMetaDariFormUtama()" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+                <option value="Latihan Mandiri" selected>📘 Latihan Mandiri</option>
+                <option value="Kuis Bab">⚡ Kuis Bab</option>
+                <option value="Tryout / Ujian">🏆 Tryout / Ujian</option>
+                <option value="Pendalaman HOTS">🔥 Pendalaman HOTS</option>
+                <option value="Remedial">🩹 Remedial &amp; Penguatan Konsep</option>
+                <option value="Bank Soal UTBK">🎯 Bank Soal UTBK</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Topik / Bab Materi</label>
+              <input id="man-topik" type="text" oninput="syncMetaDariFormUtama()" placeholder="Contoh: Turunan Fungsi Aljabar"
+                class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-orange-50/70 border border-orange-100 text-xs font-semibold text-slate-600">
+            <div>✨ Lembar penulisan soal di bawah sudah aktif dengan <strong>Toolbar Equation &amp; Simbol Matematika</strong> di bagian atas layar.</div>
+            <button type="button" onclick="resetLembarManualBaru()"
+              class="shrink-0 px-4 py-2 rounded-xl bg-white hover:bg-orange-100 border border-orange-200 text-orange-700 font-extrabold text-xs transition">
+              🆕 Reset Lembar Baru
+            </button>
+          </div>
+        </div>
+
+        <!-- MODE 2: EKSTRAK LANGSUNG DARI PDF / DOC / DOCX / JPEG TANPA AI (100% VERBATIM) -->
+        <form id="panel-file" onsubmit="ekstrakFileTanpaAI(event)" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Pilih File Soal (PDF, Word .DOCX/.DOC, atau Foto .JPEG/.PNG)</label>
+            <div class="border-2 border-dashed border-orange-200 hover:border-orange-400 rounded-2xl p-5 bg-[#FFFDF9] text-center space-y-2 transition">
+              <input id="file-upload-input" type="file" required
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png,image/webp"
+                onchange="handleFileSelected(this)"
+                class="block w-full text-xs text-slate-600 font-bold file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200 cursor-pointer" />
+              <p id="file-info-text" class="text-[11px] font-semibold text-slate-500">
+                ⚡ <strong>Tanpa AI (100% Teks Asli &amp; Cepat):</strong> Membaca langsung isi PDF, Word (.docx/.doc), atau Foto OCR tanpa mengubah kalimat soal.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenjang Pendidikan</label>
+            <select id="file-jenjang" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+              <option value="SD Kelas 4-6">SD (Kelas 4 - 6)</option>
+              <option value="SMP Kelas 7">SMP Kelas 7</option>
+              <option value="SMP Kelas 8">SMP Kelas 8</option>
+              <option value="SMP Kelas 9">SMP Kelas 9</option>
+              <option value="SMA Kelas 10">SMA Kelas 10</option>
+              <option value="SMA Kelas 11" selected>SMA Kelas 11</option>
+              <option value="SMA Kelas 12">SMA Kelas 12</option>
+              <option value="UTBK / SNBT">UTBK / SNBT (Penalaran Matematika)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenis Paket Soal</label>
+            <select id="file-jenis" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+              <option value="Latihan Mandiri" selected>📘 Latihan Mandiri</option>
+              <option value="Kuis Bab">⚡ Kuis Bab</option>
+              <option value="Tryout / Ujian">🏆 Tryout / Ujian</option>
+              <option value="Pendalaman HOTS">🔥 Pendalaman HOTS</option>
+              <option value="Remedial">🩹 Remedial &amp; Penguatan Konsep</option>
+              <option value="Bank Soal UTBK">🎯 Bank Soal UTBK</option>
+            </select>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Topik / Bab Materi</label>
+            <input id="file-topik" type="text" required placeholder="Contoh: Integral Tak Tentu"
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          </div>
+
+          <div class="sm:col-span-2 pt-1">
+            <button id="btn-upload-direct" type="submit"
+              class="w-full py-3.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 active:scale-[0.99] text-white font-extrabold text-sm shadow-lg shadow-orange-500/25 transition disabled:opacity-60">
+              📥 Ekstrak Soal dari File ke Lembar Kerja (Tanpa AI)
+            </button>
+          </div>
+        </form>
+
+        <!-- MODE 3: GENERATE AI DARI TOPIK (OPSIONAL) -->
+        <form id="panel-ai" onsubmit="generateSoal(event)" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenjang Pendidikan</label>
+            <select id="gen-jenjang" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+              <option value="SD Kelas 4-6">SD (Kelas 4 - 6)</option>
+              <option value="SMP Kelas 7">SMP Kelas 7</option>
+              <option value="SMP Kelas 8">SMP Kelas 8</option>
+              <option value="SMP Kelas 9">SMP Kelas 9</option>
+              <option value="SMA Kelas 10">SMA Kelas 10</option>
+              <option value="SMA Kelas 11" selected>SMA Kelas 11</option>
+              <option value="SMA Kelas 12">SMA Kelas 12</option>
+              <option value="UTBK / SNBT">UTBK / SNBT (Penalaran Matematika)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenis Paket Soal</label>
+            <select id="gen-jenis" class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+              <option value="Latihan Mandiri" selected>📘 Latihan Mandiri</option>
+              <option value="Kuis Bab">⚡ Kuis Bab</option>
+              <option value="Tryout / Ujian">🏆 Tryout / Ujian</option>
+              <option value="Pendalaman HOTS">🔥 Pendalaman HOTS</option>
+              <option value="Remedial">🩹 Remedial &amp; Penguatan Konsep</option>
+              <option value="Bank Soal UTBK">🎯 Bank Soal UTBK</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Topik / Bab Materi</label>
+            <input id="gen-topik" type="text" required placeholder="Contoh: Turunan Fungsi Aljabar"
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jumlah Soal</label>
+              <input id="gen-jumlah" type="number" min="1" max="15" value="5" required
+                class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+            </div>
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Tingkat Kesulitan</label>
+              <select id="gen-tingkat" class="w-full px-3 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-xs sm:text-sm font-bold bg-[#FFFDF9]">
+                <option value="Mudah">Mudah</option>
+                <option value="Sedang">Sedang</option>
+                <option value="Campuran (Mudah, Sedang, HOTS)" selected>Campuran</option>
+                <option value="HOTS">HOTS</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Instruksi Tambahan untuk AI (Opsional)</label>
+            <input id="gen-instruksi" type="text" placeholder="Contoh: Sertakan 2 soal cerita aplikasi kehidupan sehari-hari"
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          </div>
+
+          <div class="sm:col-span-2 pt-1">
+            <button id="btn-generate" type="submit"
+              class="w-full py-3.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 active:scale-[0.99] text-white font-extrabold text-sm shadow-lg shadow-orange-500/25 transition disabled:opacity-60">
+              🪄 Generate Soal dengan AI
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- LEMBAR PENGERJAAN & PENULISAN SOAL (SELALU TAMPIL & PUNYA TOOLBAR STICKY DI ATAS) -->
+      <div id="preview-section" class="space-y-5">
+
+        <!-- STICKY TOP TOOLBAR ALA MS WORD (SELALU MENEMPEL DI ATAS LEMBAR PENULISAN) -->
+        <div class="sticky top-[61px] z-20 bg-white/95 backdrop-blur-md border-[1.5px] border-orange-300 shadow-lg shadow-orange-500/10 rounded-3xl p-3.5 sm:p-4 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <!-- Tombol Utama: Buka Visual Equation Builder ala MS Word -->
+              <button type="button" onclick="bukaEquationBuilder()"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-extrabold text-xs shadow-sm transition">
+                <span class="font-serif text-sm">∑</span><span>Equation Visual (Word)</span>
+              </button>
+
+              <!-- Tombol Ubah Teks Terblok Menjadi Huruf Variabel Science Miring -->
+              <button type="button" onclick="formatSelectionAsScienceVar()"
+                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-300 text-orange-800 font-extrabold text-xs transition"
+                title="Blok huruf (misal: x, y, f(x)) lalu klik tombol ini agar otomatis miring ala huruf science">
+                <span class="science-var text-sm font-bold">𝑥</span><span>Huruf Variabel / Science</span>
+              </button>
+
+              <!-- Tombol Cepat Pecahan, Pangkat, Akar -->
+              <button type="button" onclick="insertToActiveField('$\\frac{a}{b}$')" class="math-chip px-2.5 py-1.5 rounded-xl bg-[#FFFDF9] hover:bg-orange-100 border border-orange-200 text-xs font-bold">𝑎/𝑏</button>
+              <button type="button" onclick="insertToActiveField('$x^{2}$')" class="math-chip px-2.5 py-1.5 rounded-xl bg-[#FFFDF9] hover:bg-orange-100 border border-orange-200 text-xs font-bold">𝑥²</button>
+              <button type="button" onclick="insertToActiveField('$\\sqrt{x}$')" class="math-chip px-2.5 py-1.5 rounded-xl bg-[#FFFDF9] hover:bg-orange-100 border border-orange-200 text-xs font-bold">√𝑥</button>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span id="active-target-indicator" class="hidden md:inline-block text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
+                Target: Soal No. 1 (Pertanyaan)
+              </span>
+              <button id="btn-publish" type="button" onclick="publishPackage()"
+                class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/20 transition disabled:opacity-60">
+                🚀 Publikasikan Paket
+              </button>
+            </div>
+          </div>
+
+          <!-- Baris Simbol Matematika & Science 1-Klik -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1">
+            <span class="text-[10px] font-extrabold text-orange-600 uppercase tracking-wider shrink-0 mr-1">Simbol:</span>
+            <div id="top-symbol-bar" class="flex items-center gap-1 shrink-0"></div>
+          </div>
+        </div>
+
+        <!-- METADATA PAKET SOAL -->
+        <div class="bg-white border-[1.5px] border-orange-100 rounded-3xl p-5 sm:p-6 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-orange-50 pb-3">
+            <div class="flex items-center gap-2">
+              <span id="editor-mode-badge" class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-[11px] font-extrabold uppercase">
+                Lembar Penulisan Soal Baru
+              </span>
+              <span id="editor-kode-badge" class="px-3 py-1 rounded-full bg-slate-800 text-white text-[11px] font-extrabold tracking-wider">
+                KODE: 2601
+              </span>
+            </div>
+            <button type="button" onclick="tambahSoalManual()"
+              class="px-4 py-2 rounded-xl border border-orange-300 bg-orange-50 hover:bg-orange-100 text-orange-700 font-extrabold text-xs transition">
+              + Tambah Nomor Soal
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Judul Paket Soal</label>
+              <input id="edit-judul" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Jenis Paket Soal</label>
+              <select id="edit-jenis" class="w-full px-3 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold bg-white">
+                <option value="Latihan Mandiri">Latihan Mandiri</option>
+                <option value="Kuis Bab">Kuis Bab</option>
+                <option value="Tryout / Ujian">Tryout / Ujian</option>
+                <option value="Pendalaman HOTS">Pendalaman HOTS</option>
+                <option value="Remedial">Remedial</option>
+                <option value="Bank Soal UTBK">Bank Soal UTBK</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Topik / Bab Materi</label>
+              <input id="edit-topik" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Jenjang</label>
+              <input id="edit-jenjang" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Durasi (Menit)</label>
+              <input id="edit-durasi" type="number" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs sm:text-sm font-extrabold" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-extrabold text-slate-600 mb-1">Deskripsi Singkat Katalog</label>
+              <input id="edit-deskripsi" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 text-xs font-bold" />
+            </div>
+          </div>
+        </div>
+
+        <!-- DAFTAR KARTU SOAL & LIVE PREVIEW -->
+        <div id="preview-soal-list" class="space-y-5"></div>
+
+        <!-- BAR AKSI BAWAH -->
+        <div class="flex flex-wrap justify-between items-center gap-3 bg-white border border-orange-100 rounded-2xl p-4">
+          <button type="button" onclick="tambahSoalManual()"
+            class="px-4 py-2.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-700 font-extrabold text-xs transition">
+            + Tambah Nomor Soal Baru
+          </button>
+          <button id="btn-publish-bottom" type="button" onclick="publishPackage()"
+            class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition">
+            🚀 Simpan &amp; Publikasikan ke Siswa
+          </button>
+        </div>
+      </div>
+
+      <!-- DAFTAR PAKET AKTIF DI KATALOG -->
+      <div class="bg-white border-[1.5px] border-orange-100 rounded-[2rem] p-6 sm:p-8 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Database Google Drive</span>
+            <h3 class="text-lg font-black text-slate-800">Paket Soal Aktif di Web Siswa</h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="search-admin-catalog" type="text" oninput="filterAdminCatalog()" placeholder="Cari bab / kode paket..."
+              class="px-3.5 py-2 rounded-xl border border-orange-200 text-xs font-bold bg-[#FFFDF9] focus:outline-none focus:border-orange-400" />
+            <button type="button" onclick="loadExistingCatalog()" class="text-xs font-extrabold px-3.5 py-2 rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-100 transition shrink-0">
+              🔄 Refresh
+            </button>
+          </div>
+        </div>
+
+        <div id="admin-catalog-list" class="space-y-3">
+          <div class="text-center py-6 text-xs font-bold text-slate-400">Memuat daftar paket soal...</div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <footer class="border-t border-orange-100 bg-white py-6 px-4 text-center text-xs text-slate-500 font-semibold">
+    © 2026 Mega Math - Bimbel Private • Studio Penulisan Soal
+  </footer>
+
   <script>
-    (function() {
-      var firebaseConfig = {
-        apiKey: "AIzaSyDmBlSBdeVPRO-AeUPQPEpDJzOLVE6fLUE",
-        authDomain: "mega-math-bimbel.firebaseapp.com",
-        projectId: "mega-math-bimbel",
-        storageBucket: "mega-math-bimbel.firebasestorage.app",
-        messagingSenderId: "1018677380626",
-        appId: "1:1018677380626:web:0f37cc89072d1816b57acb",
-        measurementId: "G-X3JBT00B7L"
-      };
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyJPsUAFpA1TfHWhjQ3DpG4T6AA_ye4kjsDe3X5FEIWxq_Cip4biJwkEl2BEUx7YHO84Q/exec';
+    const APP_KEY = 'MEGAMATH_DEV_2026_SECURE';
 
-      var PAKET_CFG_KEY = "megamath_paket_cfg";
-      var INT_CFG_KEY = "megamath_integrasi_cfg";
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
 
-      firebase.initializeApp(firebaseConfig);
-      var db = firebase.firestore();
+    let guruKey = sessionStorage.getItem('mm_guru_key') || '';
+    let draftPackage = null;
+    let cachedCategories = [];
+    let selectedFileObj = null;
+    let selectedFileBase64 = '';
 
-      if (window.pdfjsLib) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-      }
+    // Tracking kolom mana yang sedang diketik guru agar Toolbar Atas langsung masuk ke kolom itu
+    let activeInputElement = null;
+    let activeInputMeta = { idx: 0, type: 'field', key: 'pertanyaan' };
 
-      var BAB_DEFAULT = {
-        "4 SD": ["Bilangan Cacah", "Pecahan Dasar", "Bangun Datar", "Pengukuran"],
-        "5 SD": ["Pecahan", "Kecepatan & Debit", "Skala & Denah", "Bangun Ruang"],
-        "6 SD": ["Bilangan Bulat", "Lingkaran", "Bangun Ruang Gabungan", "Statistika Dasar"],
-        "7 SMP": ["Bilangan Bulat & Pecahan", "Aljabar", "Persamaan Linear Satu Variabel", "Perbandingan"],
-        "8 SMP": ["Pola Bilangan", "Koordinat Kartesius", "Relasi & Fungsi", "Teorema Pythagoras"],
-        "9 SMP": ["Bilangan Berpangkat & Bentuk Akar", "Persamaan Kuadrat", "Fungsi Kuadrat", "Transformasi Geometri"],
-        "10 SMA": ["Eksponen & Logaritma", "Barisan & Deret", "Trigonometri Dasar", "Sistem Persamaan Linear"],
-        "11 SMA": ["Matriks", "Transformasi & Komposisi Fungsi", "Limit Fungsi", "Turunan Fungsi"],
-        "12 SMA": ["Dimensi Tiga", "Statistika Inferensial", "Integral", "Peluang"]
-      };
+    const TOP_SYMBOLS = [
+      { label: '×', snippet: '$\\times$' },
+      { label: '÷', snippet: '$\\div$' },
+      { label: '±', snippet: '$\\pm$' },
+      { label: '≤', snippet: '$\\leq$' },
+      { label: '≥', snippet: '$\\geq$' },
+      { label: '≠', snippet: '$\\neq$' },
+      { label: '≈', snippet: '$\\approx$' },
+      { label: '°', snippet: '$^{\\circ}$' },
+      { label: 'π', snippet: '$\\pi$' },
+      { label: 'θ', snippet: '$\\theta$' },
+      { label: 'α', snippet: '$\\alpha$' },
+      { label: 'β', snippet: '$\\beta$' },
+      { label: '∠', snippet: '$\\angle$' },
+      { label: '△', snippet: '$\\triangle$' },
+      { label: '∞', snippet: '$\\infty$' },
+      { label: '∈', snippet: '$\\in$' },
+      { label: '∪', snippet: '$\\cup$' },
+      { label: '∩', snippet: '$\\cap$' },
+      { label: '→', snippet: '$\\to$' },
+      { label: '∫', snippet: '$\\int_{a}^{b} f(x)\\,dx$' },
+      { label: 'Σ', snippet: '$\\sum_{i=1}^{n}$' }
+    ];
 
-      var TAB_ACTIVE_CLS = "bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-md shadow-orange-500/25 py-2.5 px-3 rounded-2xl text-xs font-extrabold transition";
-      var TAB_IDLE_CLS = "bg-white text-slate-600 border-[1.5px] border-orange-300/80 hover:bg-orange-50/50 py-2.5 px-3 rounded-2xl text-xs font-extrabold transition";
+    // ========================================================================
+    // CUSTOM POP-UP MODAL ENGINE
+    // ========================================================================
+    function showCustomModal({ type = 'info', title = '', message = '', confirmText = 'OK', cancelText = 'Batal', showCancel = false }) {
+      return new Promise((resolve) => {
+        const overlay = document.getElementById('mm-modal-overlay');
+        const box = document.getElementById('mm-modal-box');
+        const iconEl = document.getElementById('mm-modal-icon');
+        const titleEl = document.getElementById('mm-modal-title');
+        const msgEl = document.getElementById('mm-modal-message');
+        const actionsEl = document.getElementById('mm-modal-actions');
 
-      var cachedSoalList = [];
-      var pendingDeleteId = null;
-
-      function setLoading(show, text) {
-        var el = document.getElementById("loader");
-        var txt = document.getElementById("loader-text");
-        if (txt && text) txt.textContent = text;
-        if (!el) return;
-        if (show) {
-          el.classList.remove("hidden");
-          el.classList.add("flex");
-        } else {
-          el.classList.add("hidden");
-          el.classList.remove("flex");
-        }
-      }
-
-      function showNotif(icon, title, message) {
-        document.getElementById("notif-icon").textContent = icon || "📘";
-        document.getElementById("notif-title").textContent = title || "Informasi";
-        document.getElementById("notif-message").textContent = message || "";
-        var modal = document.getElementById("modal-notif");
-        modal.classList.remove("hidden");
-        modal.classList.add("flex");
-      }
-
-      function closeNotif() {
-        var modal = document.getElementById("modal-notif");
-        modal.classList.add("hidden");
-        modal.classList.remove("flex");
-      }
-
-      function openConfirmDelete(docId, label) {
-        pendingDeleteId = docId;
-        document.getElementById("confirm-message").textContent = 'Hapus soal "' + (label || docId) + '" dari bank soal?';
-        var modal = document.getElementById("modal-confirm");
-        modal.classList.remove("hidden");
-        modal.classList.add("flex");
-      }
-
-      function closeConfirmDelete() {
-        pendingDeleteId = null;
-        var modal = document.getElementById("modal-confirm");
-        modal.classList.add("hidden");
-        modal.classList.remove("flex");
-      }
-
-      function formatPaketAngka(tahun, urutan) {
-        var y = String(tahun || "2026").replace(/\D/g, "").slice(0, 4) || "2026";
-        var seqNum = Math.max(1, parseInt(urutan, 10) || 1);
-        return y + String(seqNum).padStart(3, "0");
-      }
-
-      function getPaketCfg() {
-        try {
-          var raw = localStorage.getItem(PAKET_CFG_KEY);
-          if (raw) {
-            var p = JSON.parse(raw);
-            return {
-              tahun: String(p.tahun || "2026"),
-              urutan: Math.max(1, parseInt(p.urutan, 10) || 1)
-            };
-          }
-        } catch (e) {}
-        return { tahun: "2026", urutan: 1 };
-      }
-
-      function savePaketCfg(tahun, urutan) {
-        var cfg = {
-          tahun: String(tahun || "2026").replace(/\D/g, "").slice(0, 4) || "2026",
-          urutan: Math.max(1, parseInt(urutan, 10) || 1)
+        const styles = {
+          success: { icon: '✅', iconBg: 'bg-emerald-100 text-emerald-600', border: 'border-emerald-200', btnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20' },
+          error: { icon: '❌', iconBg: 'bg-rose-100 text-rose-600', border: 'border-rose-200', btnClass: 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20' },
+          warning: { icon: '⚠️', iconBg: 'bg-amber-100 text-amber-600', border: 'border-amber-200', btnClass: 'bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-orange-500/25' },
+          confirm: { icon: '🤔', iconBg: 'bg-orange-100 text-orange-600', border: 'border-orange-200', btnClass: 'bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-orange-500/25' },
+          dangerConfirm: { icon: '🗑️', iconBg: 'bg-rose-100 text-rose-600', border: 'border-rose-200', btnClass: 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20' }
         };
-        localStorage.setItem(PAKET_CFG_KEY, JSON.stringify(cfg));
-        syncPaketUI(true);
-        return cfg;
+
+        const cfg = styles[type] || styles.warning;
+        box.className = `modal-pop bg-white border-[1.5px] ${cfg.border} shadow-2xl rounded-[2rem] max-w-sm w-full p-6 sm:p-7 text-center space-y-4`;
+        iconEl.className = `w-16 h-16 mx-auto rounded-2xl ${cfg.iconBg} flex items-center justify-center text-3xl`;
+        iconEl.textContent = cfg.icon;
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        actionsEl.innerHTML = '';
+
+        function closeWith(val) {
+          overlay.classList.add('hidden');
+          resolve(val);
+        }
+
+        if (showCancel) {
+          const btnCancel = document.createElement('button');
+          btnCancel.type = 'button';
+          btnCancel.className = 'flex-1 py-3 px-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold text-xs sm:text-sm transition';
+          btnCancel.textContent = cancelText;
+          btnCancel.onclick = () => closeWith(false);
+          actionsEl.appendChild(btnCancel);
+        }
+
+        const btnOk = document.createElement('button');
+        btnOk.type = 'button';
+        btnOk.className = `flex-1 py-3 px-4 rounded-2xl ${cfg.btnClass} font-extrabold text-xs sm:text-sm shadow-lg transition`;
+        btnOk.textContent = confirmText;
+        btnOk.onclick = () => closeWith(true);
+        actionsEl.appendChild(btnOk);
+
+        overlay.classList.remove('hidden');
+        btnOk.focus();
+      });
+    }
+
+    function mmAlert(title, message, type = 'warning') {
+      return showCustomModal({ type, title, message, confirmText: 'Mengerti', showCancel: false });
+    }
+
+    function mmConfirm(title, message, confirmText = 'Ya, Lanjutkan', isDanger = false) {
+      return showCustomModal({ type: isDanger ? 'dangerConfirm' : 'confirm', title, message, confirmText, cancelText: 'Batal', showCancel: true });
+    }
+
+    // ========================================================================
+    // VISUAL EQUATION BUILDER (ALA MS WORD) & HURUF SCIENCE
+    // ========================================================================
+    function setActiveTarget(el, idx, type, key, labelText) {
+      activeInputElement = el;
+      activeInputMeta = { idx, type, key };
+      const ind = document.getElementById('active-target-indicator');
+      if (ind) ind.textContent = `Target: Soal No. ${idx + 1} (${labelText})`;
+    }
+
+    function getTargetInputElement() {
+      if (activeInputElement && document.body.contains(activeInputElement)) {
+        return activeInputElement;
+      }
+      const fallback = document.getElementById('input-pertanyaan-0');
+      activeInputElement = fallback;
+      activeInputMeta = { idx: 0, type: 'field', key: 'pertanyaan' };
+      return fallback;
+    }
+
+    function insertToActiveField(snippet) {
+      const targetEl = getTargetInputElement();
+      if (!targetEl) return;
+
+      const start = targetEl.selectionStart ?? targetEl.value.length;
+      const end = targetEl.selectionEnd ?? targetEl.value.length;
+      const currentVal = targetEl.value;
+      const newVal = currentVal.substring(0, start) + snippet + currentVal.substring(end);
+
+      targetEl.value = newVal;
+      targetEl.focus();
+      targetEl.setSelectionRange(start + snippet.length, start + snippet.length);
+
+      if (activeInputMeta.type === 'field') {
+        updateField(activeInputMeta.idx, activeInputMeta.key, newVal);
+      } else if (activeInputMeta.type === 'opsi') {
+        updateOpsi(activeInputMeta.idx, activeInputMeta.key, newVal);
+      }
+    }
+
+    // Mengubah teks yang diblok (misal: x, y, f(x)) atau karakter sebelum kursor menjadi huruf science miring ($...$)
+    function formatSelectionAsScienceVar() {
+      const targetEl = getTargetInputElement();
+      if (!targetEl) return;
+
+      const start = targetEl.selectionStart ?? 0;
+      const end = targetEl.selectionEnd ?? 0;
+      const val = targetEl.value;
+
+      if (start !== end) {
+        const selectedText = val.substring(start, end);
+        const wrapped = selectedText.startsWith('$') && selectedText.endsWith('$')
+          ? selectedText
+          : `$${selectedText}$`;
+        const newVal = val.substring(0, start) + wrapped + val.substring(end);
+        targetEl.value = newVal;
+        targetEl.focus();
+        targetEl.setSelectionRange(start + wrapped.length, start + wrapped.length);
+
+        if (activeInputMeta.type === 'field') {
+          updateField(activeInputMeta.idx, activeInputMeta.key, newVal);
+        } else {
+          updateOpsi(activeInputMeta.idx, activeInputMeta.key, newVal);
+        }
+      } else {
+        // Jika tidak ada yang diblok, buka Equation Builder visual
+        bukaEquationBuilder();
+      }
+    }
+
+    function bukaEquationBuilder() {
+      const overlay = document.getElementById('eq-modal-overlay');
+      const mf = document.getElementById('visual-math-field');
+      mf.value = '';
+      overlay.classList.remove('hidden');
+      setTimeout(() => mf.focus(), 80);
+    }
+
+    function tutupEquationBuilder() {
+      document.getElementById('eq-modal-overlay').classList.add('hidden');
+    }
+
+    function eqInsertCmd(latexTemplate) {
+      const mf = document.getElementById('visual-math-field');
+      mf.executeCommand(['insert', latexTemplate]);
+      mf.focus();
+    }
+
+    function masukkanEquationKeSoal() {
+      const mf = document.getElementById('visual-math-field');
+      const latex = (mf.value || '').trim();
+      tutupEquationBuilder();
+      if (latex) {
+        insertToActiveField(`$${latex}$`);
+      }
+    }
+
+    // ========================================================================
+    // PARSER FILE LOKAL TANPA AI (DOCX, DOC, PDF, JPEG/PNG OCR)
+    // ========================================================================
+    async function handleFileSelected(input) {
+      const file = input.files[0];
+      const infoText = document.getElementById('file-info-text');
+      if (!file) {
+        selectedFileObj = null;
+        selectedFileBase64 = '';
+        return;
       }
 
-      function syncPaketUI(overwriteInput) {
-        var cfg = getPaketCfg();
-        document.getElementById("paket-tahun").value = cfg.tahun;
-        document.getElementById("paket-urutan").value = cfg.urutan;
-        var kode = formatPaketAngka(cfg.tahun, cfg.urutan);
-        document.getElementById("preview-kode-paket").textContent = kode;
-        document.getElementById("badge-paket-aktif").textContent = "Paket #" + kode;
-        var kodeInput = document.getElementById("input-kode-paket");
-        if (overwriteInput || !kodeInput.value) {
-          kodeInput.value = kode;
-        }
+      if (file.size > 12 * 1024 * 1024) {
+        await mmAlert('Ukuran File Terlalu Besar', 'Maksimal ukuran file adalah 12 MB.', 'warning');
+        input.value = '';
+        selectedFileObj = null;
+        return;
       }
 
-      function updateBabDropdown(kelas, selectedBab) {
-        var babSel = document.getElementById("filter-bab");
-        var list = BAB_DEFAULT[kelas] || ["Bab 1 - Umum"];
-        babSel.textContent = "";
-        for (var i = 0; i < list.length; i++) {
-          var opt = document.createElement("option");
-          opt.value = list[i];
-          opt.textContent = list[i];
-          babSel.appendChild(opt);
-        }
-        if (selectedBab) {
-          var exists = false;
-          for (var j = 0; j < babSel.options.length; j++) {
-            if (babSel.options[j].value === selectedBab) {
-              exists = true;
-              break;
+      selectedFileObj = file;
+      infoText.innerHTML = `✅ File siap diekstrak langsung (tanpa AI): <strong class="text-orange-700">${file.name}</strong> (${(file.size / 1024).toFixed(1)} KB)`;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        selectedFileBase64 = evt.target.result.split(',')[1];
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function ekstrakFileTanpaAI(e) {
+      e.preventDefault();
+      if (!selectedFileObj) {
+        await mmAlert('File Belum Dipilih', 'Pilih file PDF, Word (.docx/.doc), atau Foto lembar soal terlebih dahulu.', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('btn-upload-direct');
+      btn.disabled = true;
+
+      try {
+        const fileName = selectedFileObj.name.toLowerCase();
+        let rawText = '';
+
+        if (fileName.endsWith('.docx')) {
+          btn.textContent = '⏳ Membaca isi dokumen Word (.docx)...';
+          const arrayBuffer = await selectedFileObj.arrayBuffer();
+          const result = await mammoth.extractRawText({ arrayBuffer });
+          rawText = result.value || '';
+        } else if (fileName.endsWith('.doc')) {
+          btn.textContent = '⏳ Mengekstrak teks dokumen .doc...';
+          const res = await callApi({
+            action: 'extractDocNative',
+            fileBase64: selectedFileBase64,
+            mimeType: selectedFileObj.type || 'application/msword',
+            fileName: selectedFileObj.name
+          }, true);
+          if (res.status !== 'success') throw new Error(res.message);
+          rawText = res.rawText || '';
+        } else if (fileName.endsWith('.pdf')) {
+          btn.textContent = '⏳ Membaca teks dari halaman PDF...';
+          const arrayBuffer = await selectedFileObj.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          const pagesText = [];
+          for (let p = 1; p <= pdf.numPages; p++) {
+            const page = await pdf.getPage(p);
+            const content = await page.getTextContent();
+            const strings = content.items.map(item => item.str);
+            pagesText.push(strings.join(' '));
+          }
+          rawText = pagesText.join('\n');
+        } else if (selectedFileObj.type.startsWith('image/')) {
+          btn.textContent = '⏳ Memindai tulisan dari gambar (OCR Lokal)...';
+          const ocrResult = await Tesseract.recognize(selectedFileObj, 'ind+eng', {
+            logger: m => {
+              if (m.status === 'recognizing text') {
+                btn.textContent = `⏳ Memindai gambar: ${Math.round((m.progress || 0) * 100)}%...`;
+              }
             }
-          }
-          if (!exists) {
-            var newOpt = document.createElement("option");
-            newOpt.value = selectedBab;
-            newOpt.textContent = selectedBab;
-            babSel.appendChild(newOpt);
-          }
-          babSel.value = selectedBab;
+          });
+          rawText = ocrResult.data.text || '';
+        } else {
+          throw new Error('Format file tidak didukung. Gunakan .docx, .doc, .pdf, atau gambar .jpg/.png.');
         }
-        updateKelasBabBadge();
-        loadBankSoal();
+
+        const parsedQuestions = parseRawTextToSoalArray(rawText);
+
+        const jenjang = document.getElementById('file-jenjang').value;
+        const jenisPaket = document.getElementById('file-jenis').value;
+        const topik = document.getElementById('file-topik').value.trim() || selectedFileObj.name.replace(/\.[^/.]+$/, '');
+        const autoCode = generateClientPreviewCode();
+
+        draftPackage = {
+          kode_paket: autoCode,
+          jenis_paket: jenisPaket,
+          judul: `${jenisPaket}: ${topik} (${jenjang})`,
+          jenjang: jenjang,
+          topik: topik,
+          deskripsi: `Paket ${jenisPaket} materi ${topik} untuk jenjang ${jenjang}.`,
+          durasi_menit: parsedQuestions.length * 3,
+          soal: parsedQuestions
+        };
+
+        btn.disabled = false;
+        btn.textContent = '📥 Ekstrak Soal dari File ke Lembar Kerja (Tanpa AI)';
+        renderPreview();
+        await mmAlert(
+          'Berhasil Diekstrak Tanpa AI!',
+          `Ditemukan ${parsedQuestions.length} butir soal persis seperti teks asli dokumen.\n\nSilakan periksa, rapikan simbol bila perlu, dan pastikan kunci jawabannya di lembar kerja di bawah.`,
+          'success'
+        );
+        document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = '📥 Ekstrak Soal dari File ke Lembar Kerja (Tanpa AI)';
+        await mmAlert('Gagal Mengekstrak File', err.message, 'error');
+      }
+    }
+
+    // Parser deterministik berbasis pola nomor soal (1., 2., 3.) dan opsi (A., B., C., D., E.) tanpa AI
+    function parseRawTextToSoalArray(rawText) {
+      const cleaned = (rawText || '')
+        .replace(/\r/g, '\n')
+        .replace(/[ \t]+/g, ' ')
+        .trim();
+
+      if (!cleaned) {
+        throw new Error('Tidak ditemukan teks yang dapat dibaca dari file tersebut (pastikan PDF bukan hasil scan gambar buram).');
       }
 
-      function updateKelasBabBadge() {
-        var kelas = document.getElementById("filter-kelas").value;
-        var bab = document.getElementById("filter-bab").value;
-        document.getElementById("badge-kelas-bab-soal").textContent = kelas + " • " + bab;
-      }
+      // Pisahkan blok berdasarkan nomor soal di awal baris atau setelah spasi/baris baru (misal: "1. ", "2. ", "1) ")
+      const blocks = cleaned.split(/(?:^|\n)\s*(?=\d{1,2}[\.\)]\s+)/g).map(b => b.trim()).filter(Boolean);
+      const questions = [];
 
-      function switchTab(tab) {
-        var tabs = ["soal", "catatan", "pantau", "latihan", "integrasi"];
-        for (var i = 0; i < tabs.length; i++) {
-          var t = tabs[i];
-          var panel = document.getElementById("guru-panel-" + t);
-          var btn = document.getElementById("guru-tab-" + t);
-          if (panel) {
-            if (t === tab) panel.classList.remove("hidden");
-            else panel.classList.add("hidden");
+      blocks.forEach((block) => {
+        // Hilangkan nomor di depan
+        const withoutNum = block.replace(/^\d{1,2}[\.\)]\s+/, '').trim();
+
+        // Cari pola pilihan ganda A. ... B. ... C. ... D. ... E. ...
+        const optRegex = /(?:^|\s|\n)([A-E])[\.\)]\s+/g;
+        const matches = [...withoutNum.matchAll(optRegex)];
+
+        if (matches.length >= 2) {
+          const pertanyaan = withoutNum.substring(0, matches[0].index).trim();
+          const opsi = { A: '', B: '', C: '', D: '', E: '' };
+          let kunci = 'A';
+          let pembahasan = '';
+
+          for (let i = 0; i < matches.length; i++) {
+            const huruf = matches[i][1];
+            const startContent = matches[i].index + matches[i][0].length;
+            const endContent = i + 1 < matches.length ? matches[i + 1].index : withoutNum.length;
+            let teksOpsi = withoutNum.substring(startContent, endContent).trim();
+
+            // Cek apakah di bagian akhir opsi E ikut terbawa tulisan "Kunci: B" atau "Pembahasan:"
+            const kunciMatch = teksOpsi.match(/(?:Kunci|Jawaban)\s*[:\-]\s*([A-E])/i);
+            if (kunciMatch) {
+              kunci = kunciMatch[1].toUpperCase();
+              teksOpsi = teksOpsi.replace(kunciMatch[0], '').trim();
+            }
+
+            const pembMatch = teksOpsi.match(/(?:Pembahasan|Penyelesaian)\s*[:\-]\s*([\s\S]*)$/i);
+            if (pembMatch) {
+              pembahasan = pembMatch[1].trim();
+              teksOpsi = teksOpsi.replace(pembMatch[0], '').trim();
+            }
+
+            opsi[huruf] = teksOpsi;
           }
-          if (btn) {
-            btn.className = (t === tab) ? TAB_ACTIVE_CLS : TAB_IDLE_CLS;
-          }
+
+          questions.push({
+            nomor: questions.length + 1,
+            level: 'Sedang',
+            pertanyaan: pertanyaan,
+            opsi: opsi,
+            kunci: kunci,
+            pembahasan: pembahasan
+          });
+        } else if (withoutNum.length > 5) {
+          // Jika format belum memiliki opsi A-E yang terdeteksi otomatis, masukkan utuh ke pertanyaan agar mudah diedit guru
+          questions.push({
+            nomor: questions.length + 1,
+            level: 'Sedang',
+            pertanyaan: withoutNum,
+            opsi: { A: '', B: '', C: '', D: '', E: '' },
+            kunci: 'A',
+            pembahasan: ''
+          });
         }
+      });
+
+      if (questions.length === 0) {
+        questions.push({
+          nomor: 1,
+          level: 'Sedang',
+          pertanyaan: cleaned,
+          opsi: { A: '', B: '', C: '', D: '', E: '' },
+          kunci: 'A',
+          pembahasan: ''
+        });
       }
 
-      function renderMathSafe(el) {
-        if (!el || !window.renderMathInElement) return;
+      return questions;
+    }
+
+    // ========================================================================
+    // INISIALISASI & FUNGSI KODE PAKET
+    // ========================================================================
+    function generateClientPreviewCode() {
+      const shortYear = String(new Date().getFullYear()).slice(-2);
+      let maxNumber = 0;
+      (cachedCategories || []).forEach(item => {
+        const code = String(item.kode_paket || item.id || '');
+        const match = code.match(new RegExp(`^${shortYear}(\\d{2,})$`));
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (num > maxNumber) maxNumber = num;
+        }
+      });
+      if (maxNumber === 0 && (cachedCategories || []).length > 0) {
+        maxNumber = cachedCategories.length;
+      }
+      const nextSeq = String(maxNumber + 1).padStart(2, '0');
+      return `${shortYear}${nextSeq}`;
+    }
+
+    async function callApi(paramsObj, usePost = false) {
+      if (usePost) {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ ...paramsObj, key: APP_KEY, guruKey })
+        });
+        return await res.json();
+      }
+
+      const query = new URLSearchParams({ ...paramsObj, key: APP_KEY, guruKey });
+
+      try {
+        const res = await fetch(`${API_URL}?${query.toString()}`, { method: 'GET', redirect: 'follow' });
+        if (res.ok) return await res.json();
+      } catch (e) {}
+
+      return new Promise((resolve, reject) => {
+        const cbName = 'mm_guru_cb_' + Math.round(1000000 * Math.random());
+        const script = document.createElement('script');
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error('Timeout: Server Google Apps Script terlalu lama merespons.'));
+        }, 90000);
+
+        function cleanup() {
+          clearTimeout(timeout);
+          delete window[cbName];
+          if (script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        window[cbName] = (data) => { cleanup(); resolve(data); };
+        query.set('callback', cbName);
+        script.src = `${API_URL}?${query.toString()}`;
+        script.onerror = () => { cleanup(); reject(new Error('Gagal terhubung ke server Apps Script.')); };
+        document.body.appendChild(script);
+      });
+    }
+
+    function renderMathInContainer(el) {
+      if (window.renderMathInElement && el) {
         renderMathInElement(el, {
           delimiters: [
-            { left: "$$", right: "$$", display: true },
-            { left: "$", right: "$", display: false }
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
           ],
           throwOnError: false
         });
       }
+    }
 
-      // Utilitas Sisip ke Lembar Tulis Word (contenteditable)
-      function insertHtmlIntoWordEditor(htmlSnippet) {
-        var editor = document.getElementById("word-editor");
-        editor.focus();
-        var sel = window.getSelection();
-        if (sel && sel.rangeCount > 0 && editor.contains(sel.anchorNode)) {
-          var range = sel.getRangeAt(0);
-          range.deleteContents();
-          var temp = document.createElement("div");
-          temp.innerHTML = htmlSnippet;
-          var frag = document.createDocumentFragment();
-          var node, lastNode;
-          while ((node = temp.firstChild)) {
-            lastNode = frag.appendChild(node);
-          }
-          range.insertNode(frag);
-          if (lastNode) {
-            range.setStartAfter(lastNode);
-            range.collapse(true);
-            sel.removeAllRanges();
-            sel.addRange(range);
-          }
+    function switchMode(mode) {
+      ['manual', 'file', 'ai'].forEach(m => {
+        const btn = document.getElementById(`tab-${m}`);
+        const panel = document.getElementById(`panel-${m}`);
+        if (m === mode) {
+          btn.classList.add('active');
+          btn.classList.remove('text-slate-600');
+          panel.classList.remove('hidden');
         } else {
-          editor.innerHTML += htmlSnippet;
+          btn.classList.remove('active');
+          btn.classList.add('text-slate-600');
+          panel.classList.add('hidden');
         }
-      }
-
-      function getNextQuestionNumberFromWord() {
-        var txt = document.getElementById("word-editor").innerText || "";
-        var matches = txt.match(/(?:^|\n)\s*(\d+)\.\s/g);
-        if (!matches || !matches.length) return 1;
-        var max = 0;
-        for (var i = 0; i < matches.length; i++) {
-          var n = parseInt(matches[i].replace(/\D/g, ""), 10);
-          if (n > max) max = n;
-        }
-        return max + 1;
-      }
-
-      // Ekstrak teks mentah dari PDF, DOCX, atau Gambar TANPA rewrite AI
-      function handleEkstrakFile() {
-        var input = document.getElementById("file-ekstrak-soal");
-        var file = input.files && input.files[0];
-        if (!file) {
-          showNotif("⚠️", "Pilih File Dulu", "Silakan pilih file PDF, DOCX, atau gambar (JPEG/PNG).");
-          return;
-        }
-
-        var name = file.name.toLowerCase();
-        var editor = document.getElementById("word-editor");
-
-        function appendPlainLinesToWord(rawText) {
-          var escaped = String(rawText || "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/\n/g, "<br>");
-          editor.innerHTML = (editor.innerHTML ? editor.innerHTML + "<br><br>" : "") + escaped;
-        }
-
-        if (name.endsWith(".docx")) {
-          setLoading(true, "Mengekstrak teks mentah DOCX (tanpa rewrite AI)...");
-          var reader = new FileReader();
-          reader.onload = function(e) {
-            mammoth.extractRawText({ arrayBuffer: e.target.result })
-              .then(function(result) {
-                setLoading(false);
-                appendPlainLinesToWord(String(result.value || "").trim());
-                showNotif("✅", "DOCX Disalin", "Teks mentah disalin apa adanya ke lembar soal.");
-              })
-              .catch(function(err) {
-                setLoading(false);
-                showNotif("⚠️", "Gagal Membaca DOCX", err.message || "File tidak dapat dibaca.");
-              });
-          };
-          reader.readAsArrayBuffer(file);
-        } else if (name.endsWith(".pdf")) {
-          setLoading(true, "Mengekstrak teks mentah PDF (tanpa rewrite AI)...");
-          var pdfReader = new FileReader();
-          pdfReader.onload = function(e) {
-            var typedarray = new Uint8Array(e.target.result);
-            pdfjsLib.getDocument(typedarray).promise
-              .then(function(pdf) {
-                var maxPages = Math.min(pdf.numPages, 5);
-                var pagePromises = [];
-                for (var p = 1; p <= maxPages; p++) {
-                  pagePromises.push(
-                    pdf.getPage(p).then(function(page) {
-                      return page.getTextContent().then(function(tc) {
-                        return tc.items.map(function(item) { return item.str; }).join(" ");
-                      });
-                    })
-                  );
-                }
-                return Promise.all(pagePromises);
-              })
-              .then(function(pagesText) {
-                setLoading(false);
-                var joined = pagesText.join("\n\n").trim();
-                if (!joined) {
-                  showNotif("ℹ️", "PDF Berupa Gambar Scan", "Simpan halaman sebagai JPEG/PNG lalu jalankan OCR gambar.");
-                  return;
-                }
-                appendPlainLinesToWord(joined);
-                showNotif("✅", "PDF Disalin", "Teks mentah PDF disalin tanpa perubahan redaksi.");
-              })
-              .catch(function(err) {
-                setLoading(false);
-                showNotif("⚠️", "Gagal Membaca PDF", err.message || "File PDF tidak dapat diekstrak.");
-              });
-          };
-          pdfReader.readAsArrayBuffer(file);
-        } else if (file.type.startsWith("image/")) {
-          setLoading(true, "Menjalankan OCR murni pada gambar (tanpa rewrite AI)...");
-          Tesseract.recognize(file, "ind+eng")
-            .then(function(res) {
-              setLoading(false);
-              var ocrText = String((res && res.data && res.data.text) || "").trim();
-              appendPlainLinesToWord(ocrText);
-              showNotif("✅", "OCR Selesai", "Teks hasil baca gambar disalin apa adanya ke lembar soal.");
-            })
-            .catch(function(err) {
-              setLoading(false);
-              showNotif("⚠️", "Gagal OCR Gambar", err.message || "Gambar tidak terbaca.");
-            });
-        } else {
-          showNotif("⚠️", "Format Belum Didukung", "Gunakan file .pdf, .docx, .jpg, atau .png.");
-        }
-      }
-
-      function resetFormSoal() {
-        document.getElementById("edit-soal-id").value = "";
-        document.getElementById("judul-form-soal").textContent = "✍️ PEMBUATAN SOAL MANUAL (UTAMA — LEMBAR KERJA ALA WORD)";
-        document.getElementById("btn-submit-soal").textContent = "Simpan Soal ke Bank Soal";
-        document.getElementById("btn-batal-edit").classList.add("hidden");
-        document.getElementById("word-editor").innerHTML = "";
-        document.getElementById("kunci-soal").value = "";
-        document.getElementById("link-gambar-soal").value = "";
-        document.getElementById("pembahasan-soal").value = "";
-        syncPaketUI(true);
-      }
-
-      function handleSimpanSoal(event) {
-        event.preventDefault();
-        var editId = String(document.getElementById("edit-soal-id").value || "").trim();
-        var kelas = document.getElementById("filter-kelas").value;
-        var bab = document.getElementById("filter-bab").value;
-        var kodePaket = String(document.getElementById("input-kode-paket").value || "").replace(/\D/g, "") || formatPaketAngka(getPaketCfg().tahun, getPaketCfg().urutan);
-        var editor = document.getElementById("word-editor");
-        var naskahHtml = String(editor.innerHTML || "").trim();
-        var naskahText = String(editor.innerText || "").trim();
-        var tipe = document.getElementById("tipe-soal").value;
-        var kunci = String(document.getElementById("kunci-soal").value || "").trim();
-        var linkGambar = String(document.getElementById("link-gambar-soal").value || "").trim();
-        var pembahasan = String(document.getElementById("pembahasan-soal").value || "").trim();
-
-        if (!naskahText && !naskahHtml) {
-          showNotif("⚠️", "Lembar Soal Kosong", "Tuliskan soal pada lembar kerja terlebih dahulu.");
-          return;
-        }
-
-        var payload = {
-          kodePaket: kodePaket,
-          kelas: kelas,
-          bab: bab,
-          tipe: tipe,
-          naskah: naskahText,
-          naskahHtml: naskahHtml,
-          kunci: kunci || "-",
-          pembahasan: pembahasan || "Periksa kembali langkah perhitungan sesuai aturan operasi matematika.",
-          linkGambar: linkGambar || "",
-          diperbaruiPada: new Date().toISOString()
-        };
-
-        if (editId) {
-          setLoading(true, "Memperbarui soal...");
-          db.collection("bank_soal").doc(editId).update(payload)
-            .then(function() {
-              setLoading(false);
-              resetFormSoal();
-              showNotif("✅", "Soal Diperbarui", "Perubahan soal paket #" + kodePaket + " berhasil disimpan.");
-              loadBankSoal();
-            })
-            .catch(function(err) {
-              setLoading(false);
-              showNotif("⚠️", "Gagal Update Soal", err.message || "Periksa koneksi atau aturan Firestore.");
-            });
-        } else {
-          payload.dibuatPada = new Date().toISOString();
-          setLoading(true, "Menyimpan soal baru...");
-          db.collection("bank_soal").add(payload)
-            .then(function() {
-              setLoading(false);
-              var cfg = getPaketCfg();
-              savePaketCfg(cfg.tahun, cfg.urutan + 1);
-              resetFormSoal();
-              showNotif("✅", "Soal Tersimpan", "Soal berhasil disimpan dengan nomor paket #" + kodePaket + ".");
-              loadBankSoal();
-            })
-            .catch(function(err) {
-              setLoading(false);
-              showNotif("⚠️", "Gagal Simpan Soal", err.message || "Periksa koneksi atau aturan Firestore.");
-            });
-        }
-      }
-
-      function startEditSoal(docId) {
-        var target = cachedSoalList.find(function(item) { return item.id === docId; });
-        if (!target) return;
-        var d = target.data;
-
-        document.getElementById("edit-soal-id").value = target.id;
-        document.getElementById("judul-form-soal").textContent = "✏️ EDIT SOAL (PAKET #" + (d.kodePaket || "-") + ")";
-        document.getElementById("btn-submit-soal").textContent = "Simpan Perubahan Soal";
-        document.getElementById("btn-batal-edit").classList.remove("hidden");
-
-        document.getElementById("input-kode-paket").value = d.kodePaket || "";
-        document.getElementById("tipe-soal").value = d.tipe || "uraian";
-        var editor = document.getElementById("word-editor");
-        if (d.naskahHtml) {
-          editor.innerHTML = d.naskahHtml;
-        } else {
-          editor.textContent = d.naskah || "";
-        }
-        document.getElementById("kunci-soal").value = d.kunci === "-" ? "" : (d.kunci || "");
-        document.getElementById("link-gambar-soal").value = d.linkGambar || "";
-        document.getElementById("pembahasan-soal").value = d.pembahasan || "";
-
-        switchTab("soal");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-
-      function duplicateSoal(docId) {
-        var target = cachedSoalList.find(function(item) { return item.id === docId; });
-        if (!target) return;
-        var d = target.data;
-        var cfg = getPaketCfg();
-        var nextKode = formatPaketAngka(cfg.tahun, cfg.urutan);
-
-        setLoading(true, "Menduplikasi soal ke paket #" + nextKode + "...");
-        db.collection("bank_soal").add({
-          kodePaket: nextKode,
-          kelas: d.kelas,
-          bab: d.bab,
-          tipe: d.tipe || "uraian",
-          naskah: d.naskah || "",
-          naskahHtml: d.naskahHtml || "",
-          kunci: d.kunci || "-",
-          pembahasan: d.pembahasan || "",
-          linkGambar: d.linkGambar || "",
-          dibuatPada: new Date().toISOString()
-        })
-          .then(function() {
-            setLoading(false);
-            savePaketCfg(cfg.tahun, cfg.urutan + 1);
-            showNotif("📑", "Soal Diduplikasi", "Salinan soal dibuat sebagai paket #" + nextKode + ".");
-            loadBankSoal();
-          })
-          .catch(function(err) {
-            setLoading(false);
-            showNotif("⚠️", "Gagal Duplikasi", err.message || "Terjadi kesalahan.");
-          });
-      }
-
-      function executeDeleteSoal() {
-        if (!pendingDeleteId) return;
-        var idToDel = pendingDeleteId;
-        closeConfirmDelete();
-        setLoading(true, "Menghapus soal...");
-        db.collection("bank_soal").doc(idToDel).delete()
-          .then(function() {
-            setLoading(false);
-            showNotif("🗑️", "Soal Dihapus", "Soal telah dihapus dari bank soal.");
-            loadBankSoal();
-          })
-          .catch(function(err) {
-            setLoading(false);
-            showNotif("⚠️", "Gagal Menghapus", err.message || "Terjadi kesalahan.");
-          });
-      }
-
-      function loadBankSoal() {
-        var kelas = document.getElementById("filter-kelas").value;
-        var bab = document.getElementById("filter-bab").value;
-        var listEl = document.getElementById("list-bank-soal");
-
-        db.collection("bank_soal")
-          .where("kelas", "==", kelas)
-          .where("bab", "==", bab)
-          .limit(30)
-          .get()
-          .then(function(snap) {
-            listEl.textContent = "";
-            cachedSoalList = [];
-            if (snap.empty) {
-              listEl.innerHTML = '<p class="text-slate-400 text-center py-3">Belum ada soal untuk ' + kelas + ' • ' + bab + '.</p>';
-              return;
-            }
-
-            var idx = 1;
-            snap.forEach(function(doc) {
-              var d = doc.data() || {};
-              cachedSoalList.push({ id: doc.id, data: d });
-
-              var card = document.createElement("div");
-              card.className = "p-3.5 rounded-2xl bg-orange-50/40 border border-orange-100 space-y-2";
-
-              var head = document.createElement("div");
-              head.className = "flex flex-wrap items-center justify-between gap-2";
-
-              var badgeLeft = document.createElement("span");
-              badgeLeft.className = "text-[11px] font-extrabold text-orange-700";
-              badgeLeft.textContent = "Soal #" + idx + " • Paket #" + (d.kodePaket || "-") + " • " + String(d.tipe || "uraian").toUpperCase();
-
-              var actions = document.createElement("div");
-              actions.className = "flex items-center gap-1.5";
-
-              var btnEdit = document.createElement("button");
-              btnEdit.type = "button";
-              btnEdit.className = "px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-orange-700 font-extrabold text-[11px] hover:bg-orange-100 transition";
-              btnEdit.textContent = "Edit";
-              btnEdit.addEventListener("click", (function(id) {
-                return function() { startEditSoal(id); };
-              })(doc.id));
-
-              var btnDup = document.createElement("button");
-              btnDup.type = "button";
-              btnDup.className = "px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 font-extrabold text-[11px] hover:bg-slate-100 transition";
-              btnDup.textContent = "Duplikasi";
-              btnDup.addEventListener("click", (function(id) {
-                return function() { duplicateSoal(id); };
-              })(doc.id));
-
-              var btnDel = document.createElement("button");
-              btnDel.type = "button";
-              btnDel.className = "px-2.5 py-1 rounded-lg bg-white border border-rose-200 text-rose-600 font-extrabold text-[11px] hover:bg-rose-50 transition";
-              btnDel.textContent = "Hapus";
-              btnDel.addEventListener("click", (function(id, paket) {
-                return function() { openConfirmDelete(id, "Paket #" + (paket || id)); };
-              })(doc.id, d.kodePaket));
-
-              actions.appendChild(btnEdit);
-              actions.appendChild(btnDup);
-              actions.appendChild(btnDel);
-
-              head.appendChild(badgeLeft);
-              head.appendChild(actions);
-
-              var body = document.createElement("div");
-              body.className = "text-xs font-semibold text-slate-800 leading-relaxed";
-              if (d.naskahHtml) {
-                body.innerHTML = d.naskahHtml;
-              } else {
-                body.textContent = d.naskah || "-";
-              }
-
-              var foot = document.createElement("div");
-              foot.className = "text-[11px] font-bold text-slate-500";
-              foot.textContent = "Kunci: " + (d.kunci || "-") + (d.linkGambar ? " • Lampiran: " + d.linkGambar : "");
-
-              card.appendChild(head);
-              card.appendChild(body);
-              card.appendChild(foot);
-              listEl.appendChild(card);
-
-              renderMathSafe(body);
-              idx++;
-            });
-          })
-          .catch(function(err) {
-            listEl.innerHTML = '<p class="text-rose-500 text-center py-3 text-[11px] font-bold">Gagal memuat bank soal: ' + (err.message || "") + '</p>';
-          });
-      }
-
-      function loadDaftarSiswa() {
-        var selCatatan = document.getElementById("select-siswa-catatan");
-        var selPantau = document.getElementById("filter-siswa-pantau");
-        var selLatihan = document.getElementById("latihan-siswa");
-
-        db.collection("siswa").get()
-          .then(function(snap) {
-            var items = [];
-            snap.forEach(function(doc) {
-              var d = doc.data() || {};
-              items.push({
-                noReg: String(d.noReg || doc.id),
-                nama: String(d.nama || "-"),
-                kelas: String(d.kelas || "-")
-              });
-            });
-            items.sort(function(a, b) { return a.noReg.localeCompare(b.noReg); });
-
-            selCatatan.innerHTML = '<option value="">-- Pilih Siswa --</option>';
-            selPantau.innerHTML = '<option value="">-- Pilih Siswa untuk Melihat PR --</option>';
-            selLatihan.innerHTML = '<option value="">-- Pilih Siswa (Opsional untuk Simulasi) --</option>';
-
-            for (var i = 0; i < items.length; i++) {
-              var label = items[i].noReg + " - " + items[i].nama + " (" + items[i].kelas + ")";
-              var opt1 = document.createElement("option");
-              opt1.value = items[i].noReg + "|" + items[i].nama;
-              opt1.textContent = label;
-              selCatatan.appendChild(opt1);
-
-              var opt2 = document.createElement("option");
-              opt2.value = items[i].noReg;
-              opt2.textContent = label;
-              selPantau.appendChild(opt2);
-
-              var opt3 = document.createElement("option");
-              opt3.value = items[i].noReg + "|" + items[i].nama;
-              opt3.textContent = label;
-              selLatihan.appendChild(opt3);
-            }
-          });
-      }
-
-      function handleSimpanCatatanPr(event) {
-        event.preventDefault();
-        var rawSiswa = document.getElementById("select-siswa-catatan").value;
-        var tanggal = document.getElementById("tanggal-catatan").value;
-        var catatan = String(document.getElementById("input-catatan-siswa").value || "").trim();
-        var prTeks = String(document.getElementById("input-pr-siswa").value || "").trim();
-        var kelas = document.getElementById("filter-kelas").value;
-        var bab = document.getElementById("filter-bab").value;
-
-        if (!rawSiswa || !catatan) return;
-        var parts = rawSiswa.split("|");
-        var noReg = parts[0] || "";
-        var namaSiswa = parts[1] || "";
-
-        setLoading(true, "Menyimpan catatan & PR siswa...");
-        db.collection("tugas_pr").add({
-          noReg: noReg,
-          namaSiswa: namaSiswa,
-          kelas: kelas,
-          bab: bab,
-          tanggal: tanggal,
-          catatanMateri: catatan,
-          prTeks: prTeks || "Tidak ada PR khusus",
-          statusPr: prTeks ? "DITUGASKAN" : "TANPA_PR",
-          jawabanSiswa: "",
-          dibuatPada: new Date().toISOString()
-        })
-          .then(function() {
-            setLoading(false);
-            document.getElementById("input-catatan-siswa").value = "";
-            document.getElementById("input-pr-siswa").value = "";
-            showNotif("✅", "Catatan & PR Tersimpan", "Catatan belajar dan PR untuk " + namaSiswa + " berhasil disimpan.");
-          })
-          .catch(function(err) {
-            setLoading(false);
-            showNotif("⚠️", "Gagal Simpan", err.message || "Terjadi kesalahan saat menyimpan.");
-          });
-      }
-
-      function loadPrBySiswa(noReg) {
-        var container = document.getElementById("list-pr-siswa");
-        if (!noReg) {
-          container.innerHTML = '<p class="text-slate-400 text-center py-4">Pilih siswa terlebih dahulu untuk melihat daftar PR.</p>';
-          return;
-        }
-
-        setLoading(true, "Memuat PR siswa...");
-        db.collection("tugas_pr")
-          .where("noReg", "==", noReg)
-          .limit(20)
-          .get()
-          .then(function(snap) {
-            setLoading(false);
-            container.textContent = "";
-            if (snap.empty) {
-              container.innerHTML = '<p class="text-slate-400 text-center py-4">Belum ada catatan atau PR yang ditugaskan untuk siswa ini.</p>';
-              return;
-            }
-
-            snap.forEach(function(doc) {
-              var d = doc.data() || {};
-              var card = document.createElement("div");
-              card.className = "p-4 rounded-2xl bg-orange-50/40 border border-orange-100 space-y-2";
-
-              var top = document.createElement("div");
-              top.className = "flex flex-wrap items-center justify-between gap-2";
-
-              var title = document.createElement("span");
-              title.className = "font-extrabold text-slate-800";
-              title.textContent = (d.tanggal || "-") + " • " + (d.kelas || "-") + " (" + (d.bab || "-") + ")";
-
-              var badge = document.createElement("span");
-              badge.className = "text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700";
-              badge.textContent = d.statusPr || "DITUGASKAN";
-
-              top.appendChild(title);
-              top.appendChild(badge);
-
-              var cat = document.createElement("div");
-              cat.className = "text-slate-700 font-semibold";
-              cat.textContent = "Catatan Guru: " + (d.catatanMateri || "-");
-
-              var pr = document.createElement("div");
-              pr.className = "p-2.5 rounded-xl bg-white border border-orange-200 text-slate-800 font-bold whitespace-pre-wrap";
-              pr.textContent = "PR Ditugaskan:\n" + (d.prTeks || "-");
-
-              card.appendChild(top);
-              card.appendChild(cat);
-              card.appendChild(pr);
-              container.appendChild(card);
-            });
-          })
-          .catch(function(err) {
-            setLoading(false);
-            container.innerHTML = '<p class="text-rose-500 text-center py-3 font-bold">' + (err.message || "Gagal memuat PR siswa.") + '</p>';
-          });
-      }
-
-      function renderSesiLatihanInteraktif() {
-        var area = document.getElementById("area-pengerjaan-interaktif");
-        area.textContent = "";
-        document.getElementById("skor-interaktif").textContent = "0 / " + cachedSoalList.length;
-
-        if (!cachedSoalList.length) {
-          area.innerHTML = '<p class="text-slate-400 text-center py-4">Belum ada soal pada Kelas &amp; Bab ini.</p>';
-          return;
-        }
-
-        for (var i = 0; i < cachedSoalList.length; i++) {
-          var d = cachedSoalList[i].data;
-          var box = document.createElement("div");
-          box.className = "p-4 rounded-2xl bg-[#FFFDF9] border border-orange-200 space-y-2.5";
-          box.setAttribute("data-soal-index", String(i));
-
-          var header = document.createElement("div");
-          header.className = "flex items-center justify-between text-[11px] font-extrabold text-orange-700";
-          header.textContent = "Soal #" + (i + 1) + " • Paket #" + (d.kodePaket || "-");
-
-          var soalText = document.createElement("div");
-          soalText.className = "text-xs sm:text-sm font-bold text-slate-800 leading-relaxed";
-          if (d.naskahHtml) {
-            soalText.innerHTML = d.naskahHtml;
-          } else {
-            soalText.textContent = d.naskah || "-";
-          }
-
-          var ansInput = document.createElement("input");
-          ansInput.type = "text";
-          ansInput.className = "latihan-ans-input w-full px-3.5 py-2.5 rounded-xl bg-white border border-orange-200 font-bold text-slate-800 focus:outline-none focus:border-orange-400";
-          ansInput.placeholder = "Tulis jawaban siswa untuk soal #" + (i + 1) + "...";
-
-          var feedbackBox = document.createElement("div");
-          feedbackBox.className = "latihan-feedback hidden p-3 rounded-xl text-xs font-semibold space-y-1";
-
-          box.appendChild(header);
-          box.appendChild(soalText);
-          box.appendChild(ansInput);
-          box.appendChild(feedbackBox);
-          area.appendChild(box);
-          renderMathSafe(soalText);
-        }
-      }
-
-      function nilaiSemuaSoalInteraktif() {
-        var boxes = document.querySelectorAll("#area-pengerjaan-interaktif [data-soal-index]");
-        if (!boxes.length || !cachedSoalList.length) {
-          showNotif("ℹ️", "Belum Ada Soal", "Muat soal terlebih dahulu sebelum melakukan penilaian.");
-          return;
-        }
-
-        var benarCount = 0;
-        for (var i = 0; i < boxes.length; i++) {
-          var idx = parseInt(boxes[i].getAttribute("data-soal-index"), 10);
-          var d = cachedSoalList[idx] ? cachedSoalList[idx].data : {};
-          var inputEl = boxes[i].querySelector(".latihan-ans-input");
-          var fbEl = boxes[i].querySelector(".latihan-feedback");
-
-          var jawabanSiswa = String(inputEl.value || "").trim();
-          var kunciAsli = String(d.kunci || "").trim();
-          var cocok = kunciAsli && kunciAsli !== "-" && jawabanSiswa.toLowerCase() === kunciAsli.toLowerCase();
-
-          if (cocok) benarCount++;
-          fbEl.classList.remove("hidden");
-
-          if (cocok) {
-            fbEl.className = "latihan-feedback p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold space-y-1";
-            fbEl.innerHTML = '<div>✅ <strong>Tepat (+1 Poin)</strong> • Kunci: ' + kunciAsli + '</div><div>Feedback Detail: ' + (d.pembahasan || "Langkah pengerjaan sudah sesuai kunci.") + '</div>';
-          } else {
-            fbEl.className = "latihan-feedback p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 font-semibold space-y-1";
-            fbEl.innerHTML = '<div>📌 <strong>Perlu Evaluasi</strong> • Jawabanmu: "' + (jawabanSiswa || "-") + '" | Kunci: ' + (kunciAsli || "-") + '</div><div>Feedback Detail: ' + (d.pembahasan || "Cek kembali satuan, tanda operasi, atau urutan langkah perhitungan.") + '</div>';
-          }
-          renderMathSafe(fbEl);
-        }
-
-        document.getElementById("skor-interaktif").textContent = benarCount + " / " + boxes.length;
-        showNotif("📊", "Penilaian Selesai", "Skor terdeteksi: " + benarCount + " dari " + boxes.length + " soal.");
-      }
-
-      function loadIntegrasiCfg() {
-        try {
-          var raw = localStorage.getItem(INT_CFG_KEY);
-          if (!raw) return;
-          var cfg = JSON.parse(raw);
-          if (cfg.gasUrl) document.getElementById("gas-endpoint-url").value = cfg.gasUrl;
-          if (cfg.aiProvider) document.getElementById("ai-provider").value = cfg.aiProvider;
-          if (cfg.aiKey) document.getElementById("ai-api-key").value = cfg.aiKey;
-        } catch (e) {}
-      }
-
-      function saveIntegrasiCfg() {
-        var cfg = {
-          gasUrl: String(document.getElementById("gas-endpoint-url").value || "").trim(),
-          aiProvider: document.getElementById("ai-provider").value,
-          aiKey: String(document.getElementById("ai-api-key").value || "").trim()
-        };
-        localStorage.setItem(INT_CFG_KEY, JSON.stringify(cfg));
-        showNotif("✅", "Pengaturan Disimpan", "Konfigurasi endpoint GAS/Drive dan AI pendukung tersimpan.");
-      }
-
-      function uploadFileToGasDrive() {
-        var gasUrl = String(document.getElementById("gas-endpoint-url").value || "").trim();
-        var fileInput = document.getElementById("file-upload-drive");
-        var file = fileInput.files && fileInput.files[0];
-        var outEl = document.getElementById("hasil-gas-drive");
-
-        if (!gasUrl) {
-          showNotif("⚠️", "URL GAS Kosong", "Isi terlebih dahulu URL Web App Google Apps Script (Kode.gs).");
-          return;
-        }
-        if (!file) {
-          showNotif("⚠️", "Pilih File", "Pilih file yang ingin dikirim ke Google Drive.");
-          return;
-        }
-
-        setLoading(true, "Mengirim file ke Google Drive via Kode.gs...");
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          var base64Data = String(e.target.result || "").split(",")[1] || "";
-          fetch(gasUrl, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({
-              action: "uploadDrive",
-              fileName: file.name,
-              mimeType: file.type || "application/octet-stream",
-              base64Data: base64Data,
-              kelas: document.getElementById("filter-kelas").value,
-              bab: document.getElementById("filter-bab").value
-            })
-          })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-              setLoading(false);
-              outEl.classList.remove("hidden");
-              var urlRes = data.url || data.fileUrl || data.link || JSON.stringify(data);
-              outEl.textContent = "Tersimpan di Google Drive: " + urlRes;
-              if (String(urlRes).startsWith("http")) {
-                document.getElementById("link-gambar-soal").value = urlRes;
-              }
-              showNotif("✅", "Upload Drive Berhasil", "File berhasil dikirim lewat Kode.gs.");
-            })
-            .catch(function(err) {
-              setLoading(false);
-              outEl.classList.remove("hidden");
-              outEl.textContent = "Gagal mengirim ke GAS: " + (err.message || "Periksa deploy Web App Kode.gs.");
-            });
-        };
-        reader.readAsDataURL(file);
-      }
-
-      function bantuDrafSoalAi() {
-        var provider = document.getElementById("ai-provider").value;
-        var apiKey = String(document.getElementById("ai-api-key").value || "").trim();
-        var kelas = document.getElementById("filter-kelas").value;
-        var bab = document.getElementById("filter-bab").value;
-
-        if (!apiKey) {
-          showNotif("ℹ️", "API Key Belum Diisi", "Masukkan API key Gemini atau Groq di tab Drive, GAS & AI terlebih dahulu.");
-          return;
-        }
-
-        var promptText = "Buatkan 1 soal matematika tingkat " + kelas + " materi " + bab + " lengkap dengan langkah penyelesaian singkat.";
-        setLoading(true, "Meminta draf soal dari " + provider.toUpperCase() + "...");
-
-        function putAiTextToWord(text) {
-          var escaped = String(text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
-          document.getElementById("word-editor").innerHTML = escaped;
-          switchTab("soal");
-          showNotif("🤖", "Draf AI Siap Diedit", "Draf soal disisipkan ke lembar tulis.");
-        }
-
-        if (provider === "gemini") {
-          fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + encodeURIComponent(apiKey), {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-          })
-            .then(function(r) { return r.json(); })
-            .then(function(res) {
-              setLoading(false);
-              var txt = (((res.candidates || [])[0] || {}).content || {}).parts || [];
-              var out = txt.map(function(p) { return p.text || ""; }).join("\n").trim();
-              if (!out) return;
-              putAiTextToWord(out);
-            })
-            .catch(function(err) {
-              setLoading(false);
-              showNotif("⚠️", "Gagal Panggil Gemini", err.message || "Periksa API key atau koneksi.");
-            });
-        } else {
-          fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "Bearer " + apiKey
-            },
-            body: JSON.stringify({
-              model: "llama-3.3-70b-versatile",
-              messages: [{ role: "user", content: promptText }]
-            })
-          })
-            .then(function(r) { return r.json(); })
-            .then(function(res) {
-              setLoading(false);
-              var out = (((res.choices || [])[0] || {}).message || {}).content || "";
-              if (!out.trim()) return;
-              putAiTextToWord(out.trim());
-            })
-            .catch(function(err) {
-              setLoading(false);
-              showNotif("⚠️", "Gagal Panggil Groq", err.message || "Periksa API key atau koneksi.");
-            });
-        }
-      }
-
-      document.addEventListener("DOMContentLoaded", function() {
-        syncPaketUI(true);
-        loadIntegrasiCfg();
-        document.getElementById("tanggal-catatan").valueAsDate = new Date();
-        updateBabDropdown("5 SD");
-        loadDaftarSiswa();
-
-        document.getElementById("btn-tutup-notif").addEventListener("click", closeNotif);
-        document.getElementById("btn-batal-hapus").addEventListener("click", closeConfirmDelete);
-        document.getElementById("btn-ya-hapus").addEventListener("click", executeDeleteSoal);
-
-        var tabBtns = document.querySelectorAll("[data-guru-tab]");
-        for (var i = 0; i < tabBtns.length; i++) {
-          tabBtns[i].addEventListener("click", function() {
-            switchTab(this.getAttribute("data-guru-tab"));
-          });
-        }
-
-        document.getElementById("filter-kelas").addEventListener("change", function() {
-          updateBabDropdown(this.value);
-        });
-        document.getElementById("filter-bab").addEventListener("change", function() {
-          updateKelasBabBadge();
-          loadBankSoal();
-        });
-        document.getElementById("btn-tambah-bab").addEventListener("click", function() {
-          var kelas = document.getElementById("filter-kelas").value;
-          var babBaru = String(document.getElementById("input-bab-baru").value || "").trim();
-          if (!babBaru) return;
-          if (!BAB_DEFAULT[kelas]) BAB_DEFAULT[kelas] = [];
-          if (BAB_DEFAULT[kelas].indexOf(babBaru) === -1) {
-            BAB_DEFAULT[kelas].push(babBaru);
-          }
-          document.getElementById("input-bab-baru").value = "";
-          updateBabDropdown(kelas, babBaru);
-        });
-
-        document.getElementById("btn-simpan-paket-cfg").addEventListener("click", function() {
-          var thn = document.getElementById("paket-tahun").value;
-          var urt = document.getElementById("paket-urutan").value;
-          var saved = savePaketCfg(thn, urt);
-          showNotif("🔢", "Nomor Paket Diperbarui", "Format aktif berikutnya: " + formatPaketAngka(saved.tahun, saved.urutan));
-        });
-
-        // Toolbar ala Word: Bold, Italic, Underline, Superscript, Subscript, Undo
-        var cmdBtns = document.querySelectorAll("[data-cmd]");
-        for (var c = 0; c < cmdBtns.length; c++) {
-          cmdBtns[c].addEventListener("click", function() {
-            document.getElementById("word-editor").focus();
-            document.execCommand(this.getAttribute("data-cmd"), false, null);
-          });
-        }
-
-        document.getElementById("btn-clear-word").addEventListener("click", function() {
-          document.getElementById("word-editor").innerHTML = "";
-        });
-
-        // Sisip Pecahan Atas-Bawah Visual ala Word
-        document.getElementById("btn-insert-pecahan").addEventListener("click", function() {
-          var fracHtml = '&nbsp;<span class="frac-inline"><span class="num">a</span><span class="den">b</span></span>&nbsp;';
-          insertHtmlIntoWordEditor(fracHtml);
-        });
-
-        // Simbol Matematika & Huruf Science
-        var symBtns = document.querySelectorAll("[data-word-symbol]");
-        for (var s = 0; s < symBtns.length; s++) {
-          symBtns[s].addEventListener("click", function() {
-            var sym = this.getAttribute("data-word-symbol");
-            var isGreek = /[αβθ]/.test(sym);
-            insertHtmlIntoWordEditor(isGreek ? "<i>" + sym + "</i>" : sym);
-          });
-        }
-
-        // Blok Lembar Pengerjaan
-        var blkBtns = document.querySelectorAll("[data-word-block]");
-        for (var b = 0; b < blkBtns.length; b++) {
-          blkBtns[b].addEventListener("click", function() {
-            var type = this.getAttribute("data-word-block");
-            if (type === "nomor") {
-              var nextNo = getNextQuestionNumberFromWord();
-              insertHtmlIntoWordEditor("<br><strong>" + nextNo + ". </strong>");
-            } else if (type === "pg") {
-              insertHtmlIntoWordEditor("<br>A. ...<br>B. ...<br>C. ...<br>D. ...<br>");
-            } else if (type === "uraian") {
-              insertHtmlIntoWordEditor('<div style="margin-top:8px;padding:8px 12px;border:1px dashed #FDBA74;border-radius:10px;background:#FFFDF9;"><strong>Diketahui:</strong> ...<br><strong>Ditanya:</strong> ...<br><strong>Penyelesaian:</strong> ...</div><br>');
-            } else if (type === "isian") {
-              insertHtmlIntoWordEditor('&nbsp;<span style="display:inline-block;min-width:110px;border-bottom:1.5px solid #334155;">&nbsp;</span>&nbsp;');
-            }
-          });
-        }
-
-        // Modal Insert Equation Visual (MathLive)
-        var eqModal = document.getElementById("modal-equation");
-        var mathField = document.getElementById("math-equation-field");
-
-        document.getElementById("btn-open-equation").addEventListener("click", function() {
-          eqModal.classList.remove("hidden");
-          eqModal.classList.add("flex");
-          setTimeout(function() { if (mathField && mathField.focus) mathField.focus(); }, 60);
-        });
-
-        function closeEqModal() {
-          eqModal.classList.add("hidden");
-          eqModal.classList.remove("flex");
-        }
-
-        document.getElementById("btn-tutup-eq").addEventListener("click", closeEqModal);
-        document.getElementById("btn-batal-eq").addEventListener("click", closeEqModal);
-
-        var eqPresetBtns = document.querySelectorAll("[data-eq-latex]");
-        for (var p = 0; p < eqPresetBtns.length; p++) {
-          eqPresetBtns[p].addEventListener("click", function() {
-            var latex = this.getAttribute("data-eq-latex");
-            if (mathField && mathField.executeCommand) {
-              mathField.executeCommand(["insert", latex]);
-              mathField.focus();
-            }
-          });
-        }
-
-        document.getElementById("btn-sisip-eq").addEventListener("click", function() {
-          var latexVal = (mathField && mathField.value) ? String(mathField.value).trim() : "";
-          if (latexVal) {
-            var span = document.createElement("span");
-            span.className = "inline-block px-1.5 py-0.5 mx-0.5 rounded bg-orange-50 border border-orange-200";
-            span.textContent = "$" + latexVal + "$";
-            renderMathSafe(span);
-            insertHtmlIntoWordEditor("&nbsp;" + span.outerHTML + "&nbsp;");
-            mathField.value = "";
-          }
-          closeEqModal();
-        });
-
-        document.getElementById("btn-proses-ekstrak").addEventListener("click", handleEkstrakFile);
-        document.getElementById("form-simpan-soal").addEventListener("submit", handleSimpanSoal);
-        document.getElementById("btn-batal-edit").addEventListener("click", resetFormSoal);
-        document.getElementById("btn-refresh-soal").addEventListener("click", loadBankSoal);
-        document.getElementById("form-catatan-pr").addEventListener("submit", handleSimpanCatatanPr);
-        document.getElementById("filter-siswa-pantau").addEventListener("change", function() {
-          loadPrBySiswa(this.value);
-        });
-        document.getElementById("btn-refresh-pantau").addEventListener("click", function() {
-          loadPrBySiswa(document.getElementById("filter-siswa-pantau").value);
-        });
-
-        document.getElementById("btn-muat-sesi-latihan").addEventListener("click", renderSesiLatihanInteraktif);
-        document.getElementById("btn-nilai-semua-soal").addEventListener("click", nilaiSemuaSoalInteraktif);
-
-        document.getElementById("btn-simpan-ai-cfg").addEventListener("click", saveIntegrasiCfg);
-        document.getElementById("btn-upload-gas-drive").addEventListener("click", uploadFileToGasDrive);
-        document.getElementById("btn-ai-bantu-soal").addEventListener("click", bantuDrafSoalAi);
-        document.getElementById("btn-ai-bantu-soal-inline").addEventListener("click", bantuDrafSoalAi);
       });
-    })();
+    }
+
+    async function loginGuru(e) {
+      e.preventDefault();
+      const inputVal = document.getElementById('input-guru-key').value.trim();
+      const btn = document.getElementById('btn-login');
+      btn.disabled = true;
+      btn.textContent = 'Memverifikasi...';
+
+      guruKey = inputVal;
+      try {
+        const res = await callApi({ action: 'verifyGuru' });
+        btn.disabled = false;
+        btn.textContent = 'Masuk ke Studio Guru →';
+
+        if (res.status !== 'success') {
+          guruKey = '';
+          await mmAlert('Login Gagal', res.message, 'error');
+          return;
+        }
+
+        sessionStorage.setItem('mm_guru_key', guruKey);
+        showDashboard();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Masuk ke Studio Guru →';
+        await mmAlert('Koneksi Bermasalah', err.message, 'error');
+      }
+    }
+
+    async function logoutGuru() {
+      const ok = await mmConfirm('Keluar dari Panel Guru?', 'Sesi login kamu di browser ini akan diakhiri.', 'Ya, Keluar');
+      if (!ok) return;
+      sessionStorage.removeItem('mm_guru_key');
+      guruKey = '';
+      location.reload();
+    }
+
+    async function showDashboard() {
+      document.getElementById('view-login').classList.add('hidden');
+      document.getElementById('view-dashboard').classList.remove('hidden');
+      document.getElementById('btn-logout').classList.remove('hidden');
+
+      renderTopSymbolBar();
+      await loadExistingCatalog();
+      initDefaultManualSheet();
+    }
+
+    function renderTopSymbolBar() {
+      const bar = document.getElementById('top-symbol-bar');
+      if (!bar) return;
+      bar.innerHTML = TOP_SYMBOLS.map(s => `
+        <button type="button" onclick='insertToActiveField(${JSON.stringify(s.snippet)})'
+          class="math-chip px-2.5 py-1 rounded-lg bg-[#FFFDF9] hover:bg-orange-100 border border-orange-200 text-slate-800 text-xs font-bold">
+          ${s.label}
+        </button>
+      `).join('');
+    }
+
+    function initDefaultManualSheet() {
+      const jenjang = document.getElementById('man-jenjang').value;
+      const jenisPaket = document.getElementById('man-jenis').value;
+      const topik = document.getElementById('man-topik').value.trim() || 'Latihan Matematika';
+      const autoCode = generateClientPreviewCode();
+
+      draftPackage = {
+        kode_paket: autoCode,
+        jenis_paket: jenisPaket,
+        judul: `${jenisPaket}: ${topik} (${jenjang})`,
+        jenjang: jenjang,
+        topik: topik,
+        deskripsi: `Paket ${jenisPaket} materi ${topik} untuk jenjang ${jenjang}.`,
+        durasi_menit: 15,
+        soal: [
+          {
+            nomor: 1,
+            level: 'Sedang',
+            pertanyaan: '',
+            opsi: { A: '', B: '', C: '', D: '', E: '' },
+            kunci: 'A',
+            pembahasan: ''
+          }
+        ]
+      };
+      renderPreview();
+    }
+
+    function syncMetaDariFormUtama() {
+      if (!draftPackage || draftPackage.file_name) return;
+      const jenjang = document.getElementById('man-jenjang').value;
+      const jenisPaket = document.getElementById('man-jenis').value;
+      const topik = document.getElementById('man-topik').value.trim() || 'Latihan Matematika';
+
+      draftPackage.jenjang = jenjang;
+      draftPackage.jenis_paket = jenisPaket;
+      draftPackage.topik = topik;
+      draftPackage.judul = `${jenisPaket}: ${topik} (${jenjang})`;
+      draftPackage.deskripsi = `Paket ${jenisPaket} materi ${topik} untuk jenjang ${jenjang}.`;
+
+      document.getElementById('edit-jenjang').value = jenjang;
+      document.getElementById('edit-jenis').value = jenisPaket;
+      document.getElementById('edit-topik').value = topik;
+      document.getElementById('edit-judul').value = draftPackage.judul;
+      document.getElementById('edit-deskripsi').value = draftPackage.deskripsi;
+    }
+
+    async function resetLembarManualBaru() {
+      const ok = await mmConfirm(
+        'Reset Lembar Penulisan?',
+        'Seluruh isian pada lembar soal yang sedang ditulis akan dikosongkan menjadi paket baru.',
+        'Ya, Reset Lembar',
+        true
+      );
+      if (!ok) return;
+      initDefaultManualSheet();
+    }
+
+    // ========================================================================
+    // MODE AI TOPIK (OPSIONAL)
+    // ========================================================================
+    async function generateSoal(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-generate');
+      btn.disabled = true;
+      const maxClientRetries = 4;
+
+      for (let attempt = 1; attempt <= maxClientRetries; attempt++) {
+        btn.textContent = attempt === 1
+          ? '⏳ AI sedang menyusun soal & pembahasan...'
+          : `⏳ Server AI lagi antre, mencoba jalur cadangan (${attempt}/${maxClientRetries})...`;
+
+        try {
+          const res = await callApi({
+            action: 'generateQuestionsAI',
+            jenjang: document.getElementById('gen-jenjang').value,
+            jenisPaket: document.getElementById('gen-jenis').value,
+            topik: document.getElementById('gen-topik').value.trim(),
+            jumlah: document.getElementById('gen-jumlah').value,
+            tingkat: document.getElementById('gen-tingkat').value,
+            instruksi: document.getElementById('gen-instruksi').value.trim()
+          });
+
+          if (res.status === 'success') {
+            btn.disabled = false;
+            btn.textContent = '🪄 Generate Soal dengan AI';
+            draftPackage = res.data;
+            renderPreview();
+            await mmAlert('Soal Berhasil Disusun!', `AI telah menyiapkan ${draftPackage.soal.length} soal beserta pembahasannya.`, 'success');
+            document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth' });
+            return;
+          }
+
+          if (!String(res.message).includes('503') && !String(res.message).includes('SERVER_BUSY')) {
+            btn.disabled = false;
+            btn.textContent = '🪄 Generate Soal dengan AI';
+            await mmAlert('Gagal Generate Soal', res.message, 'error');
+            return;
+          }
+        } catch (err) {
+          if (attempt === maxClientRetries) {
+            btn.disabled = false;
+            btn.textContent = '🪄 Generate Soal dengan AI';
+            await mmAlert('Koneksi Terputus', err.message, 'error');
+            return;
+          }
+        }
+
+        if (attempt < maxClientRetries) {
+          await new Promise(r => setTimeout(r, 4000));
+        }
+      }
+
+      btn.disabled = false;
+      btn.textContent = '🪄 Generate Soal dengan AI';
+      await mmAlert('Server AI Sedang Padat', 'Silakan coba lagi beberapa saat atau gunakan Tulis Manual / Import File.', 'warning');
+    }
+
+    // ========================================================================
+    // EDIT PAKET AKTIF, TAMBAH & HAPUS NOMOR SOAL
+    // ========================================================================
+    async function editPaketAktif(fileName) {
+      try {
+        const res = await callApi({ action: 'getPackageForEdit', file: fileName });
+        if (res.status !== 'success') {
+          await mmAlert('Gagal Memuat Paket', res.message, 'error');
+          return;
+        }
+        draftPackage = res.data;
+        renderPreview();
+        document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        await mmAlert('Koneksi Bermasalah', err.message, 'error');
+      }
+    }
+
+    function tambahSoalManual() {
+      if (!draftPackage) return;
+      const nextNum = draftPackage.soal.length + 1;
+      draftPackage.soal.push({
+        nomor: nextNum,
+        level: 'Sedang',
+        pertanyaan: '',
+        opsi: { A: '', B: '', C: '', D: '', E: '' },
+        kunci: 'A',
+        pembahasan: ''
+      });
+      renderPreview();
+    }
+
+    async function hapusSoalDraft(idx) {
+      if (!draftPackage || draftPackage.soal.length <= 1) {
+        await mmAlert('Tidak Dapat Dihapus', 'Minimal harus terdapat 1 nomor soal di dalam paket.', 'warning');
+        return;
+      }
+      const ok = await mmConfirm(`Hapus Soal No. ${idx + 1}?`, 'Nomor soal ini akan dihapus dari lembar soal.', 'Ya, Hapus Nomor Ini', true);
+      if (!ok) return;
+
+      draftPackage.soal.splice(idx, 1);
+      draftPackage.soal.forEach((s, i) => s.nomor = i + 1);
+      renderPreview();
+    }
+
+    // ========================================================================
+    // RENDER LEMBAR PENULISAN & LIVE PREVIEW
+    // ========================================================================
+    function renderPreview() {
+      if (!draftPackage) return;
+      document.getElementById('preview-section').classList.remove('hidden');
+
+      const isEditExisting = Boolean(draftPackage.file_name);
+      document.getElementById('editor-mode-badge').textContent = isEditExisting
+        ? `Mode Edit Paket (${draftPackage.file_name})`
+        : 'Lembar Penulisan Soal Baru';
+      document.getElementById('editor-kode-badge').textContent = `KODE: ${draftPackage.kode_paket || '2601'}`;
+      document.getElementById('btn-publish').textContent = isEditExisting
+        ? '💾 Simpan Perubahan'
+        : '🚀 Publikasikan Paket';
+      document.getElementById('btn-publish-bottom').textContent = isEditExisting
+        ? '💾 Simpan Perubahan Sekarang'
+        : '🚀 Simpan & Publikasikan ke Siswa';
+
+      document.getElementById('edit-judul').value = draftPackage.judul || '';
+      document.getElementById('edit-jenis').value = draftPackage.jenis_paket || 'Latihan Mandiri';
+      document.getElementById('edit-topik').value = draftPackage.topik || '';
+      document.getElementById('edit-jenjang').value = draftPackage.jenjang || 'SMA';
+      document.getElementById('edit-durasi').value = draftPackage.durasi_menit || 15;
+      document.getElementById('edit-deskripsi').value = draftPackage.deskripsi || '';
+
+      const container = document.getElementById('preview-soal-list');
+      container.innerHTML = draftPackage.soal.map((item, idx) => `
+        <div class="bg-white border-[1.5px] border-orange-100 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-orange-50 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-extrabold">
+                Soal No. ${idx + 1}
+              </span>
+              <select onchange="updateField(${idx}, 'level', this.value)" class="px-2.5 py-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-extrabold text-xs">
+                ${['Mudah', 'Sedang', 'HOTS'].map(lv => `<option value="${lv}" ${item.level === lv ? 'selected' : ''}>${lv}</option>`).join('')}
+              </select>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <label class="text-xs font-extrabold text-slate-600">Kunci Jawaban:</label>
+              <select onchange="updateKunci(${idx}, this.value)" class="px-2.5 py-1 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-extrabold text-xs">
+                ${['A','B','C','D','E'].map(h => `<option value="${h}" ${item.kunci === h ? 'selected' : ''}>${h}</option>`).join('')}
+              </select>
+              <button type="button" onclick="hapusSoalDraft(${idx})" class="px-2.5 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-extrabold transition" title="Hapus nomor ini">
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="space-y-3">
+              <div>
+                <label class="block text-[11px] font-extrabold text-slate-500 mb-1">Teks Pertanyaan</label>
+                <textarea id="input-pertanyaan-${idx}" rows="3"
+                  onfocus="setActiveTarget(this, ${idx}, 'field', 'pertanyaan', 'Pertanyaan')"
+                  oninput="updateField(${idx}, 'pertanyaan', this.value)"
+                  placeholder="Ketik soal di sini... Gunakan Toolbar Equation di atas untuk pecahan, pangkat, akar, atau huruf science."
+                  class="w-full p-3 rounded-xl border border-orange-200 focus:border-orange-400 focus:outline-none text-xs font-bold bg-[#FFFDF9]">${escapeHtml(item.pertanyaan)}</textarea>
+              </div>
+
+              <div class="grid grid-cols-1 gap-2">
+                ${['A', 'B', 'C', 'D', 'E'].map(h => `
+                  <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg ${item.kunci === h ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'} text-xs font-extrabold flex items-center justify-center shrink-0">${h}</span>
+                    <input type="text" value="${escapeAttr(item.opsi[h] || '')}"
+                      onfocus="setActiveTarget(this, ${idx}, 'opsi', '${h}', 'Opsi ${h}')"
+                      oninput="updateOpsi(${idx}, '${h}', this.value)" placeholder="Pilihan ${h}..."
+                      class="w-full px-3 py-1.5 rounded-xl border border-slate-200 focus:border-orange-400 focus:outline-none text-xs font-bold" />
+                  </div>
+                `).join('')}
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-extrabold text-slate-500 mb-1">Pembahasan Langkah demi Langkah</label>
+                <textarea rows="3"
+                  onfocus="setActiveTarget(this, ${idx}, 'field', 'pembahasan', 'Pembahasan')"
+                  oninput="updateField(${idx}, 'pembahasan', this.value)"
+                  placeholder="Tulis pembahasan langkah demi langkah..."
+                  class="w-full p-3 rounded-xl border border-orange-200 focus:border-orange-400 focus:outline-none text-xs font-semibold bg-[#FFFDF9]">${escapeHtml(item.pembahasan)}</textarea>
+              </div>
+            </div>
+
+            <div id="live-box-${idx}" class="p-4 rounded-2xl bg-[#FFFDF9] border border-orange-100 space-y-3 flex flex-col justify-between">
+              <div class="space-y-2.5">
+                <div class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600">👁️ Live Preview Tampilan Siswa:</div>
+                <div class="text-sm font-bold text-slate-800 leading-relaxed">${item.pertanyaan || '<span class="text-slate-400 italic">Pertanyaan belum diisi...</span>'}</div>
+                <div class="space-y-1.5 pt-1 text-xs font-bold text-slate-700">
+                  ${['A', 'B', 'C', 'D', 'E'].map(h => `
+                    <div class="p-2 rounded-xl border ${item.kunci === h ? 'border-emerald-300 bg-emerald-50/70 text-emerald-900' : 'border-slate-200 bg-white'}">
+                      <strong>${h}.</strong> ${item.opsi[h] || '-'}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              <div class="p-3 rounded-xl bg-orange-50/70 border border-orange-100 text-xs text-slate-700 space-y-1">
+                <div class="font-extrabold text-orange-700">💡 Preview Pembahasan:</div>
+                <div class="font-semibold whitespace-pre-line leading-relaxed">${item.pembahasan || '-'}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      renderMathInContainer(container);
+    }
+
+    function updateField(idx, field, val) {
+      if (!draftPackage || !draftPackage.soal[idx]) return;
+      draftPackage.soal[idx][field] = val;
+      refreshSinglePreview(idx);
+    }
+
+    function updateOpsi(idx, huruf, val) {
+      if (!draftPackage || !draftPackage.soal[idx]) return;
+      draftPackage.soal[idx].opsi[huruf] = val;
+      refreshSinglePreview(idx);
+    }
+
+    function updateKunci(idx, newKey) {
+      if (!draftPackage || !draftPackage.soal[idx]) return;
+      draftPackage.soal[idx].kunci = newKey;
+      renderPreview();
+    }
+
+    function refreshSinglePreview(idx) {
+      const item = draftPackage.soal[idx];
+      const box = document.getElementById(`live-box-${idx}`);
+      if (!box || !item) return;
+
+      box.innerHTML = `
+        <div class="space-y-2.5">
+          <div class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600">👁️ Live Preview Tampilan Siswa:</div>
+          <div class="text-sm font-bold text-slate-800 leading-relaxed">${item.pertanyaan || '<span class="text-slate-400 italic">Pertanyaan belum diisi...</span>'}</div>
+          <div class="space-y-1.5 pt-1 text-xs font-bold text-slate-700">
+            ${['A', 'B', 'C', 'D', 'E'].map(h => `
+              <div class="p-2 rounded-xl border ${item.kunci === h ? 'border-emerald-300 bg-emerald-50/70 text-emerald-900' : 'border-slate-200 bg-white'}">
+                <strong>${h}.</strong> ${item.opsi[h] || '-'}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="p-3 rounded-xl bg-orange-50/70 border border-orange-100 text-xs text-slate-700 space-y-1">
+          <div class="font-extrabold text-orange-700">💡 Preview Pembahasan:</div>
+          <div class="font-semibold whitespace-pre-line leading-relaxed">${item.pembahasan || '-'}</div>
+        </div>
+      `;
+      renderMathInContainer(box);
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function escapeAttr(str) {
+      return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    async function publishPackage() {
+      if (!draftPackage) return;
+      const btn = document.getElementById('btn-publish');
+      const btnBottom = document.getElementById('btn-publish-bottom');
+      btn.disabled = true;
+      btnBottom.disabled = true;
+      btn.textContent = '⏳ Menyimpan...';
+
+      draftPackage.judul = document.getElementById('edit-judul').value.trim();
+      draftPackage.jenis_paket = document.getElementById('edit-jenis').value;
+      draftPackage.topik = document.getElementById('edit-topik').value.trim() || draftPackage.judul;
+      draftPackage.jenjang = document.getElementById('edit-jenjang').value.trim() || 'SMA';
+      draftPackage.durasi_menit = parseInt(document.getElementById('edit-durasi').value, 10) || 15;
+      draftPackage.deskripsi = document.getElementById('edit-deskripsi').value.trim();
+
+      try {
+        const res = await callApi({
+          action: 'savePackageToDrive',
+          packageData: draftPackage
+        }, true);
+
+        btn.disabled = false;
+        btnBottom.disabled = false;
+        btn.textContent = '🚀 Publikasikan Paket';
+        btnBottom.textContent = '🚀 Simpan & Publikasikan ke Siswa';
+
+        if (res.status !== 'success') {
+          await mmAlert('Gagal Menyimpan Paket', res.message, 'error');
+          return;
+        }
+
+        await loadExistingCatalog();
+        initDefaultManualSheet();
+        await mmAlert(
+          'Paket Berhasil Dipublikasikan!',
+          `${res.message}\n\nBagikan kode paket [${res.kode_paket}] kepada siswa agar langsung bisa dikerjakan.`,
+          'success'
+        );
+      } catch (err) {
+        btn.disabled = false;
+        btnBottom.disabled = false;
+        await mmAlert('Error Saat Menyimpan', err.message, 'error');
+      }
+    }
+
+    async function loadExistingCatalog() {
+      const listEl = document.getElementById('admin-catalog-list');
+      try {
+        const res = await callApi({ action: 'getCatalog' });
+        if (res.status !== 'success') {
+          listEl.innerHTML = `<p class="text-xs text-red-600 font-bold">${res.message}</p>`;
+          return;
+        }
+        cachedCategories = res.data.categories || [];
+        renderAdminCatalogList(cachedCategories);
+      } catch (err) {
+        listEl.innerHTML = `<p class="text-xs text-red-600 font-bold">${err.message}</p>`;
+      }
+    }
+
+    function filterAdminCatalog() {
+      const q = document.getElementById('search-admin-catalog').value.toLowerCase().trim();
+      if (!q) {
+        renderAdminCatalogList(cachedCategories);
+        return;
+      }
+      const filtered = cachedCategories.filter(c =>
+        (c.topik || '').toLowerCase().includes(q) ||
+        (c.judul || '').toLowerCase().includes(q) ||
+        String(c.kode_paket || '').toLowerCase().includes(q) ||
+        (c.jenis_paket || '').toLowerCase().includes(q) ||
+        (c.jenjang || '').toLowerCase().includes(q)
+      );
+      renderAdminCatalogList(filtered);
+    }
+
+    function renderAdminCatalogList(list) {
+      const listEl = document.getElementById('admin-catalog-list');
+      if (list.length === 0) {
+        listEl.innerHTML = `<p class="text-xs text-slate-400 font-bold text-center py-4">Tidak ada paket soal yang cocok.</p>`;
+        return;
+      }
+
+      listEl.innerHTML = list.map(cat => `
+        <div class="p-4 rounded-2xl border border-orange-100 bg-[#FFFDF9] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="px-2.5 py-0.5 rounded-md bg-slate-800 text-white text-[10px] font-extrabold tracking-wider">${cat.kode_paket || cat.id}</span>
+              <span class="px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-extrabold">${cat.jenjang}</span>
+              <span class="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-extrabold">${cat.jenis_paket || 'Latihan Mandiri'}</span>
+            </div>
+            <div class="text-sm font-extrabold text-slate-800">${cat.judul || cat.topik}</div>
+            <div class="text-xs font-semibold text-slate-500">Bab: ${cat.topik} • ${cat.jumlah_soal} Soal • ${cat.durasi_menit} Menit</div>
+          </div>
+
+          <div class="flex items-center gap-2 self-start sm:self-center shrink-0">
+            <button type="button" onclick="editPaketAktif('${cat.file_name}')"
+              class="px-3.5 py-2 rounded-xl border border-orange-200 bg-white hover:bg-orange-50 text-orange-700 text-xs font-extrabold transition">
+              ✏️ Edit
+            </button>
+            <button type="button" onclick="hapusPaket('${cat.file_name}', '${escapeAttr(cat.judul || cat.topik)}')"
+              class="px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-extrabold transition">
+              🗑️ Hapus
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function hapusPaket(fileName, topik) {
+      const ok = await mmConfirm(
+        'Hapus Paket Soal?',
+        `Paket "${topik}" akan dihapus permanen dari katalog siswa dan database Google Drive.`,
+        'Ya, Hapus Permanen',
+        true
+      );
+      if (!ok) return;
+
+      try {
+        const res = await callApi({ action: 'deletePackage', file: fileName });
+        if (res.status !== 'success') {
+          await mmAlert('Gagal Menghapus Paket', res.message, 'error');
+          return;
+        }
+        await loadExistingCatalog();
+        await mmAlert('Paket Dihapus', `Paket "${topik}" berhasil dihapus dari Bank Soal.`, 'success');
+      } catch (err) {
+        await mmAlert('Koneksi Bermasalah', err.message, 'error');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (guruKey) showDashboard();
+    });
   </script>
 </body>
 </html>
