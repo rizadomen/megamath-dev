@@ -166,7 +166,7 @@
 
     function idToAuthEmail(rawId) {
       const cleanId = String(rawId || '').trim().replace(/\D/g, '');
-      return `${cleanId}@megamath.internal`;
+      return `${cleanId}@megamath.my.id`;
     }
 
     async function initFirebaseSafely() {
