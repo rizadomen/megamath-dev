@@ -1,247 +1,148 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Plotting Kelas & Siswa - MegaMath Staff</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#FB923C" />
+  <link rel="icon" type="image/png" href="https://megamath.my.id/favicon-megamath.png" />
+  <title>Plotting Kelas & Siswa — Mega Math Operasional</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+
   <style>
-    :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #e2e8f0;
-      --danger: #ef4444;
-      --success: #10b981;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
-
-    /* Topbar Mobile-First */
-    .topbar {
-      background: var(--primary);
-      color: #fff;
-      padding: 16px 20px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .topbar-left h1 { font-size: 1.05rem; font-weight: 700; }
-    .topbar-left span { font-size: 0.78rem; opacity: 0.85; }
-    .btn-logout {
-      background: rgba(255,255,255,0.18);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.3);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .container { max-width: 720px; margin: 16px auto; padding: 0 16px; }
-
-    .card {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 16px;
-      border: 1px solid var(--border);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-    .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 14px; color: var(--text); }
-
-    label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-    select, input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 0.95rem;
-      background: #fff;
-      margin-bottom: 14px;
-      outline: none;
-    }
-    select:focus, input[type="text"]:focus { border-color: var(--primary); }
-
-    /* Multi-select Checkbox List */
-    .siswa-checklist {
-      max-height: 250px;
-      overflow-y: auto;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px;
-      margin-bottom: 16px;
-      background: #f8fafc;
-    }
-    .siswa-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      background: #fff;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      border: 1px solid var(--border);
-      cursor: pointer;
-    }
-    .siswa-item:last-child { margin-bottom: 0; }
-    .siswa-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); }
-    .siswa-info { flex: 1; }
-    .siswa-name { font-size: 0.9rem; font-weight: 600; }
-    .siswa-meta { font-size: 0.78rem; color: var(--muted); }
-
-    .btn-primary {
-      width: 100%;
-      padding: 13px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn-primary:active { background: var(--primary-dark); }
-    .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
-
-    /* Daftar Plotting Aktif */
-    .plotting-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      margin-bottom: 10px;
-      background: #fff;
-    }
-    .plot-guru { font-size: 0.78rem; color: var(--primary); font-weight: 700; margin-bottom: 2px; }
-    .plot-siswa { font-size: 0.95rem; font-weight: 600; }
-    .plot-kelas { font-size: 0.8rem; color: var(--muted); }
-    .btn-hapus {
-      background: #fee2e2;
-      color: var(--danger);
-      border: none;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    /* Custom Pop-up Notification */
-    .popup-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.55);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      padding: 20px;
-    }
-    .popup-box {
-      background: #fff;
-      border-radius: 16px;
-      padding: 22px;
-      max-width: 360px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-      animation: popIn 0.2s ease-out;
+    body {
+      font-family: 'Nunito', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      scroll-behavior: smooth;
     }
     @keyframes popIn {
-      from { transform: scale(0.92); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+      0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
     }
-    .popup-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
-    .popup-msg { font-size: 0.9rem; color: var(--muted); margin-bottom: 18px; line-height: 1.4; }
-    .popup-actions { display: flex; gap: 10px; }
-    .popup-btn {
-      flex: 1;
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
+    .modal-pop {
+      animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    .popup-btn.confirm { background: var(--primary); color: #fff; }
-    .popup-btn.danger { background: var(--danger); color: #fff; }
-    .popup-btn.cancel { background: #e2e8f0; color: var(--text); }
   </style>
 </head>
-<body>
+<body class="min-h-screen bg-[#FFFDF9] text-slate-800 flex flex-col">
 
-  <div class="topbar">
-    <div class="topbar-left">
-      <h1>Pengaturan Kelas & Plotting</h1>
-      <span id="staffNameLabel">Memverifikasi akses...</span>
+  <!-- CUSTOM POP-UP MODAL (SAMA PERSIS DENGAN GURU.HTML) -->
+  <div id="mm-modal-overlay" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div id="mm-modal-box" class="modal-pop bg-white border-[1.5px] border-orange-100 shadow-2xl rounded-[2rem] max-w-sm w-full p-6 sm:p-7 text-center space-y-4">
+      <div id="mm-modal-icon" class="w-16 h-16 mx-auto rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-3xl shadow-inner">
+        ✨
+      </div>
+      <div class="space-y-1.5">
+        <h3 id="mm-modal-title" class="text-lg sm:text-xl font-black text-slate-800">Pemberitahuan</h3>
+        <p id="mm-modal-message" class="text-xs sm:text-sm font-semibold text-slate-600 leading-relaxed whitespace-pre-line">Pesan notifikasi.</p>
+      </div>
+      <div id="mm-modal-actions" class="pt-2 flex items-center justify-center gap-2.5"></div>
     </div>
-    <button class="btn-logout" id="btnLogout">Keluar</button>
   </div>
 
-  <div class="container">
-    <!-- Form Plotting -->
-    <div class="card">
-      <div class="card-title">Plotting Siswa ke Guru</div>
+  <!-- NAVBAR -->
+  <header class="sticky top-0 z-30 bg-[#FFFDF9]/90 backdrop-blur-md border-b border-orange-100">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <a href="index.html" class="flex items-center gap-2.5 min-w-0">
+        <img src="https://megamath.my.id/favicon-megamath.png" alt="Mega Math" class="w-10 h-8 object-contain mix-blend-multiply shrink-0" />
+        <div class="min-w-0">
+          <span class="block text-sm sm:text-base font-extrabold text-slate-800 truncate">Mega Math</span>
+          <span class="block text-[10px] font-bold text-orange-600 uppercase tracking-wider truncate" id="staff-role-badge">Operasional &amp; Plotting</span>
+        </div>
+      </a>
 
-      <label for="selectGuru">1. Pilih Guru Pengajar</label>
-      <select id="selectGuru">
-        <option value="">-- Memuat daftar guru... --</option>
-      </select>
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="index.html" target="_blank"
+          class="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-2 rounded-xl border border-orange-200 bg-white hover:bg-orange-50 text-orange-700 transition">
+          <span>👁️</span><span class="hidden sm:inline">Web Siswa</span>
+        </a>
+        <button id="btn-logout" type="button"
+          class="text-xs font-extrabold px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+          Keluar
+        </button>
+      </div>
+    </div>
+  </header>
 
-      <label for="filterKelas">2. Filter Kelas Siswa</label>
-      <select id="filterKelas">
-        <option value="ALL">Semua Kelas</option>
-        <option value="7 SMP">7 SMP</option>
-        <option value="8 SMP">8 SMP</option>
-        <option value="9 SMP">9 SMP</option>
-        <option value="10 SMA">10 SMA</option>
-        <option value="11 SMA">11 SMA</option>
-        <option value="12 SMA">12 SMA</option>
-      </select>
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 pt-6 pb-16 space-y-8">
+    <!-- CARD 1: FORM PLOTTING SISWA KE GURU -->
+    <section class="bg-white border-[1.5px] border-orange-100 shadow-xl shadow-orange-500/5 rounded-[2rem] p-6 sm:p-8 space-y-5">
+      <div class="border-b border-orange-50 pb-4">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-extrabold mb-1.5">
+          <span>📋</span><span>Manajemen Kelas &amp; Pembimbing</span>
+        </span>
+        <h1 class="text-xl sm:text-2xl font-black text-slate-800">Plotting Siswa ke Guru</h1>
+        <p class="text-xs font-semibold text-slate-500 mt-0.5">Tentukan siswa bimbingan untuk masing-masing guru pengajar.</p>
+      </div>
 
-      <label>3. Pilih Siswa</label>
-      <input type="text" id="searchSiswaInput" placeholder="Cari nama siswa...">
-      <div class="siswa-checklist" id="siswaChecklist">
-        <div style="text-align:center; padding: 20px; color: var(--muted); font-size: 0.85rem;">
-          Memuat data siswa dari Firestore...
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-extrabold text-slate-700 mb-1.5">1. Pilih Guru Pengajar</label>
+          <select id="select-guru"
+            class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+            <option value="">-- Memuat daftar guru... --</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-extrabold text-slate-700 mb-1.5">2. Filter Jenjang / Kelas Siswa</label>
+          <select id="filter-kelas"
+            class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+            <option value="ALL">Semua Kelas</option>
+            <option value="SD Kelas 4-6">SD (Kelas 4 - 6)</option>
+            <option value="SMP Kelas 7">SMP Kelas 7</option>
+            <option value="SMP Kelas 8">SMP Kelas 8</option>
+            <option value="SMP Kelas 9">SMP Kelas 9</option>
+            <option value="SMA Kelas 10">SMA Kelas 10</option>
+            <option value="SMA Kelas 11">SMA Kelas 11</option>
+            <option value="SMA Kelas 12">SMA Kelas 12</option>
+            <option value="UTBK / SNBT">UTBK / SNBT</option>
+          </select>
         </div>
       </div>
 
-      <button class="btn-primary" id="btnSimpanPlotting">Simpan Plotting Siswa</button>
-    </div>
+      <div class="space-y-2">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <label class="block text-xs font-extrabold text-slate-700">3. Pilih Siswa (Bisa centang lebih dari satu)</label>
+          <input id="search-siswa" type="text" placeholder="🔍 Cari nama siswa..."
+            class="px-3.5 py-2 rounded-xl border border-orange-200 text-xs font-bold bg-[#FFFDF9] focus:outline-none focus:border-orange-400 sm:w-64" />
+        </div>
 
-    <!-- Daftar Plotting Aktif -->
-    <div class="card">
-      <div class="card-title">Daftar Plotting Aktif</div>
-      <input type="text" id="searchPlotting" placeholder="Cari berdasarkan nama guru atau siswa...">
-      <div id="plottingListContainer">
-        <div style="text-align:center; padding: 20px; color: var(--muted); font-size: 0.85rem;">
-          Memuat data plotting...
+        <div id="siswa-checklist"
+          class="max-h-64 overflow-y-auto p-3 rounded-2xl bg-[#FFFDF9] border-[1.5px] border-orange-100 space-y-2">
+          <div class="text-center py-6 text-xs font-bold text-slate-400">Memuat daftar siswa dari Firestore...</div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Custom UI Pop-up -->
-  <div class="popup-overlay" id="customPopup">
-    <div class="popup-box">
-      <div class="popup-title" id="popupTitle">Informasi</div>
-      <div class="popup-msg" id="popupMsg">Pesan</div>
-      <div class="popup-actions" id="popupActions">
-        <button class="popup-btn confirm" onclick="closePopup()">Oke</button>
+      <div class="pt-1">
+        <button id="btn-simpan-plotting" type="button"
+          class="w-full py-3.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 active:scale-[0.99] text-white font-extrabold text-sm shadow-lg shadow-orange-500/25 transition disabled:opacity-60">
+          ✅ Simpan Plotting Siswa
+        </button>
       </div>
-    </div>
-  </div>
+    </section>
+
+    <!-- CARD 2: DAFTAR PLOTTING AKTIF -->
+    <section class="bg-white border-[1.5px] border-orange-100 rounded-[2rem] p-6 sm:p-8 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Database Firestore</span>
+          <h2 class="text-lg font-black text-slate-800">Daftar Plotting Aktif</h2>
+        </div>
+        <input id="search-plotting" type="text" placeholder="🔍 Cari guru atau siswa..."
+          class="px-3.5 py-2 rounded-xl border border-orange-200 text-xs font-bold bg-[#FFFDF9] focus:outline-none focus:border-orange-400 sm:w-64" />
+      </div>
+
+      <div id="plotting-list" class="space-y-3">
+        <div class="text-center py-6 text-xs font-bold text-slate-400">Memuat data plotting...</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-orange-100 bg-white py-6 px-4 text-center text-xs text-slate-500 font-semibold">
+    © 2026 Mega Math - Bimbel Private • Operasional Staff
+  </footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -250,7 +151,7 @@
       getFirestore, collection, query, where, getDocs, getDoc, doc, setDoc, deleteDoc, serverTimestamp, onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // 1. GANTI DENGAN CONFIG FIREBASE MEGAMATH LU (Gunakan key baru yang sudah di-restrict domain megamath.my.id)
+    // GANTI DENGAN CONFIG FIREBASE MEGAMATH LU
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -260,10 +161,10 @@
       appId: "YOUR_APP_ID"
     };
 
-    // 2. SESUAIKAN NAMA KOLEKSI & FIELD SISWA YANG SUDAH ADA DI FIRESTORE LU
-    const COLLECTION_SISWA = "siswa";  // sesuaikan dengan koleksi akun siswa yang sudah ada
-    const FIELD_NAMA_SISWA = "nama";   // sesuaikan dengan nama field nama siswa
-    const FIELD_KELAS_SISWA = "kelas"; // sesuaikan dengan nama field kelas siswa
+    // SESUAIKAN NAMA KOLEKSI & FIELD SISWA YANG SUDAH ADA DI FIRESTORE LU
+    const COLLECTION_SISWA = "siswa";
+    const FIELD_NAMA_SISWA = "nama";
+    const FIELD_KELAS_SISWA = "kelas";
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -272,48 +173,70 @@
     let allSiswa = [];
     let allPlotting = [];
 
-    // Custom Pop-up Helper
-    window.showPopup = (title, msg, isConfirm = false, onConfirm = null) => {
-      document.getElementById('popupTitle').textContent = title;
-      document.getElementById('popupMsg').textContent = msg;
-      const actions = document.getElementById('popupActions');
-      actions.innerHTML = '';
+    // ========================================================================
+    // CUSTOM POP-UP ENGINE (IDENTIK DENGAN GURU.HTML)
+    // ========================================================================
+    function showCustomModal({ type = 'info', title = '', message = '', confirmText = 'OK', cancelText = 'Batal', showCancel = false }) {
+      return new Promise((resolve) => {
+        const overlay = document.getElementById('mm-modal-overlay');
+        const box = document.getElementById('mm-modal-box');
+        const iconEl = document.getElementById('mm-modal-icon');
+        const titleEl = document.getElementById('mm-modal-title');
+        const msgEl = document.getElementById('mm-modal-message');
+        const actionsEl = document.getElementById('mm-modal-actions');
 
-      if (isConfirm) {
-        const btnCancel = document.createElement('button');
-        btnCancel.className = 'popup-btn cancel';
-        btnCancel.textContent = 'Batal';
-        btnCancel.onclick = closePopup;
-
-        const btnYes = document.createElement('button');
-        btnYes.className = 'popup-btn danger';
-        btnYes.textContent = 'Ya, Cabut';
-        btnYes.onclick = () => {
-          closePopup();
-          if (onConfirm) onConfirm();
+        const styles = {
+          success: { icon: '✅', iconBg: 'bg-emerald-100 text-emerald-600', border: 'border-emerald-200', btnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20' },
+          error: { icon: '❌', iconBg: 'bg-rose-100 text-rose-600', border: 'border-rose-200', btnClass: 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20' },
+          warning: { icon: '⚠️', iconBg: 'bg-amber-100 text-amber-600', border: 'border-amber-200', btnClass: 'bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-orange-500/25' },
+          confirm: { icon: '🤔', iconBg: 'bg-orange-100 text-orange-600', border: 'border-orange-200', btnClass: 'bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-orange-500/25' },
+          dangerConfirm: { icon: '🗑️', iconBg: 'bg-rose-100 text-rose-600', border: 'border-rose-200', btnClass: 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20' }
         };
-        actions.append(btnCancel, btnYes);
-      } else {
-        const btnOk = document.createElement('button');
-        btnOk.className = 'popup-btn confirm';
-        btnOk.textContent = 'Oke';
-        btnOk.onclick = closePopup;
-        actions.appendChild(btnOk);
-      }
-      document.getElementById('customPopup').style.display = 'flex';
-    };
 
-    window.closePopup = () => {
-      document.getElementById('customPopup').style.display = 'none';
-    };
+        const cfg = styles[type] || styles.warning;
+        box.className = `modal-pop bg-white border-[1.5px] ${cfg.border} shadow-2xl rounded-[2rem] max-w-sm w-full p-6 sm:p-7 text-center space-y-4`;
+        iconEl.className = `w-16 h-16 mx-auto rounded-2xl ${cfg.iconBg} flex items-center justify-center text-3xl`;
+        iconEl.textContent = cfg.icon;
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        actionsEl.innerHTML = '';
+
+        const closeWith = (val) => { overlay.classList.add('hidden'); resolve(val); };
+
+        if (showCancel) {
+          const btnCancel = document.createElement('button');
+          btnCancel.type = 'button';
+          btnCancel.className = 'flex-1 py-3 px-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold text-xs sm:text-sm transition';
+          btnCancel.textContent = cancelText;
+          btnCancel.onclick = () => closeWith(false);
+          actionsEl.appendChild(btnCancel);
+        }
+
+        const btnOk = document.createElement('button');
+        btnOk.type = 'button';
+        btnOk.className = `flex-1 py-3 px-4 rounded-2xl ${cfg.btnClass} font-extrabold text-xs sm:text-sm shadow-lg transition`;
+        btnOk.textContent = confirmText;
+        btnOk.onclick = () => closeWith(true);
+        actionsEl.appendChild(btnOk);
+
+        overlay.classList.remove('hidden');
+        btnOk.focus();
+      });
+    }
+
+    const mmAlert = (title, message, type = 'warning') => showCustomModal({ type, title, message, confirmText: 'Mengerti', showCancel: false });
+    const mmConfirm = (title, message, confirmText = 'Ya, Lanjutkan', isDanger = false) =>
+      showCustomModal({ type: isDanger ? 'dangerConfirm' : 'confirm', title, message, confirmText, cancelText: 'Batal', showCancel: true });
 
     // Logout
-    document.getElementById('btnLogout').addEventListener('click', async () => {
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      const ok = await mmConfirm('Keluar dari Panel Staff?', 'Sesi login kamu di browser ini akan diakhiri.', 'Ya, Keluar');
+      if (!ok) return;
       await signOut(auth);
       window.location.href = 'index.html';
     });
 
-    // Guard Autentikasi: Hanya role 'staff' atau 'admin' di koleksi 'users'
+    // Guard Autentikasi: Hanya role 'staff' atau 'admin'
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = 'index.html';
@@ -323,40 +246,34 @@
       try {
         const userSnap = await getDoc(doc(db, 'users', user.uid));
         if (!userSnap.exists() || !userSnap.data().status_aktif) {
-          showPopup('Akses Ditolak', 'Akun tidak terdaftar sebagai pengelola aktif.');
-          setTimeout(() => window.location.href = 'index.html', 1500);
+          await mmAlert('Akses Ditolak', 'Akun tidak terdaftar sebagai pengelola aktif.', 'error');
+          window.location.href = 'index.html';
           return;
         }
 
         const userData = userSnap.data();
         if (userData.role !== 'staff' && userData.role !== 'admin') {
-          showPopup('Akses Dibatasi', 'Halaman ini khusus untuk Staff Operasional.');
-          setTimeout(() => {
-            window.location.href = userData.role === 'guru' ? 'guru.html' : 'index.html';
-          }, 1500);
+          await mmAlert('Akses Dibatasi', 'Halaman ini khusus untuk Staff Operasional.', 'warning');
+          window.location.href = userData.role === 'guru' ? 'guru.html' : 'index.html';
           return;
         }
 
-        document.getElementById('staffNameLabel').textContent = `Staff: ${userData.nama || user.email}`;
+        document.getElementById('staff-role-badge').textContent = `Staff: ${userData.nama || user.email}`;
 
         loadGuruDariFirestore();
         loadSiswaDariFirestore();
         listenPlottingAktif();
       } catch (err) {
-        showPopup('Error Autentikasi', err.message);
+        await mmAlert('Error Autentikasi', err.message, 'error');
       }
     });
 
-    // Ambil Daftar Guru dari Koleksi 'users' (role == 'guru')
+    // Load Guru dari Koleksi 'users'
     async function loadGuruDariFirestore() {
-      const q = query(
-        collection(db, 'users'),
-        where('role', '==', 'guru'),
-        where('status_aktif', '==', true)
-      );
+      const q = query(collection(db, 'users'), where('role', '==', 'guru'), where('status_aktif', '==', true));
       const snap = await getDocs(q);
-      const selectGuru = document.getElementById('selectGuru');
-      selectGuru.innerHTML = '<option value="">-- Pilih Guru --</option>';
+      const selectGuru = document.getElementById('select-guru');
+      selectGuru.innerHTML = '<option value="">-- Pilih Guru Pengajar --</option>';
 
       snap.forEach(docSnap => {
         const g = docSnap.data();
@@ -368,7 +285,7 @@
       });
     }
 
-    // Ambil Daftar Siswa langsung dari Koleksi Siswa di Firestore
+    // Load Siswa dari Koleksi Siswa Firestore
     async function loadSiswaDariFirestore() {
       try {
         const snap = await getDocs(collection(db, COLLECTION_SISWA));
@@ -381,18 +298,18 @@
             kelas: data[FIELD_KELAS_SISWA] || '-'
           });
         });
+        allSiswa.sort((a, b) => a.nama.localeCompare(b.nama));
         renderSiswaChecklist();
       } catch (err) {
-        document.getElementById('siswaChecklist').innerHTML =
-          `<div style="padding:16px; color:var(--danger); font-size:0.85rem;">Gagal memuat siswa: ${err.message}</div>`;
+        document.getElementById('siswa-checklist').innerHTML =
+          `<div class="text-center py-4 text-xs font-bold text-rose-600">Gagal memuat siswa: ${err.message}</div>`;
       }
     }
 
-    // Render Checklist Siswa
     function renderSiswaChecklist() {
-      const kelasFilter = document.getElementById('filterKelas').value;
-      const keyword = document.getElementById('searchSiswaInput').value.toLowerCase();
-      const container = document.getElementById('siswaChecklist');
+      const kelasFilter = document.getElementById('filter-kelas').value;
+      const keyword = document.getElementById('search-siswa').value.toLowerCase().trim();
+      const container = document.getElementById('siswa-checklist');
 
       const filtered = allSiswa.filter(s => {
         const matchKelas = kelasFilter === 'ALL' || (s.kelas === kelasFilter);
@@ -401,43 +318,43 @@
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:16px; color:var(--muted); font-size:0.85rem;">Tidak ada siswa ditemukan.</div>';
+        container.innerHTML = `<div class="text-center py-6 text-xs font-bold text-slate-400">Tidak ada siswa yang cocok.</div>`;
         return;
       }
 
       container.innerHTML = filtered.map(s => `
-        <label class="siswa-item">
-          <input type="checkbox" class="chk-siswa" value="${s.id}" data-nama="${s.nama}" data-kelas="${s.kelas}">
-          <div class="siswa-info">
-            <div class="siswa-name">${s.nama}</div>
-            <div class="siswa-meta">Kelas: ${s.kelas}</div>
+        <label class="flex items-center gap-3 p-3 rounded-xl bg-white border border-orange-100 hover:border-orange-300 cursor-pointer transition">
+          <input type="checkbox" class="chk-siswa w-4 h-4 accent-orange-500 rounded" value="${s.id}" data-nama="${s.nama}" data-kelas="${s.kelas}" />
+          <div class="min-w-0 flex-1">
+            <div class="text-xs sm:text-sm font-extrabold text-slate-800 truncate">${s.nama}</div>
+            <div class="text-[11px] font-semibold text-slate-500">Jenjang: ${s.kelas}</div>
           </div>
         </label>
       `).join('');
     }
 
-    document.getElementById('filterKelas').addEventListener('change', renderSiswaChecklist);
-    document.getElementById('searchSiswaInput').addEventListener('input', renderSiswaChecklist);
+    document.getElementById('filter-kelas').addEventListener('change', renderSiswaChecklist);
+    document.getElementById('search-siswa').addEventListener('input', renderSiswaChecklist);
 
-    // Simpan Plotting ke Koleksi Firestore 'plotting_guru_siswa'
-    document.getElementById('btnSimpanPlotting').addEventListener('click', async () => {
-      const selectGuru = document.getElementById('selectGuru');
+    // Simpan Plotting
+    document.getElementById('btn-simpan-plotting').addEventListener('click', async () => {
+      const selectGuru = document.getElementById('select-guru');
       const guruUid = selectGuru.value;
       const guruNama = selectGuru.options[selectGuru.selectedIndex]?.dataset?.nama || '';
       const checkedBoxes = Array.from(document.querySelectorAll('.chk-siswa:checked'));
 
       if (!guruUid) {
-        showPopup('Pilih Guru', 'Silakan pilih guru pengajar terlebih dahulu.');
+        await mmAlert('Guru Belum Dipilih', 'Silakan pilih guru pengajar terlebih dahulu.', 'warning');
         return;
       }
       if (checkedBoxes.length === 0) {
-        showPopup('Pilih Siswa', 'Centang minimal satu siswa yang akan di-plotting.');
+        await mmAlert('Siswa Belum Dipilih', 'Centang minimal satu siswa yang akan di-plotting.', 'warning');
         return;
       }
 
-      const btn = document.getElementById('btnSimpanPlotting');
+      const btn = document.getElementById('btn-simpan-plotting');
       btn.disabled = true;
-      btn.textContent = 'Menyimpan...';
+      btn.textContent = '⏳ Menyimpan Plotting...';
 
       try {
         const promises = checkedBoxes.map(chk => {
@@ -456,16 +373,16 @@
 
         await Promise.all(promises);
         checkedBoxes.forEach(chk => chk.checked = false);
-        showPopup('Berhasil', `${checkedBoxes.length} siswa berhasil di-plotting ke ${guruNama}.`);
+        await mmAlert('Plotting Berhasil!', `${checkedBoxes.length} siswa telah ditambahkan ke daftar bimbingan ${guruNama}.`, 'success');
       } catch (err) {
-        showPopup('Gagal Menyimpan', err.message);
+        await mmAlert('Gagal Menyimpan', err.message, 'error');
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Simpan Plotting Siswa';
+        btn.textContent = '✅ Simpan Plotting Siswa';
       }
     });
 
-    // Listener Realtime Plotting Aktif
+    // Listener Plotting Aktif
     function listenPlottingAktif() {
       const q = query(collection(db, 'plotting_guru_siswa'), where('status_aktif', '==', true));
       onSnapshot(q, (snapshot) => {
@@ -478,8 +395,8 @@
     }
 
     function renderPlottingList() {
-      const keyword = document.getElementById('searchPlotting').value.toLowerCase();
-      const container = document.getElementById('plottingListContainer');
+      const keyword = document.getElementById('search-plotting').value.toLowerCase().trim();
+      const container = document.getElementById('plotting-list');
 
       const filtered = allPlotting.filter(p =>
         (p.guru_nama || '').toLowerCase().includes(keyword) ||
@@ -487,35 +404,45 @@
       );
 
       if (filtered.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:16px; color:var(--muted); font-size:0.85rem;">Belum ada data plotting aktif.</div>';
+        container.innerHTML = `<div class="text-center py-6 text-xs font-bold text-slate-400">Belum ada data plotting aktif.</div>`;
         return;
       }
 
       container.innerHTML = filtered.map(p => `
-        <div class="plotting-card">
-          <div>
-            <div class="plot-guru">Guru: ${p.guru_nama}</div>
-            <div class="plot-siswa">${p.siswa_nama}</div>
-            <div class="plot-kelas">Kelas: ${p.siswa_kelas}</div>
+        <div class="p-4 rounded-2xl border border-orange-100 bg-[#FFFDF9] flex items-center justify-between gap-3">
+          <div class="space-y-1 min-w-0">
+            <span class="inline-block px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-extrabold">
+              👨‍🏫 Guru: ${p.guru_nama}
+            </span>
+            <div class="text-sm font-extrabold text-slate-800 truncate">${p.siswa_nama}</div>
+            <div class="text-xs font-semibold text-slate-500">Kelas: ${p.siswa_kelas}</div>
           </div>
-          <button class="btn-hapus" onclick="hapusPlotting('${p.id}', '${p.siswa_nama}')">Cabut</button>
+
+          <button type="button" onclick="hapusPlotting('${p.id}', '${p.siswa_nama.replace(/'/g, "\\'")}')"
+            class="px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-extrabold transition shrink-0">
+            🗑️ Cabut
+          </button>
         </div>
       `).join('');
     }
 
-    document.getElementById('searchPlotting').addEventListener('input', renderPlottingList);
+    document.getElementById('search-plotting').addEventListener('input', renderPlottingList);
 
-    // Cabut Plotting
-    window.hapusPlotting = (docId, namaSiswa) => {
-      showPopup(
-        'Cabut Plotting?',
-        `Siswa ${namaSiswa} akan dihapus dari daftar bimbingan guru terkait.`,
-        true,
-        async () => {
-          await deleteDoc(doc(db, 'plotting_guru_siswa', docId));
-          showPopup('Dihapus', `Plotting untuk ${namaSiswa} berhasil dicabut.`);
-        }
+    window.hapusPlotting = async (docId, namaSiswa) => {
+      const ok = await mmConfirm(
+        'Cabut Plotting Siswa?',
+        `Siswa "${namaSiswa}" akan dihapus dari daftar bimbingan guru terkait.`,
+        'Ya, Cabut Plotting',
+        true
       );
+      if (!ok) return;
+
+      try {
+        await deleteDoc(doc(db, 'plotting_guru_siswa', docId));
+        await mmAlert('Plotting Dicabut', `Akses bimbingan untuk ${namaSiswa} berhasil dihapus.`, 'success');
+      } catch (err) {
+        await mmAlert('Gagal Menghapus', err.message, 'error');
+      }
     };
   </script>
 </body>
