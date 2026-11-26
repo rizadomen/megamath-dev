@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Siswa Saya - MegaMath Guru</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
+
+    /* Topbar & Sub-Menu Navigasi Guru (Sticky) */
+    .header-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--card);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .topbar {
+      background: var(--primary);
+      color: #fff;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .topbar-left h1 { font-size: 1.05rem; font-weight: 700; }
+    .topbar-left span { font-size: 0.78rem; opacity: 0.9; }
+    .btn-logout {
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Sub-Menu Horizontal Scrollable untuk Mobile-First */
+    .guru-subnav {
+      display: flex;
+      overflow-x: auto;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 0 12px;
+      gap: 6px;
+      scrollbar-width: none;
+    }
+    .guru-subnav::-webkit-scrollbar { display: none; }
+    .subnav-item {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 12px 14px;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    .subnav-item:hover { color: var(--primary); }
+    .subnav-item.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* Container & Filter */
+    .container { max-width: 760px; margin: 16px auto; padding: 0 16px; }
+
+    .summary-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--primary-light);
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+    }
+    .summary-strip span { font-size: 0.85rem; color: var(--primary-dark); font-weight: 600; }
+    .summary-count {
+      background: var(--primary);
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .filter-bar {
+      display: grid;
+      grid-template-columns: 1fr 140px;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      background: #fff;
+      outline: none;
+    }
+    input[type="text"]:focus, select:focus { border-color: var(--primary); }
+
+    /* Kartu Siswa */
+    .siswa-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .siswa-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .siswa-nama { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .badge-kelas {
+      display: inline-block;
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+    .badge-aktif {
+      background: #dcfce7;
+      color: #15803d;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+
+    /* Tombol Aksi Cepat ke Halaman Detail Siswa */
+    .siswa-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-action {
+      text-decoration: none;
+      text-align: center;
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .btn-action:active { opacity: 0.8; }
+    .btn-materi {
+      background: #fef3c7;
+      color: #b45309;
+    }
+    .btn-progress {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 36px 20px;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* Custom UI Pop-up */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 20px;
+    }
+    .popup-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px;
+      max-width: 350px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .popup-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .popup-msg { font-size: 0.9rem; color: var(--muted); margin-bottom: 18px; }
+    .popup-btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header & Navigasi Sub-Menu Guru -->
+  <div class="header-wrapper">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Portal Guru MegaMath</h1>
+        <span id="guruNameLabel">Memuat profil...</span>
+      </div>
+      <button class="btn-logout" id="btnLogout">Keluar</button>
+    </div>
+
+    <nav class="guru-subnav">
+      <a href="guru.html" class="subnav-item">Bank Soal</a>
+      <a href="guru-siswa.html" class="subnav-item active">Siswa Saya</a>
+      <a href="guru-materi-siswa.html" class="subnav-item">PR & Kisi-Kisi</a>
+      <a href="guru-progress.html" class="subnav-item">Progress Belajar</a>
+    </nav>
+  </div>
+
+  <div class="container">
+    <!-- Ringkasan Jumlah Siswa -->
+    <div class="summary-strip">
+      <span>Total Siswa Bimbingan Aktif</span>
+      <span class="summary-count" id="totalSiswaCount">0</span>
+    </div>
+
+    <!-- Bar Pencarian & Filter Kelas -->
+    <div class="filter-bar">
+      <input type="text" id="searchSiswa" placeholder="Cari nama siswa...">
+      <select id="filterKelas">
+        <option value="ALL">Semua Kelas</option>
+        <option value="7 SMP">7 SMP</option>
+        <option value="8 SMP">8 SMP</option>
+        <option value="9 SMP">9 SMP</option>
+        <option value="10 SMA">10 SMA</option>
+        <option value="11 SMA">11 SMA</option>
+        <option value="12 SMA">12 SMA</option>
+      </select>
+    </div>
+
+    <!-- Daftar Siswa Bimbingan -->
+    <div id="siswaListContainer">
+      <div class="empty-state">Memuat daftar siswa bimbingan...</div>
+    </div>
+  </div>
+
+  <!-- Custom Pop-up -->
+  <div class="popup-overlay" id="customPopup">
+    <div class="popup-box">
+      <div class="popup-title" id="popupTitle">Informasi</div>
+      <div class="popup-msg" id="popupMsg">Pesan</div>
+      <button class="popup-btn" onclick="document.getElementById('customPopup').style.display='none'">Oke</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./js/firebase-config.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      collection, query, where, doc, getDoc, onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    let myStudents = [];
+
+    function showPopup(title, msg) {
+      document.getElementById('popupTitle').textContent = title;
+      document.getElementById('popupMsg').textContent = msg;
+      document.getElementById('customPopup').style.display = 'flex';
+    }
+
+    // Logout
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'index.html';
+    });
+
+    // Guard Autentikasi: Hanya role 'guru' (atau 'admin')
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      try {
+        const userSnap = await getDoc(doc(db, 'users', user.uid));
+        if (!userSnap.exists() || !userSnap.data().status_aktif) {
+          showPopup('Akses Ditolak', 'Akun pengajar tidak ditemukan atau nonaktif.');
+          setTimeout(() => window.location.href = 'index.html', 1500);
+          return;
+        }
+
+        const userData = userSnap.data();
+        if (userData.role !== 'guru' && userData.role !== 'admin') {
+          showPopup('Akses Dibatasi', 'Halaman ini khusus untuk akun Guru.');
+          setTimeout(() => {
+            window.location.href = userData.role === 'staff' ? 'staff.html' : 'index.html';
+          }, 1500);
+          return;
+        }
+
+        document.getElementById('guruNameLabel').textContent = userData.nama || user.email;
+        listenMyStudents(user.uid);
+      } catch (err) {
+        showPopup('Error', err.message);
+      }
+    });
+
+    // Ambil Daftar Siswa dari Koleksi 'plotting_guru_siswa' milik Guru yang Login
+    function listenMyStudents(guruUid) {
+      const q = query(
+        collection(db, 'plotting_guru_siswa'),
+        where('guru_uid', '==', guruUid),
+        where('status_aktif', '==', true)
+      );
+
+      onSnapshot(q, (snapshot) => {
+        myStudents = [];
+        snapshot.forEach(docSnap => {
+          myStudents.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        // Urutkan nama siswa secara alfabetis
+        myStudents.sort((a, b) => (a.siswa_nama || '').localeCompare(b.siswa_nama || ''));
+        document.getElementById('totalSiswaCount').textContent = myStudents.length;
+        renderStudents();
+      }, (err) => {
+        document.getElementById('siswaListContainer').innerHTML =
+          `<div class="empty-state" style="color:#ef4444;">Gagal memuat data: ${err.message}</div>`;
+      });
+    }
+
+    function renderStudents() {
+      const keyword = document.getElementById('searchSiswa').value.toLowerCase();
+      const kelasFilter = document.getElementById('filterKelas').value;
+      const container = document.getElementById('siswaListContainer');
+
+      const filtered = myStudents.filter(s => {
+        const matchNama = (s.siswa_nama || '').toLowerCase().includes(keyword);
+        const matchKelas = kelasFilter === 'ALL' || (s.siswa_kelas === kelasFilter);
+        return matchNama && matchKelas;
+      });
+
+      if (myStudents.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <strong>Belum ada siswa yang di-plotting ke akun Anda.</strong><br>
+            Hubungi Staff Operasional untuk pembagian jadwal/siswa bimbingan.
+          </div>
+        `;
+        return;
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state">Tidak ada siswa yang cocok dengan pencarian.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(s => `
+        <div class="siswa-card">
+          <div class="siswa-header">
+            <div>
+              <div class="siswa-nama">${s.siswa_nama}</div>
+              <span class="badge-kelas">${s.siswa_kelas || 'Kelas Belum Diatur'}</span>
+            </div>
+            <span class="badge-aktif">Aktif</span>
+          </div>
+
+          <div class="siswa-actions">
+            <a href="guru-materi-siswa.html?siswa_id=${encodeURIComponent(s.siswa_id)}&nama=${encodeURIComponent(s.siswa_nama)}" class="btn-action btn-materi">
+              Cek PR & Kisi-Kisi
+            </a>
+            <a href="guru-progress.html?siswa_id=${encodeURIComponent(s.siswa_id)}&nama=${encodeURIComponent(s.siswa_nama)}" class="btn-action btn-progress">
+              Lihat Progress
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('searchSiswa').addEventListener('input', renderStudents);
+    document.getElementById('filterKelas').addEventListener('change', renderStudents);
+  </script>
+</body>
+</html>
