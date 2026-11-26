@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#FB923C" />
+  <link rel="icon" type="image/png" href="https://megamath.my.id/favicon-megamath.png" />
+  <title>Panel Admin &amp; Manajemen User — Mega Math</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      scroll-behavior: smooth;
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-pop {
+      animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#FFFDF9] text-slate-800 flex flex-col">
+
+  <!-- CUSTOM POP-UP MODAL -->
+  <div id="mm-modal-overlay" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div id="mm-modal-box" class="modal-pop bg-white border-[1.5px] border-orange-100 shadow-2xl rounded-[2rem] max-w-sm w-full p-6 sm:p-7 text-center space-y-4">
+      <div id="mm-modal-icon" class="w-16 h-16 mx-auto rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-3xl shadow-inner">
+        ✨
+      </div>
+      <div class="space-y-1.5">
+        <h3 id="mm-modal-title" class="text-lg sm:text-xl font-black text-slate-800">Pemberitahuan</h3>
+        <p id="mm-modal-message" class="text-xs sm:text-sm font-semibold text-slate-600 leading-relaxed whitespace-pre-line">Pesan notifikasi.</p>
+      </div>
+      <div id="mm-modal-actions" class="pt-2 flex items-center justify-center gap-2.5"></div>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <header class="sticky top-0 z-30 bg-[#FFFDF9]/90 backdrop-blur-md border-b border-orange-100">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <a href="index.html" class="flex items-center gap-2.5 min-w-0">
+        <img src="https://megamath.my.id/favicon-megamath.png" alt="Mega Math" class="w-10 h-8 object-contain mix-blend-multiply shrink-0" />
+        <div class="min-w-0">
+          <span class="block text-sm sm:text-base font-extrabold text-slate-800 truncate">Mega Math</span>
+          <span class="block text-[10px] font-bold text-orange-600 uppercase tracking-wider truncate" id="admin-role-badge">Super Admin</span>
+        </div>
+      </a>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="staff.html"
+          class="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-2 rounded-xl border border-orange-200 bg-white hover:bg-orange-50 text-orange-700 transition">
+          <span>📋</span><span class="hidden sm:inline">Panel Staff</span>
+        </a>
+        <button id="btn-logout" type="button"
+          class="hidden text-xs font-extrabold px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+          Keluar
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 pt-6 pb-16">
+    <!-- VIEW 0: LOADING -->
+    <section id="view-loading" class="max-w-md mx-auto mt-12 text-center">
+      <div class="bg-white border-[1.5px] border-orange-100 shadow-lg shadow-orange-500/5 rounded-[2rem] p-8 space-y-3">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl animate-pulse">⏳</div>
+        <p class="text-xs font-extrabold text-slate-500">Memeriksa sesi Admin...</p>
+      </div>
+    </section>
+
+    <!-- VIEW 1: LOGIN ADMIN DENGAN ID 9 DIGIT -->
+    <section id="view-login" class="hidden max-w-md mx-auto mt-8">
+      <div class="bg-white border-[1.5px] border-orange-100 shadow-xl shadow-orange-500/5 rounded-[2rem] p-6 sm:p-8 space-y-5 text-center">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl font-black">
+          🛡️
+        </div>
+        <div class="space-y-1">
+          <h1 class="text-xl font-black text-slate-800">Akses Panel Admin</h1>
+          <p class="text-xs font-semibold text-slate-500">Masuk menggunakan 9 digit ID Admin (Contoh: <span class="font-extrabold text-orange-600">202648291</span>) dan password.</p>
+        </div>
+
+        <form id="form-login-admin" class="space-y-3 text-left">
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1">ID Admin (9 Digit)</label>
+            <input id="login-user-id" type="text" inputmode="numeric" pattern="[0-9]{9}" maxlength="9" required autocomplete="username" placeholder="2026xxxxx"
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-black tracking-wider bg-[#FFFDF9]" />
+          </div>
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1">Password</label>
+            <input id="login-password" type="password" required autocomplete="current-password" placeholder="Masukkan password..."
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          </div>
+          <button id="btn-login-submit" type="submit"
+            class="w-full py-3.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-extrabold text-sm shadow-lg shadow-orange-500/25 transition disabled:opacity-60">
+            Masuk ke Panel Admin →
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- VIEW 2: DASHBOARD PEMBUATAN ID & MANAJEMEN USER -->
+    <div id="view-dashboard" class="hidden space-y-8">
+      <!-- FORM BUAT ID USER BARU -->
+      <section class="bg-white border-[1.5px] border-orange-100 shadow-xl shadow-orange-500/5 rounded-[2rem] p-6 sm:p-8 space-y-5">
+        <div class="border-b border-orange-50 pb-4">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-extrabold mb-1.5">
+            <span>🪪</span><span>Generator ID 9 Digit (Tahun + 5 Angka Acak)</span>
+          </span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-800">Buat ID User Berdasarkan Jabatan</h2>
+          <p class="text-xs font-semibold text-slate-500 mt-0.5">ID terdiri dari 4 digit tahun berjalan diikuti 5 digit angka acak unik.</p>
+        </div>
+
+        <form id="form-create-user" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">1. Pilih Jabatan (Role)</label>
+            <select id="new-role"
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
+              <option value="staff">📋 Staff Operasional</option>
+              <option value="guru">👨‍🏫 Guru Pengajar</option>
+              <option value="admin">🛡️ Admin Utama</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">2. ID User 9 Digit (Otomatis Acak)</label>
+            <div class="flex items-center gap-2">
+              <input id="new-id-user" type="text" inputmode="numeric" pattern="[0-9]{9}" maxlength="9" required placeholder="2026xxxxx"
+                class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-200 focus:border-orange-400 focus:outline-none text-sm font-black tracking-wider text-orange-700 bg-orange-50/40" />
+              <button type="button" id="btn-reroll-id" title="Acak Ulang 5 Digit Terakhir"
+                class="px-3.5 py-3 rounded-2xl border-[1.5px] border-orange-200 bg-white hover:bg-orange-50 text-orange-700 text-sm font-extrabold transition shrink-0">
+                🎲
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">3. Nama Lengkap</label>
+            <input id="new-nama" type="text" required placeholder="Contoh: Rina Marlina, S.Pd."
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">4. Password Login (Min. 6 karakter)</label>
+            <input id="new-password" type="text" required minlength="6" placeholder="Contoh: MegaMath2026"
+              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          </div>
+
+          <div class="sm:col-span-2 pt-1">
+            <button id="btn-create-user" type="submit"
+              class="w-full py-3.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 active:scale-[0.99] text-white font-extrabold text-sm shadow-lg shadow-orange-500/25 transition disabled:opacity-60">
+              ➕ Buat Akun &amp; ID User Sekarang
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- DAFTAR USER TERDAFTAR -->
+      <section class="bg-white border-[1.5px] border-orange-100 rounded-[2rem] p-6 sm:p-8 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Database Tim Mega Math</span>
+            <h2 class="text-lg font-black text-slate-800">Daftar ID User Aktif &amp; Nonaktif</h2>
+          </div>
+          <input id="search-users" type="text" placeholder="🔍 Cari ID 9 digit atau nama..."
+            class="px-3.5 py-2 rounded-xl border border-orange-200 text-xs font-bold bg-[#FFFDF9] focus:outline-none focus:border-orange-400 sm:w-64" />
+        </div>
+
+        <div id="users-list" class="space-y-3">
+          <div class="text-center py-6 text-xs font-bold text-slate-400">Memuat daftar akun...</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="border-t border-orange-100 bg-white py-6 px-4 text-center text-xs text-slate-500 font-semibold">
+    © 2026 Mega Math - Bimbel Private • Panel Super Admin
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, collection, doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // ========================================================================
+    // KONFIGURASI FIREBASE MEGAMATH (GANTI DENGAN KREDENSIAL PROYEK LU)
+    // ========================================================================
+    import { auth, db } from "./js/firebase-config.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Secondary App agar pembuatan akun baru tidak me-logout Admin yang sedang aktif
+    const secondaryApp = initializeApp(firebaseConfig, "UserCreatorInstance");
+    const secondaryAuth = getAuth(secondaryApp);
+
+    let allUsers = [];
+    let unsubscribeUsers = null;
+
+    // ========================================================================
+    // HELPER ID 9 DIGIT (TAHUN + 5 DIGIT RANDOM UNIK)
+    // ========================================================================
+    function idToAuthEmail(rawId) {
+      const cleanId = String(rawId || '').trim().replace(/\D/g, '');
+      return `${cleanId}@megamath.internal`;
+    }
+
+    function generateRandom9DigitId() {
+      const year = String(new Date().getFullYear()); // 4 digit tahun, misal "2026"
+      const existingIds = new Set(allUsers.map(u => String(u.id_user || '')));
+      let candidate = '';
+      let attempts = 0;
+
+      do {
+        const rand5 = String(Math.floor(10000 + Math.random() * 90000)); // 5 digit acak 10000-99999
+        candidate = `${year}${rand5}`;
+        attempts++;
+      } while (existingIds.has(candidate) && attempts < 100);
+
+      document.getElementById('new-id-user').value = candidate;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function escapeAttr(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // ========================================================================
+    // CUSTOM POP-UP ENGINE
+    // ========================================================================
+    function showCustomModal({ type = 'info', title = '', message = '', confirmText = 'OK', cancelText = 'Batal', showCancel = false }) {
+      return new Promise((resolve) => {
+        const overlay = document.getElementById('mm-modal-overlay');
+        const box = document.getElementById('mm-modal-box');
+        const iconEl = document.getElementById('mm-modal-icon');
+        const titleEl = document.getElementById('mm-modal-title');
+        const msgEl = document.getElementById('mm-modal-message');
+        const actionsEl = document.getElementById('mm-modal-actions');
+
+        const styles = {
+          success: { icon: '✅', iconBg: 'bg-emerald-100 text-emerald-600', border: 'border-emerald-200', btnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20' },
+          error: { icon: '❌', iconBg: 'bg-rose-100 text-rose-600', border: 'border-rose-200', btnClass: 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20' },
+          warning: { icon: '⚠️', iconBg: 'bg-amber-100 text-amber-600', border: 'border-amber-200', btnClass: 'bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-orange-500/25' },
+          confirm: { icon: '🤔', iconBg: 'bg-orange-100 text-orange-600', border: 'border-orange-200', btnClass: 'bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-orange-500/25' }
+        };
+
+        const cfg = styles[type] || styles.warning;
+        box.className = `modal-pop bg-white border-[1.5px] ${cfg.border} shadow-2xl rounded-[2rem] max-w-sm w-full p-6 sm:p-7 text-center space-y-4`;
+        iconEl.className = `w-16 h-16 mx-auto rounded-2xl ${cfg.iconBg} flex items-center justify-center text-3xl`;
+        iconEl.textContent = cfg.icon;
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        actionsEl.innerHTML = '';
+
+        const closeWith = (val) => { overlay.classList.add('hidden'); resolve(val); };
+
+        if (showCancel) {
+          const btnCancel = document.createElement('button');
+          btnCancel.type = 'button';
+          btnCancel.className = 'flex-1 py-3 px-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold text-xs sm:text-sm transition';
+          btnCancel.textContent = cancelText;
+          btnCancel.onclick = () => closeWith(false);
+          actionsEl.appendChild(btnCancel);
+        }
+
+        const btnOk = document.createElement('button');
+        btnOk.type = 'button';
+        btnOk.className = `flex-1 py-3 px-4 rounded-2xl ${cfg.btnClass} font-extrabold text-xs sm:text-sm shadow-lg transition`;
+        btnOk.textContent = confirmText;
+        btnOk.onclick = () => closeWith(true);
+        actionsEl.appendChild(btnOk);
+
+        overlay.classList.remove('hidden');
+        btnOk.focus();
+      });
+    }
+
+    const mmAlert = (title, message, type = 'warning') => showCustomModal({ type, title, message, confirmText: 'Mengerti', showCancel: false });
+    const mmConfirm = (title, message, confirmText = 'Ya, Lanjutkan') =>
+      showCustomModal({ type: 'confirm', title, message, confirmText, cancelText: 'Batal', showCancel: true });
+
+    document.getElementById('btn-reroll-id').addEventListener('click', generateRandom9DigitId);
+
+    // ========================================================================
+    // LOGIN & GUARD ADMIN
+    // ========================================================================
+    document.getElementById('form-login-admin').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const rawId = document.getElementById('login-user-id').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      if (!/^\d{9}$/.test(rawId)) {
+        await mmAlert('Format ID Salah', 'ID Admin harus terdiri dari tepat 9 digit angka (contoh: 202648291).', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('btn-login-submit');
+      btn.disabled = true;
+      btn.textContent = '⏳ Memverifikasi ID Admin...';
+
+      try {
+        await signInWithEmailAndPassword(auth, idToAuthEmail(rawId), password);
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Masuk ke Panel Admin →';
+        await mmAlert('Login Gagal', `ID Admin "${rawId}" atau password salah.\n(${err.code || err.message})`, 'error');
+      }
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      const ok = await mmConfirm('Keluar dari Panel Admin?', 'Sesi login Admin akan diakhiri.', 'Ya, Keluar');
+      if (!ok) return;
+      if (unsubscribeUsers) unsubscribeUsers();
+      await signOut(auth);
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      const viewLoading = document.getElementById('view-loading');
+      const viewLogin = document.getElementById('view-login');
+      const viewDash = document.getElementById('view-dashboard');
+      const btnLogout = document.getElementById('btn-logout');
+      const btnLoginSubmit = document.getElementById('btn-login-submit');
+
+      viewLoading.classList.add('hidden');
+      btnLoginSubmit.disabled = false;
+      btnLoginSubmit.textContent = 'Masuk ke Panel Admin →';
+
+      if (!user) {
+        viewLogin.classList.remove('hidden');
+        viewDash.classList.add('hidden');
+        btnLogout.classList.add('hidden');
+        document.getElementById('admin-role-badge').textContent = 'Super Admin';
+        return;
+      }
+
+      try {
+        const userSnap = await getDoc(doc(db, 'users', user.uid));
+        if (!userSnap.exists() || !userSnap.data().status_aktif || userSnap.data().role !== 'admin') {
+          await signOut(auth);
+          await mmAlert('Akses Ditolak', 'Halaman ini khusus untuk akun dengan jabatan Admin.', 'error');
+          return;
+        }
+
+        const userData = userSnap.data();
+        viewLogin.classList.add('hidden');
+        viewDash.classList.remove('hidden');
+        btnLogout.classList.remove('hidden');
+        document.getElementById('admin-role-badge').textContent = `${userData.id_user} • ${userData.nama}`;
+
+        listenAllUsers();
+      } catch (err) {
+        await signOut(auth);
+        await mmAlert('Gagal Memverifikasi Sesi', err.message, 'error');
+      }
+    });
+
+    // ========================================================================
+    // BUAT USER BARU (TANPA LOGOUT ADMIN)
+    // ========================================================================
+    document.getElementById('form-create-user').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const role = document.getElementById('new-role').value;
+      const idUser = document.getElementById('new-id-user').value.trim();
+      const nama = document.getElementById('new-nama').value.trim();
+      const password = document.getElementById('new-password').value;
+
+      if (!/^\d{9}$/.test(idUser)) {
+        await mmAlert('Format ID Tidak Valid', 'ID User wajib terdiri dari tepat 9 digit angka diawali tahun (contoh: 202648291).', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('btn-create-user');
+      btn.disabled = true;
+      btn.textContent = '⏳ Mendaftarkan ID User...';
+
+      try {
+        const authEmail = idToAuthEmail(idUser);
+        const cred = await createUserWithEmailAndPassword(secondaryAuth, authEmail, password);
+        const newUid = cred.user.uid;
+
+        await setDoc(doc(db, 'users', newUid), {
+          id_user: idUser,
+          nama: nama,
+          role: role,
+          status_aktif: true,
+          created_at: serverTimestamp()
+        });
+
+        await signOut(secondaryAuth);
+
+        document.getElementById('new-nama').value = '';
+        document.getElementById('new-password').value = '';
+        generateRandom9DigitId();
+
+        await mmAlert(
+          'ID User Berhasil Dibuat!',
+          `Jabatan: ${role.toUpperCase()}\nID Login (9 Digit): ${idUser}\nNama: ${nama}\nPassword: ${password}\n\nBerikan ID 9 digit & Password ini kepada yang bersangkutan.`,
+          'success'
+        );
+      } catch (err) {
+        const msg = err.code === 'auth/email-already-in-use'
+          ? `ID User "${idUser}" sudah terdaftar. Klik tombol 🎲 untuk mengacak nomor baru.`
+          : err.message;
+        await mmAlert('Gagal Membuat Akun', msg, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '➕ Buat Akun & ID User Sekarang';
+      }
+    });
+
+    // ========================================================================
+    // LISTENER & KELOLA DAFTAR USER
+    // ========================================================================
+    function listenAllUsers() {
+      if (unsubscribeUsers) unsubscribeUsers();
+      unsubscribeUsers = onSnapshot(collection(db, 'users'), (snap) => {
+        allUsers = [];
+        snap.forEach(d => allUsers.push({ uid: d.id, ...d.data() }));
+        allUsers.sort((a, b) => (a.nama || '').localeCompare(b.nama || ''));
+        if (!document.getElementById('new-id-user').value) {
+          generateRandom9DigitId();
+        }
+        renderUsersList();
+      });
+    }
+
+    function renderUsersList() {
+      const kw = document.getElementById('search-users').value.toLowerCase().trim();
+      const container = document.getElementById('users-list');
+
+      const filtered = allUsers.filter(u =>
+        String(u.id_user || '').toLowerCase().includes(kw) ||
+        (u.nama || '').toLowerCase().includes(kw) ||
+        (u.role || '').toLowerCase().includes(kw)
+      );
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center py-6 text-xs font-bold text-slate-400">Tidak ada akun yang cocok.</div>`;
+        return;
+      }
+
+      const roleLabel = { admin: '🛡️ Admin', staff: '📋 Staff', guru: '👨‍🏫 Guru' };
+
+      container.innerHTML = filtered.map(u => `
+        <div class="p-4 rounded-2xl border border-orange-100 bg-[#FFFDF9] flex items-center justify-between gap-3">
+          <div class="space-y-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="px-2.5 py-0.5 rounded-md bg-slate-800 text-white text-[11px] font-black tracking-wider">
+                ${escapeHtml(u.id_user || 'NO-ID')}
+              </span>
+              <span class="px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-extrabold">
+                ${roleLabel[u.role] || escapeHtml(u.role)}
+              </span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${u.status_aktif ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                ${u.status_aktif ? 'Aktif' : 'Nonaktif'}
+              </span>
+            </div>
+            <div class="text-sm font-extrabold text-slate-800 truncate">${escapeHtml(u.nama)}</div>
+          </div>
+
+          <button type="button"
+            data-uid="${escapeAttr(u.uid)}"
+            data-iduser="${escapeAttr(u.id_user)}"
+            data-status="${u.status_aktif ? '1' : '0'}"
+            class="btn-toggle-status px-3.5 py-2 rounded-xl border text-xs font-extrabold transition shrink-0 ${
+              u.status_aktif
+                ? 'border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700'
+                : 'border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700'
+            }">
+            ${u.status_aktif ? 'Nonaktifkan' : 'Aktifkan'}
+          </button>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.btn-toggle-status').forEach(btn => {
+        btn.addEventListener('click', () => toggleUserStatus(btn.dataset.uid, btn.dataset.iduser, btn.dataset.status === '1'));
+      });
+    }
+
+    document.getElementById('search-users').addEventListener('input', renderUsersList);
+
+    async function toggleUserStatus(uid, idUser, isCurrentlyActive) {
+      const actionText = isCurrentlyActive ? 'nonaktifkan' : 'aktifkan kembali';
+      const ok = await mmConfirm(
+        `${isCurrentlyActive ? 'Nonaktifkan' : 'Aktifkan'} Akun ${idUser}?`,
+        `Akun ${idUser} akan di-${actionText} akses loginnya.`,
+        `Ya, ${isCurrentlyActive ? 'Nonaktifkan' : 'Aktifkan'}`
+      );
+      if (!ok) return;
+
+      try {
+        await updateDoc(doc(db, 'users', uid), { status_aktif: !isCurrentlyActive });
+        await mmAlert('Status Diperbarui', `Akun ${idUser} berhasil di-${actionText}.`, 'success');
+      } catch (err) {
+        await mmAlert('Gagal Mengubah Status', err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
