@@ -44,7 +44,7 @@
   <!-- NAVBAR -->
   <header class="sticky top-0 z-30 bg-[#FFFDF9]/90 backdrop-blur-md border-b border-orange-100">
     <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-      <a href="index.html" class="flex items-center gap-2.5 min-w-0">
+      <a href="admin.html" class="flex items-center gap-2.5 min-w-0">
         <img src="https://megamath.my.id/favicon-megamath.png" alt="Mega Math" class="w-10 h-8 object-contain mix-blend-multiply shrink-0" />
         <div class="min-w-0">
           <span class="block text-sm sm:text-base font-extrabold text-slate-800 truncate">Mega Math</span>
@@ -53,6 +53,10 @@
       </a>
 
       <div class="flex items-center gap-2 shrink-0">
+        <a href="admin.html"
+          class="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-2 rounded-xl border border-orange-200 bg-white hover:bg-orange-50 text-orange-700 transition">
+          <span>🏠</span><span class="hidden sm:inline">Admin Bimbel</span>
+        </a>
         <a href="staff.html"
           class="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-2 rounded-xl border border-orange-200 bg-white hover:bg-orange-50 text-orange-700 transition">
           <span>📋</span><span class="hidden sm:inline">Panel Staff</span>
@@ -66,45 +70,15 @@
   </header>
 
   <main class="flex-1 max-w-5xl w-full mx-auto px-4 pt-6 pb-16">
-    <!-- VIEW 0: LOADING -->
+    <!-- VIEW 0: LOADING VERIFIKASI SESI ADMIN -->
     <section id="view-loading" class="max-w-md mx-auto mt-12 text-center">
       <div class="bg-white border-[1.5px] border-orange-100 shadow-lg shadow-orange-500/5 rounded-[2rem] p-8 space-y-3">
         <div class="w-12 h-12 mx-auto rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl animate-pulse">⏳</div>
-        <p class="text-xs font-extrabold text-slate-500">Memeriksa sesi Admin SDM...</p>
+        <p id="loading-text" class="text-xs font-extrabold text-slate-500">Memverifikasi akses Admin Utama...</p>
       </div>
     </section>
 
-    <!-- VIEW 1: LOGIN ADMIN DENGAN ID 9 DIGIT -->
-    <section id="view-login" class="hidden max-w-md mx-auto mt-8">
-      <div class="bg-white border-[1.5px] border-orange-100 shadow-xl shadow-orange-500/5 rounded-[2rem] p-6 sm:p-8 space-y-5 text-center">
-        <div class="w-14 h-14 mx-auto rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl font-black">
-          🛡️
-        </div>
-        <div class="space-y-1">
-          <h1 class="text-xl font-black text-slate-800">Akses Admin SDM</h1>
-          <p class="text-xs font-semibold text-slate-500">Masuk menggunakan 9 digit ID Admin (Contoh: <span class="font-extrabold text-orange-600">202648291</span>) dan password.</p>
-        </div>
-
-        <form id="form-login-admin" class="space-y-3 text-left">
-          <div>
-            <label class="block text-xs font-extrabold text-slate-700 mb-1">ID Admin (9 Digit)</label>
-            <input id="login-user-id" type="text" inputmode="numeric" pattern="[0-9]{9}" maxlength="9" required autocomplete="username" placeholder="2026xxxxx"
-              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-black tracking-wider bg-[#FFFDF9]" />
-          </div>
-          <div>
-            <label class="block text-xs font-extrabold text-slate-700 mb-1">Password</label>
-            <input id="login-password" type="password" required autocomplete="current-password" placeholder="Masukkan password..."
-              class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
-          </div>
-          <button id="btn-login-submit" type="submit"
-            class="w-full py-3.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-extrabold text-sm shadow-lg shadow-orange-500/25 transition disabled:opacity-60">
-            Masuk ke Panel Admin SDM →
-          </button>
-        </form>
-      </div>
-    </section>
-
-    <!-- VIEW 2: DASHBOARD PEMBUATAN ID & MANAJEMEN USER -->
+    <!-- VIEW 1: DASHBOARD PEMBUATAN ID & MANAJEMEN USER -->
     <div id="view-dashboard" class="hidden space-y-8">
       <!-- FORM BUAT ID USER BARU -->
       <section class="bg-white border-[1.5px] border-orange-100 shadow-xl shadow-orange-500/5 rounded-[2rem] p-6 sm:p-8 space-y-5">
@@ -112,13 +86,13 @@
           <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-extrabold mb-1.5">
             <span>🪪</span><span>Generator ID 9 Digit (Tahun + 5 Angka Acak)</span>
           </span>
-          <h2 class="text-xl sm:text-2xl font-black text-slate-800">Buat ID User Berdasarkan Jabatan</h2>
-          <p class="text-xs font-semibold text-slate-500 mt-0.5">ID terdiri dari 4 digit tahun berjalan diikuti 5 digit angka acak unik.</p>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-800">Buat Akun Tim Berdasarkan Jabatan</h2>
+          <p class="text-xs font-semibold text-slate-500 mt-0.5">Akun yang dibuat di sini dapat langsung login melalui portal <span class="font-extrabold text-slate-700">login.html</span> menggunakan ID 9 digit.</p>
         </div>
 
         <form id="form-create-user" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">1. Pilih Jabatan (Role)</label>
+            <label for="new-role" class="block text-xs font-extrabold text-slate-700 mb-1.5">1. Pilih Jabatan (Role)</label>
             <select id="new-role"
               class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]">
               <option value="staff">📋 Staff Operasional</option>
@@ -128,7 +102,7 @@
           </div>
 
           <div>
-            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">2. ID User 9 Digit (Otomatis Acak)</label>
+            <label for="new-id-user" class="block text-xs font-extrabold text-slate-700 mb-1.5">2. ID User 9 Digit (Otomatis Acak)</label>
             <div class="flex items-center gap-2">
               <input id="new-id-user" type="text" inputmode="numeric" pattern="[0-9]{9}" maxlength="9" required placeholder="2026xxxxx"
                 class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-200 focus:border-orange-400 focus:outline-none text-sm font-black tracking-wider text-orange-700 bg-orange-50/40" />
@@ -140,13 +114,13 @@
           </div>
 
           <div>
-            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">3. Nama Lengkap</label>
+            <label for="new-nama" class="block text-xs font-extrabold text-slate-700 mb-1.5">3. Nama Lengkap</label>
             <input id="new-nama" type="text" required placeholder="Contoh: Rina Marlina, S.Pd."
               class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
           </div>
 
           <div>
-            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">4. Password Login (Min. 6 karakter)</label>
+            <label for="new-password" class="block text-xs font-extrabold text-slate-700 mb-1.5">4. Password Login (Min. 6 karakter)</label>
             <input id="new-password" type="text" required minlength="6" placeholder="Contoh: MegaMath2026"
               class="w-full px-4 py-3 rounded-2xl border-[1.5px] border-orange-100 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
           </div>
@@ -167,7 +141,7 @@
             <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Database Tim Mega Math</span>
             <h2 class="text-lg font-black text-slate-800">Daftar ID User Aktif &amp; Nonaktif</h2>
           </div>
-          <input id="search-users" type="text" placeholder="🔍 Cari ID 9 digit atau nama..."
+          <input id="search-users" type="text" placeholder="🔍 Cari ID 9 digit, nama, atau role..."
             class="px-3.5 py-2 rounded-xl border border-orange-200 text-xs font-bold bg-[#FFFDF9] focus:outline-none focus:border-orange-400 sm:w-64" />
         </div>
 
@@ -185,72 +159,14 @@
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut
+      getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signOut
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getFirestore, collection, doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // IMPORT KONFIGURASI TERPUSAT DARI ./firebase-config.js
-    import { firebaseConfig } from "./firebase-config.js";
+    const AUTH_DOMAIN = "megamath.my.id";
 
-    // Inisialisasi aman (mencegah duplicate-app jika firebase-config.js sudah memanggil initializeApp)
-    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // Secondary App khusus untuk mendaftarkan user baru tanpa mengeluarkan sesi Admin aktif
-    const secondaryApp = getApps().some(a => a.name === "UserCreatorInstance")
-      ? getApp("UserCreatorInstance")
-      : initializeApp(firebaseConfig, "UserCreatorInstance");
-    const secondaryAuth = getAuth(secondaryApp);
-
-    let allUsers = [];
-    let unsubscribeUsers = null;
-    let authInitialized = false;
-
-    // Fallback pengaman: jika 5 detik auth belum merespons, buka form login
-    setTimeout(() => {
-      if (!authInitialized) {
-        document.getElementById('view-loading').classList.add('hidden');
-        document.getElementById('view-login').classList.remove('hidden');
-      }
-    }, 5000);
-
-    // ========================================================================
-    // HELPER ID 9 DIGIT (TAHUN + 5 DIGIT RANDOM UNIK)
-    // ========================================================================
-    function idToAuthEmail(rawId) {
-      const cleanId = String(rawId || '').trim().replace(/\D/g, '');
-      return `${cleanId}@megamath.internal`;
-    }
-
-    function generateRandom9DigitId() {
-      const year = String(new Date().getFullYear());
-      const existingIds = new Set(allUsers.map(u => String(u.id_user || '')));
-      let candidate = '';
-      let attempts = 0;
-
-      do {
-        const rand5 = String(Math.floor(10000 + Math.random() * 90000));
-        candidate = `${year}${rand5}`;
-        attempts++;
-      } while (existingIds.has(candidate) && attempts < 100);
-
-      document.getElementById('new-id-user').value = candidate;
-    }
-
-    function escapeHtml(str) {
-      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-
-    function escapeAttr(str) {
-      return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-
-    // ========================================================================
-    // CUSTOM POP-UP ENGINE
-    // ========================================================================
     function showCustomModal({ type = 'info', title = '', message = '', confirmText = 'OK', cancelText = 'Batal', showCancel = false }) {
       return new Promise((resolve) => {
         const overlay = document.getElementById('mm-modal-overlay');
@@ -302,223 +218,268 @@
     const mmConfirm = (title, message, confirmText = 'Ya, Lanjutkan') =>
       showCustomModal({ type: 'confirm', title, message, confirmText, cancelText: 'Batal', showCancel: true });
 
-    document.getElementById('btn-reroll-id').addEventListener('click', generateRandom9DigitId);
+    async function initFirebaseSafely() {
+      const cfgMod = await import("./firebase-config.js");
+      const rawCfg = cfgMod.firebaseConfig || cfgMod.default || window.firebaseConfig;
 
-    // ========================================================================
-    // LOGIN & GUARD ADMIN
-    // ========================================================================
-    document.getElementById('form-login-admin').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const rawId = document.getElementById('login-user-id').value.trim();
-      const password = document.getElementById('login-password').value;
-
-      if (!/^\d{9}$/.test(rawId)) {
-        await mmAlert('Format ID Salah', 'ID Admin harus terdiri dari tepat 9 digit angka (contoh: 202648291).', 'warning');
-        return;
+      let app;
+      if (cfgMod.app) {
+        app = cfgMod.app;
+      } else if (getApps().length) {
+        app = getApp();
+      } else if (rawCfg) {
+        app = initializeApp(rawCfg);
+      } else {
+        throw new Error("File firebase-config.js tidak ditemukan atau belum mengekspor konfigurasi Firebase.");
       }
 
-      const btn = document.getElementById('btn-login-submit');
-      btn.disabled = true;
-      btn.textContent = '⏳ Memverifikasi ID Admin...';
+      const auth = cfgMod.auth || getAuth(app);
+      const db = cfgMod.db || getFirestore(app);
+      const activeOptions = rawCfg || app.options;
 
-      try {
-        await signInWithEmailAndPassword(auth, idToAuthEmail(rawId), password);
-      } catch (err) {
-        btn.disabled = false;
-        btn.textContent = 'Masuk ke Panel Admin SDM →';
-        await mmAlert('Login Gagal', `ID Admin "${rawId}" atau password salah.\n(${err.code || err.message})`, 'error');
-      }
-    });
+      // Secondary App khusus untuk mendaftarkan user baru tanpa mengeluarkan sesi Admin Utama
+      const secondaryApp = getApps().some(a => a.name === "UserCreatorInstance")
+        ? getApp("UserCreatorInstance")
+        : initializeApp(activeOptions, "UserCreatorInstance");
+      const secondaryAuth = getAuth(secondaryApp);
 
-    document.getElementById('btn-logout').addEventListener('click', async () => {
-      const ok = await mmConfirm('Keluar dari Admin SDM?', 'Sesi login Admin akan diakhiri.', 'Ya, Keluar');
-      if (!ok) return;
-      if (unsubscribeUsers) unsubscribeUsers();
-      await signOut(auth);
-    });
+      return { auth, db, secondaryAuth };
+    }
 
-    onAuthStateChanged(auth, async (user) => {
-      authInitialized = true;
-      const viewLoading = document.getElementById('view-loading');
-      const viewLogin = document.getElementById('view-login');
-      const viewDash = document.getElementById('view-dashboard');
-      const btnLogout = document.getElementById('btn-logout');
-      const btnLoginSubmit = document.getElementById('btn-login-submit');
+    let auth, db, secondaryAuth;
+    let currentAdminUid = null;
+    let allUsers = [];
+    let unsubscribeUsers = null;
 
-      viewLoading.classList.add('hidden');
-      btnLoginSubmit.disabled = false;
-      btnLoginSubmit.textContent = 'Masuk ke Panel Admin SDM →';
+    function idToAuthEmail(rawId) {
+      const cleanId = String(rawId || '').trim().replace(/\D/g, '');
+      return `${cleanId}@${AUTH_DOMAIN}`;
+    }
 
-      if (!user) {
-        viewLogin.classList.remove('hidden');
-        viewDash.classList.add('hidden');
-        btnLogout.classList.add('hidden');
-        document.getElementById('admin-role-badge').textContent = 'Admin SDM';
-        return;
-      }
+    function generateRandom9DigitId() {
+      const year = String(new Date().getFullYear());
+      const existingIds = new Set(allUsers.map(u => String(u.id_user || '')));
+      let candidate = '';
+      let attempts = 0;
 
-      try {
-        const userSnap = await getDoc(doc(db, 'users', user.uid));
-        if (!userSnap.exists() || !userSnap.data().status_aktif || userSnap.data().role !== 'admin') {
-          await signOut(auth);
-          await mmAlert('Akses Ditolak', 'Halaman ini khusus untuk akun dengan jabatan Admin.', 'error');
+      do {
+        const rand5 = String(Math.floor(10000 + Math.random() * 90000));
+        candidate = `${year}${rand5}`;
+        attempts++;
+      } while (existingIds.has(candidate) && attempts < 100);
+
+      document.getElementById('new-id-user').value = candidate;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function escapeAttr(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    try {
+      const fb = await initFirebaseSafely();
+      auth = fb.auth;
+      db = fb.db;
+      secondaryAuth = fb.secondaryAuth;
+
+      // Sanitasi input ID agar hanya angka 9 digit
+      const inputNewId = document.getElementById('new-id-user');
+      inputNewId.addEventListener('input', () => {
+        inputNewId.value = inputNewId.value.replace(/\D/g, '').slice(0, 9);
+      });
+
+      document.getElementById('btn-reroll-id').addEventListener('click', generateRandom9DigitId);
+
+      // Logout mengarahkan kembali ke portal login tunggal
+      document.getElementById('btn-logout').addEventListener('click', async () => {
+        const ok = await mmConfirm('Keluar dari Admin SDM?', 'Sesi login Admin akan diakhiri dan kembali ke halaman login.', 'Ya, Keluar');
+        if (!ok) return;
+        if (unsubscribeUsers) unsubscribeUsers();
+        await signOut(auth);
+        window.location.replace('login.html');
+      });
+
+      // Route Guard: Wajib login sebagai Admin aktif melalui login.html
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          window.location.replace('login.html');
           return;
         }
 
-        const userData = userSnap.data();
-        viewLogin.classList.add('hidden');
-        viewDash.classList.remove('hidden');
-        btnLogout.classList.remove('hidden');
-        document.getElementById('admin-role-badge').textContent = `${userData.id_user} • ${userData.nama}`;
+        try {
+          const userSnap = await getDoc(doc(db, 'users', user.uid));
+          if (!userSnap.exists() || !userSnap.data().status_aktif || userSnap.data().role !== 'admin') {
+            window.location.replace('login.html?err=unauthorized');
+            return;
+          }
 
-        generateRandom9DigitId();
-        listenAllUsers();
-      } catch (err) {
-        await signOut(auth);
-        await mmAlert('Gagal Memverifikasi Sesi', err.message, 'error');
-      }
-    });
+          currentAdminUid = user.uid;
+          const userData = userSnap.data();
 
-    // ========================================================================
-    // BUAT USER BARU (TANPA LOGOUT ADMIN)
-    // ========================================================================
-    document.getElementById('form-create-user').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const role = document.getElementById('new-role').value;
-      const idUser = document.getElementById('new-id-user').value.trim();
-      const nama = document.getElementById('new-nama').value.trim();
-      const password = document.getElementById('new-password').value;
+          document.getElementById('view-loading').classList.add('hidden');
+          document.getElementById('view-dashboard').classList.remove('hidden');
+          document.getElementById('btn-logout').classList.remove('hidden');
+          document.getElementById('admin-role-badge').textContent = `${userData.id_user || 'ADMIN'} • ${userData.nama}`;
 
-      if (!/^\d{9}$/.test(idUser)) {
-        await mmAlert('Format ID Tidak Valid', 'ID User wajib terdiri dari tepat 9 digit angka diawali tahun (contoh: 202648291).', 'warning');
-        return;
-      }
-
-      const btn = document.getElementById('btn-create-user');
-      btn.disabled = true;
-      btn.textContent = '⏳ Mendaftarkan ID User...';
-
-      try {
-        const authEmail = idToAuthEmail(idUser);
-        const cred = await createUserWithEmailAndPassword(secondaryAuth, authEmail, password);
-        const newUid = cred.user.uid;
-
-        await setDoc(doc(db, 'users', newUid), {
-          id_user: idUser,
-          nama: nama,
-          role: role,
-          status_aktif: true,
-          created_at: serverTimestamp()
-        });
-
-        await signOut(secondaryAuth);
-
-        document.getElementById('new-nama').value = '';
-        document.getElementById('new-password').value = '';
-        generateRandom9DigitId();
-
-        await mmAlert(
-          'ID User Berhasil Dibuat!',
-          `Jabatan: ${role.toUpperCase()}\nID Login (9 Digit): ${idUser}\nNama: ${nama}\nPassword: ${password}\n\nBerikan ID 9 digit & Password ini kepada yang bersangkutan.`,
-          'success'
-        );
-      } catch (err) {
-        const msg = err.code === 'auth/email-already-in-use'
-          ? `ID User "${idUser}" sudah terdaftar. Klik tombol 🎲 untuk mengacak nomor baru.`
-          : err.message;
-        await mmAlert('Gagal Membuat Akun', msg, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '➕ Buat Akun & ID User Sekarang';
-      }
-    });
-
-    // ========================================================================
-    // LISTENER & KELOLA DAFTAR USER
-    // ========================================================================
-    function listenAllUsers() {
-      if (unsubscribeUsers) unsubscribeUsers();
-      unsubscribeUsers = onSnapshot(collection(db, 'users'), (snap) => {
-        allUsers = [];
-        snap.forEach(d => allUsers.push({ uid: d.id, ...d.data() }));
-        allUsers.sort((a, b) => (a.nama || '').localeCompare(b.nama || ''));
-        if (!document.getElementById('new-id-user').value) {
           generateRandom9DigitId();
+          listenAllUsers();
+        } catch (err) {
+          await mmAlert('Gagal Memverifikasi Sesi', err.message, 'error');
+          window.location.replace('login.html');
         }
-        renderUsersList();
       });
-    }
 
-    function renderUsersList() {
-      const kw = document.getElementById('search-users').value.toLowerCase().trim();
-      const container = document.getElementById('users-list');
+      // Buat User Baru (Tanpa Logout Admin Utama)
+      document.getElementById('form-create-user').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const role = document.getElementById('new-role').value;
+        const idUser = document.getElementById('new-id-user').value.trim();
+        const nama = document.getElementById('new-nama').value.trim();
+        const password = document.getElementById('new-password').value;
 
-      const filtered = allUsers.filter(u =>
-        String(u.id_user || '').toLowerCase().includes(kw) ||
-        (u.nama || '').toLowerCase().includes(kw) ||
-        (u.role || '').toLowerCase().includes(kw)
-      );
+        if (!/^\d{9}$/.test(idUser)) {
+          await mmAlert('Format ID Tidak Valid', 'ID User wajib terdiri dari tepat 9 digit angka diawali tahun (contoh: 202648291).', 'warning');
+          return;
+        }
 
-      if (filtered.length === 0) {
-        container.innerHTML = `<div class="text-center py-6 text-xs font-bold text-slate-400">Tidak ada akun yang cocok.</div>`;
-        return;
+        const btn = document.getElementById('btn-create-user');
+        btn.disabled = true;
+        btn.textContent = '⏳ Mendaftarkan ID User...';
+
+        try {
+          const authEmail = idToAuthEmail(idUser);
+          const cred = await createUserWithEmailAndPassword(secondaryAuth, authEmail, password);
+          const newUid = cred.user.uid;
+
+          await setDoc(doc(db, 'users', newUid), {
+            id_user: idUser,
+            nama: nama,
+            role: role,
+            status_aktif: true,
+            created_at: serverTimestamp()
+          });
+
+          await signOut(secondaryAuth);
+
+          document.getElementById('new-nama').value = '';
+          document.getElementById('new-password').value = '';
+          generateRandom9DigitId();
+
+          await mmAlert(
+            'ID User Berhasil Dibuat!',
+            `Jabatan: ${role.toUpperCase()}\nID Login (9 Digit): ${idUser}\nNama: ${nama}\nPassword: ${password}\n\nBagikan ID 9 digit & Password ini untuk login di portal login.html.`,
+            'success'
+          );
+        } catch (err) {
+          const msg = err.code === 'auth/email-already-in-use'
+            ? `ID User "${idUser}" sudah terdaftar. Klik tombol 🎲 untuk mengacak nomor baru.`
+            : err.message;
+          await mmAlert('Gagal Membuat Akun', msg, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '➕ Buat Akun & ID User Sekarang';
+        }
+      });
+
+      // Listener & Render Daftar Tim
+      function listenAllUsers() {
+        if (unsubscribeUsers) unsubscribeUsers();
+        unsubscribeUsers = onSnapshot(collection(db, 'users'), (snap) => {
+          allUsers = [];
+          snap.forEach(d => allUsers.push({ uid: d.id, ...d.data() }));
+          allUsers.sort((a, b) => (a.nama || '').localeCompare(b.nama || ''));
+          if (!document.getElementById('new-id-user').value) {
+            generateRandom9DigitId();
+          }
+          renderUsersList();
+        }, (err) => {
+          document.getElementById('users-list').innerHTML =
+            `<div class="text-center py-6 text-xs font-bold text-rose-600">Gagal memuat daftar akun: ${escapeHtml(err.message)}</div>`;
+        });
       }
 
-      const roleLabel = { admin: '🛡️ Admin', staff: '📋 Staff', guru: '👨‍🏫 Guru' };
+      function renderUsersList() {
+        const kw = document.getElementById('search-users').value.toLowerCase().trim();
+        const container = document.getElementById('users-list');
 
-      container.innerHTML = filtered.map(u => `
-        <div class="p-4 rounded-2xl border border-orange-100 bg-[#FFFDF9] flex items-center justify-between gap-3">
-          <div class="space-y-1 min-w-0">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <span class="px-2.5 py-0.5 rounded-md bg-slate-800 text-white text-[11px] font-black tracking-wider">
-                ${escapeHtml(u.id_user || 'NO-ID')}
-              </span>
-              <span class="px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-extrabold">
-                ${roleLabel[u.role] || escapeHtml(u.role)}
-              </span>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${u.status_aktif ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
-                ${u.status_aktif ? 'Aktif' : 'Nonaktif'}
-              </span>
+        const filtered = allUsers.filter(u =>
+          String(u.id_user || '').toLowerCase().includes(kw) ||
+          (u.nama || '').toLowerCase().includes(kw) ||
+          (u.role || '').toLowerCase().includes(kw)
+        );
+
+        if (filtered.length === 0) {
+          container.innerHTML = `<div class="text-center py-6 text-xs font-bold text-slate-400">Tidak ada akun yang cocok.</div>`;
+          return;
+        }
+
+        const roleLabel = { admin: '🛡️ Admin', staff: '📋 Staff', guru: '👨‍🏫 Guru' };
+
+        container.innerHTML = filtered.map(u => {
+          const isSelf = u.uid === currentAdminUid;
+          return `
+            <div class="p-4 rounded-2xl border border-orange-100 bg-[#FFFDF9] flex items-center justify-between gap-3">
+              <div class="space-y-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="px-2.5 py-0.5 rounded-md bg-slate-800 text-white text-[11px] font-black tracking-wider">
+                    ${escapeHtml(u.id_user || 'NO-ID')}
+                  </span>
+                  <span class="px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-extrabold">
+                    ${roleLabel[u.role] || escapeHtml(u.role)}
+                  </span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${u.status_aktif ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                    ${u.status_aktif ? 'Aktif' : 'Nonaktif'}
+                  </span>
+                  ${isSelf ? `<span class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-extrabold">Akun Anda</span>` : ''}
+                </div>
+                <div class="text-sm font-extrabold text-slate-800 truncate">${escapeHtml(u.nama)}</div>
+              </div>
+
+              ${isSelf ? '' : `
+                <button type="button"
+                  data-uid="${escapeAttr(u.uid)}"
+                  data-iduser="${escapeAttr(u.id_user)}"
+                  data-status="${u.status_aktif ? '1' : '0'}"
+                  class="btn-toggle-status px-3.5 py-2 rounded-xl border text-xs font-extrabold transition shrink-0 ${
+                    u.status_aktif
+                      ? 'border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700'
+                      : 'border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700'
+                  }">
+                  ${u.status_aktif ? 'Nonaktifkan' : 'Aktifkan'}
+                </button>
+              `}
             </div>
-            <div class="text-sm font-extrabold text-slate-800 truncate">${escapeHtml(u.nama)}</div>
-          </div>
+          `;
+        }).join('');
 
-          <button type="button"
-            data-uid="${escapeAttr(u.uid)}"
-            data-iduser="${escapeAttr(u.id_user)}"
-            data-status="${u.status_aktif ? '1' : '0'}"
-            class="btn-toggle-status px-3.5 py-2 rounded-xl border text-xs font-extrabold transition shrink-0 ${
-              u.status_aktif
-                ? 'border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700'
-                : 'border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700'
-            }">
-            ${u.status_aktif ? 'Nonaktifkan' : 'Aktifkan'}
-          </button>
-        </div>
-      `).join('');
-
-      container.querySelectorAll('.btn-toggle-status').forEach(btn => {
-        btn.addEventListener('click', () => toggleUserStatus(btn.dataset.uid, btn.dataset.iduser, btn.dataset.status === '1'));
-      });
-    }
-
-    document.getElementById('search-users').addEventListener('input', renderUsersList);
-
-    async function toggleUserStatus(uid, idUser, isCurrentlyActive) {
-      const actionText = isCurrentlyActive ? 'nonaktifkan' : 'aktifkan kembali';
-      const ok = await mmConfirm(
-        `${isCurrentlyActive ? 'Nonaktifkan' : 'Aktifkan'} Akun ${idUser}?`,
-        `Akun ${idUser} akan di-${actionText} akses loginnya.`,
-        `Ya, ${isCurrentlyActive ? 'Nonaktifkan' : 'Aktifkan'}`
-      );
-      if (!ok) return;
-
-      try {
-        await updateDoc(doc(db, 'users', uid), { status_aktif: !isCurrentlyActive });
-        await mmAlert('Status Diperbarui', `Akun ${idUser} berhasil di-${actionText}.`, 'success');
-      } catch (err) {
-        await mmAlert('Gagal Mengubah Status', err.message, 'error');
+        container.querySelectorAll('.btn-toggle-status').forEach(btn => {
+          btn.addEventListener('click', () => toggleUserStatus(btn.dataset.uid, btn.dataset.iduser, btn.dataset.status === '1'));
+        });
       }
+
+      document.getElementById('search-users').addEventListener('input', renderUsersList);
+
+      async function toggleUserStatus(uid, idUser, isCurrentlyActive) {
+        const actionText = isCurrentlyActive ? 'nonaktifkan' : 'aktifkan kembali';
+        const ok = await mmConfirm(
+          `${isCurrentlyActive ? 'Nonaktifkan' : 'Aktifkan'} Akun ${idUser}?`,
+          `Akun ${idUser} akan di-${actionText} akses loginnya.`,
+          `Ya, ${isCurrentlyActive ? 'Nonaktifkan' : 'Aktifkan'}`
+        );
+        if (!ok) return;
+
+        try {
+          await updateDoc(doc(db, 'users', uid), { status_aktif: !isCurrentlyActive });
+          await mmAlert('Status Diperbarui', `Akun ${idUser} berhasil di-${actionText}.`, 'success');
+        } catch (err) {
+          await mmAlert('Gagal Mengubah Status', err.message, 'error');
+        }
+      }
+    } catch (initErr) {
+      await mmAlert('Konfigurasi Firebase Bermasalah', `Detail error:\n${initErr.message}`, 'error');
     }
   </script>
 </body>
