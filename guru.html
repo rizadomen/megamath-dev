@@ -18,6 +18,9 @@
   <!-- MathLive: Visual Equation Editor ala MS Word -->
   <script defer src="https://unpkg.com/mathlive"></script>
 
+  <!-- Function Plot: Generator Grafik Fungsi f(x) Otomatis -->
+  <script src="https://unpkg.com/function-plot/dist/function-plot.js"></script>
+
   <!-- Pure Client-Side Parsers (Tanpa AI): Mammoth (DOCX), PDF.js (PDF), Tesseract.js (OCR Gambar) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -95,7 +98,6 @@
         <button type="button" onclick="tutupEquationBuilder()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-sm">✕</button>
       </div>
 
-      <!-- Tombol Struktur Cepat di Dalam Equation Builder -->
       <div class="flex flex-wrap gap-1.5 bg-orange-50/70 p-2.5 rounded-2xl border border-orange-100">
         <button type="button" onclick="eqInsertCmd('\\frac{#0}{#?}')" class="math-chip px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-xs font-bold hover:bg-orange-100">Pecahan 𝑎/𝑏</button>
         <button type="button" onclick="eqInsertCmd('#0^{#?}')" class="math-chip px-2.5 py-1 rounded-lg bg-white border border-orange-200 text-xs font-bold hover:bg-orange-100">Pangkat 𝑥ⁿ</button>
@@ -121,6 +123,67 @@
         </button>
         <button type="button" onclick="masukkanEquationKeSoal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-extrabold text-xs shadow-md shadow-orange-500/25">
           ✓ Sisipkan ke Lembar Soal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PEMBUAT GRAFIK FUNGSI f(x) CUSTOM -->
+  <div id="graph-modal-overlay" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="modal-pop bg-white border-[1.5px] border-orange-200 shadow-2xl rounded-[2rem] max-w-lg w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-orange-100 pb-3">
+        <div>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600">Koordinat Kartesius Otomatis</span>
+          <h3 id="graph-modal-title" class="text-lg font-black text-slate-800">Buat Grafik Fungsi f(x)</h3>
+        </div>
+        <button type="button" onclick="tutupGraphModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-sm">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-extrabold text-slate-700 mb-1">Persamaan Fungsi f(x) (gunakan tanda * untuk perkalian)</label>
+          <input id="graph-fn-input" type="text" value="x^2 - 4*x + 3" oninput="previewGrafikDiModal()"
+            placeholder="Contoh: x^2 - 4*x + 3 atau 2*x + 1 atau sin(x)"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 focus:border-orange-400 focus:outline-none text-sm font-bold bg-[#FFFDF9]" />
+          <div class="flex flex-wrap gap-1.5 mt-1.5">
+            <button type="button" onclick="setContohFungsi('x^2 - 4*x + 3')" class="px-2 py-0.5 rounded-md bg-orange-50 border border-orange-200 text-[10px] font-extrabold text-orange-700">Kuadrat: x^2 - 4*x + 3</button>
+            <button type="button" onclick="setContohFungsi('2*x - 3')" class="px-2 py-0.5 rounded-md bg-orange-50 border border-orange-200 text-[10px] font-extrabold text-orange-700">Linear: 2*x - 3</button>
+            <button type="button" onclick="setContohFungsi('sin(x)')" class="px-2 py-0.5 rounded-md bg-orange-50 border border-orange-200 text-[10px] font-extrabold text-orange-700">Trigonometri: sin(x)</button>
+            <button type="button" onclick="setContohFungsi('2^x')" class="px-2 py-0.5 rounded-md bg-orange-50 border border-orange-200 text-[10px] font-extrabold text-orange-700">Eksponen: 2^x</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2">
+          <div>
+            <label class="block text-[10px] font-extrabold text-slate-600 mb-1">X Min</label>
+            <input id="graph-xmin" type="number" value="-6" oninput="previewGrafikDiModal()" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-bold" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-extrabold text-slate-600 mb-1">X Max</label>
+            <input id="graph-xmax" type="number" value="8" oninput="previewGrafikDiModal()" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-bold" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-extrabold text-slate-600 mb-1">Y Min</label>
+            <input id="graph-ymin" type="number" value="-5" oninput="previewGrafikDiModal()" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-bold" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-extrabold text-slate-600 mb-1">Y Max</label>
+            <input id="graph-ymax" type="number" value="9" oninput="previewGrafikDiModal()" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-bold" />
+          </div>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-[#FFFDF9] border border-orange-100 flex flex-col items-center justify-center">
+          <div id="graph-modal-preview" class="overflow-hidden"></div>
+          <p id="graph-modal-error" class="hidden text-xs font-bold text-rose-600 py-4">Format rumus belum valid. Contoh benar: x^2 - 4*x + 3</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-1">
+        <button type="button" onclick="tutupGraphModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold text-xs">
+          Batal
+        </button>
+        <button id="btn-simpan-grafik" type="button" onclick="simpanGrafikFungsiKeSoal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-extrabold text-xs shadow-md shadow-orange-500/25 disabled:opacity-60">
+          ✓ Pasang Grafik ke Soal
         </button>
       </div>
     </div>
@@ -183,12 +246,11 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-orange-50 pb-4">
           <div>
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-extrabold mb-1.5">
-              <span>✍️</span><span>Equation Editor &amp; Parser Dokumen Langsung</span>
+              <span>✍️</span><span>Equation Editor, Grafik &amp; Parser Dokumen</span>
             </span>
             <h2 class="text-xl sm:text-2xl font-black text-slate-800">Buat Paket Soal Baru</h2>
           </div>
 
-          <!-- TAB SWITCHER (UTAMA: TULIS MANUAL) -->
           <div class="grid grid-cols-3 gap-1.5 bg-orange-50/70 p-1.5 rounded-2xl border border-orange-100">
             <button type="button" id="tab-manual" onclick="switchMode('manual')"
               class="tab-mode active px-3 py-2 rounded-xl text-xs font-extrabold transition">
@@ -240,7 +302,7 @@
           </div>
 
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-orange-50/70 border border-orange-100 text-xs font-semibold text-slate-600">
-            <div>✨ Lembar penulisan soal di bawah sudah aktif dengan <strong>Toolbar Equation &amp; Simbol Matematika</strong> di bagian atas layar.</div>
+            <div>✨ Gunakan <strong>Toolbar Equation</strong> di atas untuk rumus matematika/science, dan tombol <strong>Upload Gambar / Buat Grafik f(x)</strong> di setiap soal.</div>
             <button type="button" onclick="resetLembarManualBaru()"
               class="shrink-0 px-4 py-2 rounded-xl bg-white hover:bg-orange-100 border border-orange-200 text-orange-700 font-extrabold text-xs transition">
               🆕 Reset Lembar Baru
@@ -248,7 +310,7 @@
           </div>
         </div>
 
-        <!-- MODE 2: EKSTRAK LANGSUNG DARI PDF / DOC / DOCX / JPEG TANPA AI (100% VERBATIM) -->
+        <!-- MODE 2: EKSTRAK LANGSUNG DARI PDF / DOC / DOCX / JPEG TANPA AI -->
         <form id="panel-file" onsubmit="ekstrakFileTanpaAI(event)" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="sm:col-span-2">
             <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Pilih File Soal (PDF, Word .DOCX/.DOC, atau Foto .JPEG/.PNG)</label>
@@ -303,7 +365,7 @@
           </div>
         </form>
 
-        <!-- MODE 3: GENERATE AI DARI TOPIK (OPSIONAL) -->
+        <!-- MODE 3: GENERATE AI DARI TOPIK -->
         <form id="panel-ai" onsubmit="generateSoal(event)" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-extrabold text-slate-700 mb-1.5">Jenjang Pendidikan</label>
@@ -369,27 +431,24 @@
         </form>
       </div>
 
-      <!-- LEMBAR PENGERJAAN & PENULISAN SOAL (SELALU TAMPIL & PUNYA TOOLBAR STICKY DI ATAS) -->
+      <!-- LEMBAR PENGERJAAN & PENULISAN SOAL -->
       <div id="preview-section" class="space-y-5">
 
-        <!-- STICKY TOP TOOLBAR ALA MS WORD (SELALU MENEMPEL DI ATAS LEMBAR PENULISAN) -->
+        <!-- STICKY TOP TOOLBAR ALA MS WORD -->
         <div class="sticky top-[61px] z-20 bg-white/95 backdrop-blur-md border-[1.5px] border-orange-300 shadow-lg shadow-orange-500/10 rounded-3xl p-3.5 sm:p-4 space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex flex-wrap items-center gap-1.5">
-              <!-- Tombol Utama: Buka Visual Equation Builder ala MS Word -->
               <button type="button" onclick="bukaEquationBuilder()"
                 class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-extrabold text-xs shadow-sm transition">
                 <span class="font-serif text-sm">∑</span><span>Equation Visual (Word)</span>
               </button>
 
-              <!-- Tombol Ubah Teks Terblok Menjadi Huruf Variabel Science Miring -->
               <button type="button" onclick="formatSelectionAsScienceVar()"
                 class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-300 text-orange-800 font-extrabold text-xs transition"
                 title="Blok huruf (misal: x, y, f(x)) lalu klik tombol ini agar otomatis miring ala huruf science">
                 <span class="science-var text-sm font-bold">𝑥</span><span>Huruf Variabel / Science</span>
               </button>
 
-              <!-- Tombol Cepat Pecahan, Pangkat, Akar -->
               <button type="button" onclick="insertToActiveField('$\\frac{a}{b}$')" class="math-chip px-2.5 py-1.5 rounded-xl bg-[#FFFDF9] hover:bg-orange-100 border border-orange-200 text-xs font-bold">𝑎/𝑏</button>
               <button type="button" onclick="insertToActiveField('$x^{2}$')" class="math-chip px-2.5 py-1.5 rounded-xl bg-[#FFFDF9] hover:bg-orange-100 border border-orange-200 text-xs font-bold">𝑥²</button>
               <button type="button" onclick="insertToActiveField('$\\sqrt{x}$')" class="math-chip px-2.5 py-1.5 rounded-xl bg-[#FFFDF9] hover:bg-orange-100 border border-orange-200 text-xs font-bold">√𝑥</button>
@@ -406,7 +465,6 @@
             </div>
           </div>
 
-          <!-- Baris Simbol Matematika & Science 1-Klik -->
           <div class="flex items-center gap-1.5 overflow-x-auto pb-1">
             <span class="text-[10px] font-extrabold text-orange-600 uppercase tracking-wider shrink-0 mr-1">Simbol:</span>
             <div id="top-symbol-bar" class="flex items-center gap-1 shrink-0"></div>
@@ -522,8 +580,8 @@
     let cachedCategories = [];
     let selectedFileObj = null;
     let selectedFileBase64 = '';
+    let activeGraphSoalIdx = 0;
 
-    // Tracking kolom mana yang sedang diketik guru agar Toolbar Atas langsung masuk ke kolom itu
     let activeInputElement = null;
     let activeInputMeta = { idx: 0, type: 'field', key: 'pertanyaan' };
 
@@ -614,7 +672,7 @@
     }
 
     // ========================================================================
-    // VISUAL EQUATION BUILDER (ALA MS WORD) & HURUF SCIENCE
+    // VISUAL EQUATION BUILDER & HURUF SCIENCE
     // ========================================================================
     function setActiveTarget(el, idx, type, key, labelText) {
       activeInputElement = el;
@@ -653,7 +711,6 @@
       }
     }
 
-    // Mengubah teks yang diblok (misal: x, y, f(x)) atau karakter sebelum kursor menjadi huruf science miring ($...$)
     function formatSelectionAsScienceVar() {
       const targetEl = getTargetInputElement();
       if (!targetEl) return;
@@ -678,7 +735,6 @@
           updateOpsi(activeInputMeta.idx, activeInputMeta.key, newVal);
         }
       } else {
-        // Jika tidak ada yang diblok, buka Equation Builder visual
         bukaEquationBuilder();
       }
     }
@@ -707,6 +763,148 @@
       tutupEquationBuilder();
       if (latex) {
         insertToActiveField(`$${latex}$`);
+      }
+    }
+
+    // ========================================================================
+    // UPLOAD GAMBAR GRAFIK & GENERATOR GRAFIK FUNGSI f(x) OTOMATIS
+    // ========================================================================
+    async function uploadGambarSoal(input, idx) {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 4 * 1024 * 1024) {
+        await mmAlert('Gambar Terlalu Besar', 'Maksimal ukuran gambar grafik adalah 4 MB.', 'warning');
+        return;
+      }
+
+      const btnLabel = document.getElementById(`lbl-upload-img-${idx}`);
+      if (btnLabel) btnLabel.textContent = '⏳ Mengunggah grafik...';
+
+      const reader = new FileReader();
+      reader.onload = async function(evt) {
+        const base64Data = evt.target.result.split(',')[1];
+        try {
+          const res = await callApi({
+            action: 'uploadQuestionImage',
+            imageBase64: base64Data,
+            mimeType: file.type || 'image/png',
+            fileName: `grafik_soal_${idx + 1}_${Date.now()}.png`
+          }, true);
+
+          if (res.status !== 'success') {
+            if (btnLabel) btnLabel.textContent = '🖼️ Upload Gambar Grafik';
+            await mmAlert('Gagal Upload Grafik', res.message, 'error');
+            return;
+          }
+
+          draftPackage.soal[idx].gambar_url = res.imageUrl;
+          renderPreview();
+        } catch (err) {
+          if (btnLabel) btnLabel.textContent = '🖼️ Upload Gambar Grafik';
+          await mmAlert('Error Upload Grafik', err.message, 'error');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function hapusGambarSoal(idx) {
+      draftPackage.soal[idx].gambar_url = '';
+      renderPreview();
+    }
+
+    function bukaGraphModal(idx) {
+      activeGraphSoalIdx = idx;
+      document.getElementById('graph-modal-title').textContent = `Buat Grafik Fungsi f(x) — Soal No. ${idx + 1}`;
+      document.getElementById('graph-modal-overlay').classList.remove('hidden');
+      previewGrafikDiModal();
+    }
+
+    function tutupGraphModal() {
+      document.getElementById('graph-modal-overlay').classList.add('hidden');
+    }
+
+    function setContohFungsi(fnStr) {
+      document.getElementById('graph-fn-input').value = fnStr;
+      previewGrafikDiModal();
+    }
+
+    function previewGrafikDiModal() {
+      const fnStr = document.getElementById('graph-fn-input').value.trim();
+      const xMin = parseFloat(document.getElementById('graph-xmin').value) || -6;
+      const xMax = parseFloat(document.getElementById('graph-xmax').value) || 8;
+      const yMin = parseFloat(document.getElementById('graph-ymin').value) || -5;
+      const yMax = parseFloat(document.getElementById('graph-ymax').value) || 9;
+      const container = document.getElementById('graph-modal-preview');
+      const errEl = document.getElementById('graph-modal-error');
+
+      container.innerHTML = '';
+      try {
+        functionPlot({
+          target: '#graph-modal-preview',
+          width: 400,
+          height: 260,
+          grid: true,
+          xAxis: { domain: [xMin, xMax] },
+          yAxis: { domain: [yMin, yMax] },
+          data: [{ fn: fnStr, color: '#ea580c' }]
+        });
+        errEl.classList.add('hidden');
+      } catch (e) {
+        errEl.classList.remove('hidden');
+      }
+    }
+
+    async function simpanGrafikFungsiKeSoal() {
+      const svgEl = document.querySelector('#graph-modal-preview svg');
+      if (!svgEl) {
+        await mmAlert('Rumus Belum Valid', 'Pastikan grafik tampil di kotak preview sebelum memasang ke soal.', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('btn-simpan-grafik');
+      btn.disabled = true;
+      btn.textContent = '⏳ Menyimpan grafik...';
+
+      try {
+        const svgData = new XMLSerializer().serializeToString(svgEl);
+        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svgBlob);
+
+        const img = new Image();
+        img.onload = async function() {
+          const canvas = document.createElement('canvas');
+          canvas.width = 480;
+          canvas.height = 312;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(url);
+
+          const pngBase64 = canvas.toDataURL('image/png').split(',')[1];
+          const res = await callApi({
+            action: 'uploadQuestionImage',
+            imageBase64: pngBase64,
+            mimeType: 'image/png',
+            fileName: `fungsi_soal_${activeGraphSoalIdx + 1}_${Date.now()}.png`
+          }, true);
+
+          btn.disabled = false;
+          btn.textContent = '✓ Pasang Grafik ke Soal';
+
+          if (res.status === 'success') {
+            draftPackage.soal[activeGraphSoalIdx].gambar_url = res.imageUrl;
+            tutupGraphModal();
+            renderPreview();
+          } else {
+            await mmAlert('Gagal Menyimpan Grafik', res.message, 'error');
+          }
+        };
+        img.src = url;
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = '✓ Pasang Grafik ke Soal';
+        await mmAlert('Error Grafik', err.message, 'error');
       }
     }
 
@@ -817,7 +1015,7 @@
         renderPreview();
         await mmAlert(
           'Berhasil Diekstrak Tanpa AI!',
-          `Ditemukan ${parsedQuestions.length} butir soal persis seperti teks asli dokumen.\n\nSilakan periksa, rapikan simbol bila perlu, dan pastikan kunci jawabannya di lembar kerja di bawah.`,
+          `Ditemukan ${parsedQuestions.length} butir soal persis seperti teks asli dokumen.\n\nSilakan periksa, tambahkan gambar/grafik bila ada, dan pastikan kunci jawabannya di bawah.`,
           'success'
         );
         document.getElementById('preview-section').scrollIntoView({ behavior: 'smooth' });
@@ -828,7 +1026,6 @@
       }
     }
 
-    // Parser deterministik berbasis pola nomor soal (1., 2., 3.) dan opsi (A., B., C., D., E.) tanpa AI
     function parseRawTextToSoalArray(rawText) {
       const cleaned = (rawText || '')
         .replace(/\r/g, '\n')
@@ -836,18 +1033,14 @@
         .trim();
 
       if (!cleaned) {
-        throw new Error('Tidak ditemukan teks yang dapat dibaca dari file tersebut (pastikan PDF bukan hasil scan gambar buram).');
+        throw new Error('Tidak ditemukan teks yang dapat dibaca dari file tersebut.');
       }
 
-      // Pisahkan blok berdasarkan nomor soal di awal baris atau setelah spasi/baris baru (misal: "1. ", "2. ", "1) ")
       const blocks = cleaned.split(/(?:^|\n)\s*(?=\d{1,2}[\.\)]\s+)/g).map(b => b.trim()).filter(Boolean);
       const questions = [];
 
       blocks.forEach((block) => {
-        // Hilangkan nomor di depan
         const withoutNum = block.replace(/^\d{1,2}[\.\)]\s+/, '').trim();
-
-        // Cari pola pilihan ganda A. ... B. ... C. ... D. ... E. ...
         const optRegex = /(?:^|\s|\n)([A-E])[\.\)]\s+/g;
         const matches = [...withoutNum.matchAll(optRegex)];
 
@@ -863,7 +1056,6 @@
             const endContent = i + 1 < matches.length ? matches[i + 1].index : withoutNum.length;
             let teksOpsi = withoutNum.substring(startContent, endContent).trim();
 
-            // Cek apakah di bagian akhir opsi E ikut terbawa tulisan "Kunci: B" atau "Pembahasan:"
             const kunciMatch = teksOpsi.match(/(?:Kunci|Jawaban)\s*[:\-]\s*([A-E])/i);
             if (kunciMatch) {
               kunci = kunciMatch[1].toUpperCase();
@@ -883,16 +1075,17 @@
             nomor: questions.length + 1,
             level: 'Sedang',
             pertanyaan: pertanyaan,
+            gambar_url: '',
             opsi: opsi,
             kunci: kunci,
             pembahasan: pembahasan
           });
         } else if (withoutNum.length > 5) {
-          // Jika format belum memiliki opsi A-E yang terdeteksi otomatis, masukkan utuh ke pertanyaan agar mudah diedit guru
           questions.push({
             nomor: questions.length + 1,
             level: 'Sedang',
             pertanyaan: withoutNum,
+            gambar_url: '',
             opsi: { A: '', B: '', C: '', D: '', E: '' },
             kunci: 'A',
             pembahasan: ''
@@ -905,6 +1098,7 @@
           nomor: 1,
           level: 'Sedang',
           pertanyaan: cleaned,
+          gambar_url: '',
           opsi: { A: '', B: '', C: '', D: '', E: '' },
           kunci: 'A',
           pembahasan: ''
@@ -1078,6 +1272,7 @@
             nomor: 1,
             level: 'Sedang',
             pertanyaan: '',
+            gambar_url: '',
             opsi: { A: '', B: '', C: '', D: '', E: '' },
             kunci: 'A',
             pembahasan: ''
@@ -1202,6 +1397,7 @@
         nomor: nextNum,
         level: 'Sedang',
         pertanyaan: '',
+        gambar_url: '',
         opsi: { A: '', B: '', C: '', D: '', E: '' },
         kunci: 'A',
         pembahasan: ''
@@ -1281,6 +1477,24 @@
                   oninput="updateField(${idx}, 'pertanyaan', this.value)"
                   placeholder="Ketik soal di sini... Gunakan Toolbar Equation di atas untuk pecahan, pangkat, akar, atau huruf science."
                   class="w-full p-3 rounded-xl border border-orange-200 focus:border-orange-400 focus:outline-none text-xs font-bold bg-[#FFFDF9]">${escapeHtml(item.pertanyaan)}</textarea>
+
+                <!-- TOMBOL UPLOAD GAMBAR GRAFIK / BUAT GRAFIK FUNGSI f(x) -->
+                <div class="flex flex-wrap items-center gap-2 pt-2">
+                  <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 text-[11px] font-extrabold transition">
+                    <span id="lbl-upload-img-${idx}">🖼️ Upload Gambar Grafik</span>
+                    <input type="file" accept="image/*" class="hidden" onchange="uploadGambarSoal(this, ${idx})" />
+                  </label>
+                  <button type="button" onclick="bukaGraphModal(${idx})"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-[11px] font-extrabold transition">
+                    <span>📈 Buat Grafik Fungsi f(x)</span>
+                  </button>
+                  ${item.gambar_url ? `
+                    <button type="button" onclick="hapusGambarSoal(${idx})"
+                      class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-extrabold transition">
+                      ✕ Hapus Grafik
+                    </button>
+                  ` : ''}
+                </div>
               </div>
 
               <div class="grid grid-cols-1 gap-2">
@@ -1309,6 +1523,11 @@
               <div class="space-y-2.5">
                 <div class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600">👁️ Live Preview Tampilan Siswa:</div>
                 <div class="text-sm font-bold text-slate-800 leading-relaxed">${item.pertanyaan || '<span class="text-slate-400 italic">Pertanyaan belum diisi...</span>'}</div>
+                ${item.gambar_url ? `
+                  <div class="p-2.5 rounded-2xl bg-white border border-orange-100 flex justify-center">
+                    <img src="${item.gambar_url}" alt="Grafik Soal No. ${idx + 1}" class="max-h-56 w-auto rounded-xl object-contain" />
+                  </div>
+                ` : ''}
                 <div class="space-y-1.5 pt-1 text-xs font-bold text-slate-700">
                   ${['A', 'B', 'C', 'D', 'E'].map(h => `
                     <div class="p-2 rounded-xl border ${item.kunci === h ? 'border-emerald-300 bg-emerald-50/70 text-emerald-900' : 'border-slate-200 bg-white'}">
@@ -1356,6 +1575,11 @@
         <div class="space-y-2.5">
           <div class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600">👁️ Live Preview Tampilan Siswa:</div>
           <div class="text-sm font-bold text-slate-800 leading-relaxed">${item.pertanyaan || '<span class="text-slate-400 italic">Pertanyaan belum diisi...</span>'}</div>
+          ${item.gambar_url ? `
+            <div class="p-2.5 rounded-2xl bg-white border border-orange-100 flex justify-center">
+              <img src="${item.gambar_url}" alt="Grafik Soal No. ${idx + 1}" class="max-h-56 w-auto rounded-xl object-contain" />
+            </div>
+          ` : ''}
           <div class="space-y-1.5 pt-1 text-xs font-bold text-slate-700">
             ${['A', 'B', 'C', 'D', 'E'].map(h => `
               <div class="p-2 rounded-xl border ${item.kunci === h ? 'border-emerald-300 bg-emerald-50/70 text-emerald-900' : 'border-slate-200 bg-white'}">
