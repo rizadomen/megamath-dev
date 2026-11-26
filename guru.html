@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#FB923C" />
+  <link rel="icon" type="image/png" href="https://megamath.my.id/favicon-megamath.png" />
+  <title>Portal Guru Pengajar — Mega Math</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      scroll-behavior: smooth;
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-pop {
+      animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    /* Transisi mulus saat sidebar collapse/expand */
+    #sidebar-panel {
+      transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#FFFDF9] text-slate-800 flex flex-col">
+
+  <!-- CUSTOM POP-UP MODAL -->
+  <div id="mm-modal-overlay" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div id="mm-modal-box" class="modal-pop bg-white border-[1.5px] border-orange-100 shadow-2xl rounded-[2rem] max-w-sm w-full p-6 sm:p-7 text-center space-y-4">
+      <div id="mm-modal-icon" class="w-16 h-16 mx-auto rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-3xl shadow-inner">
+        ✨
+      </div>
+      <div class="space-y-1.5">
+        <h3 id="mm-modal-title" class="text-lg sm:text-xl font-black text-slate-800">Pemberitahuan</h3>
+        <p id="mm-modal-message" class="text-xs sm:text-sm font-semibold text-slate-600 leading-relaxed whitespace-pre-line">Pesan notifikasi.</p>
+      </div>
+      <div id="mm-modal-actions" class="pt-2 flex items-center justify-center gap-2.5"></div>
+    </div>
+  </div>
+
+  <!-- MODAL CATAT PRESENSI PERTEMUAN -->
+  <div id="modal-presensi" class="hidden fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="modal-pop bg-white border-[1.5px] border-orange-200 shadow-2xl rounded-[2rem] max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-orange-100 pb-3">
+        <div>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600">Konfirmasi Kehadiran Les</span>
+          <h3 class="text-lg font-black text-slate-800">Catat Presensi Siswa</h3>
+        </div>
+        <button type="button" id="btn-tutup-presensi" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-sm">✕</button>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-orange-50/70 border border-orange-100 text-xs space-y-1">
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-500">Nama Siswa</span>
+          <span id="pres-siswa-nama" class="font-extrabold text-slate-800 text-right">-</span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-500">No. Reg &amp; Kelas</span>
+          <span id="pres-siswa-meta" class="font-extrabold text-orange-700">-</span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-slate-500">Pengajar</span>
+          <span id="pres-guru-nama" class="font-extrabold text-slate-800">-</span>
+        </div>
+      </div>
+
+      <form id="form-submit-presensi" class="space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-extrabold text-slate-700 mb-1">Tanggal Les</label>
+            <input type="date" id="pres-tanggal" required
+              class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 bg-[#FFFDF9] font-bold text-slate-800 focus:outline-none focus:border-orange-400" />
+          </div>
+          <div>
+            <label class="block font-extrabold text-slate-700 mb-1">Jam Mulai (WIB)</label>
+            <input type="time" id="pres-jam" required
+              class="w-full px-3.5 py-2.5 rounded-xl border border-orange-200 bg-[#FFFDF9] font-bold text-slate-800 focus:outline-none focus:border-orange-400" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-extrabold text-slate-700 mb-1">Catatan Materi / Perkembangan (Opsional)</label>
+          <textarea id="pres-catatan" rows="2" placeholder="Contoh: Membahas soal pecahan & latihan ulangan harian..."
+            class="w-full p-3 rounded-xl border border-orange-200 bg-[#FFFDF9] font-semibold text-slate-800 focus:outline-none focus:border-orange-400"></textarea>
+        </div>
+
+        <button id="btn-submit-presensi" type="submit"
+          class="w-full py-3.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white font-extrabold text-sm shadow-lg shadow-orange-500/25 transition">
+          ✅ Simpan Presensi Pertemuan
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- VIEW 0: LOADING VERIFIKASI SESI GURU -->
+  <div id="view-loading" class="flex-1 flex items-center justify-center p-4">
+    <div class="bg-white border-[1.5px] border-orange-100 shadow-lg shadow-orange-500/5 rounded-[2rem] p-8 max-w-sm w-full text-center space-y-3">
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl animate-pulse">⏳</div>
+      <p class="text-xs font-extrabold text-slate-500">Memverifikasi sesi Guru Pengajar...</p>
+    </div>
+  </div>
+
+  <!-- VIEW 1: LAYOUT UTAMA DENGAN COLLAPSIBLE SIDEBAR -->
+  <div id="view-app" class="hidden flex-1 flex min-h-screen relative">
+
+    <!-- BACKDROP MOBILE SIDEBAR -->
+    <div id="sidebar-backdrop" class="hidden fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-xs lg:hidden"></div>
+
+    <!-- COLLAPSIBLE SIDEBAR -->
+    <aside id="sidebar-panel"
+      class="fixed lg:sticky top-0 left-0 z-40 h-screen w-64 bg-white border-r border-orange-100 flex flex-col justify-between shrink-0 -translate-x-full lg:translate-x-0 shadow-xl lg:shadow-none">
+
+      <!-- TOP BRAND & COLLAPSE TOGGLE -->
+      <div class="p-3.5 border-b border-orange-100 flex items-center justify-between gap-2">
+        <a href="guru.html" class="flex items-center gap-2.5 min-w-0 overflow-hidden">
+          <img src="https://megamath.my.id/favicon-megamath.png" alt="Mega Math" class="w-9 h-8 object-contain mix-blend-multiply shrink-0" />
+          <div class="sidebar-label min-w-0">
+            <span class="block text-sm font-black text-slate-800 truncate">Mega Math</span>
+            <span class="block text-[10px] font-extrabold text-orange-600 uppercase tracking-wider truncate">Portal Pengajar</span>
+          </div>
+        </a>
+
+        <!-- Tombol Collapse (Desktop) -->
+        <button id="btn-collapse-sidebar" type="button" title="Kecilkan / Perbesar Sidebar"
+          class="hidden lg:flex w-8 h-8 rounded-xl border border-orange-200 bg-orange-50/60 hover:bg-orange-100 text-orange-700 items-center justify-center text-xs font-black shrink-0 transition">
+          <span id="collapse-icon">◀</span>
+        </button>
+
+        <!-- Tombol Tutup Drawer (Mobile) -->
+        <button id="btn-close-mobile-sidebar" type="button"
+          class="lg:hidden w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-black shrink-0">
+          ✕
+        </button>
+      </div>
+
+      <!-- MENU GURU & SUBMENU -->
+      <nav class="flex-1 overflow-y-auto p-3 space-y-2">
+        <!-- HEADER GROUP MENU: GURU (Bisa di-expand/collapse) -->
+        <div>
+          <button id="btn-toggle-group-guru" type="button"
+            class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider text-orange-600 hover:bg-orange-50 transition">
+            <span class="flex items-center gap-2">
+              <span>🎓</span>
+              <span class="sidebar-label">MENU GURU</span>
+            </span>
+            <span id="group-guru-chevron" class="sidebar-label text-[10px] transition-transform">▼</span>
+          </button>
+
+          <!-- DAFTAR SUBMENU GURU -->
+          <div id="submenu-guru-list" class="mt-1.5 space-y-1.5">
+            <button type="button" data-subtab="bimbingan"
+              class="nav-sub-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-white font-extrabold text-xs shadow-md shadow-orange-500/20 transition">
+              <span class="text-base shrink-0">👨‍🏫</span>
+              <span class="sidebar-label truncate">Siswa &amp; Presensi</span>
+            </button>
+
+            <button type="button" data-subtab="riwayat"
+              class="nav-sub-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-white hover:bg-orange-50 text-slate-600 border border-transparent hover:border-orange-100 font-extrabold text-xs transition">
+              <span class="text-base shrink-0">🕒</span>
+              <span class="sidebar-label truncate">Riwayat Mengajar</span>
+            </button>
+
+            <a href="input-soal.html" id="link-input-soal"
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-white hover:bg-orange-50 text-slate-600 border border-transparent hover:border-orange-100 font-extrabold text-xs transition">
+              <span class="text-base shrink-0">✍️</span>
+              <span class="sidebar-label truncate flex-1 text-left">Input Soal (Studio)</span>
+              <span class="sidebar-label text-[10px] text-orange-500 font-black">↗</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- PINTASAN KHUSUS JIKA ROLE = ADMIN -->
+        <div id="admin-shortcut-group" class="hidden pt-3 border-t border-orange-100 space-y-1">
+          <div class="sidebar-label px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+            Akses Admin Utama
+          </div>
+          <a href="admin.html"
+            class="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-xs transition">
+            <span class="text-sm shrink-0">🏠</span>
+            <span class="sidebar-label truncate">Admin Bimbel</span>
+          </a>
+          <a href="admin-sdm.html"
+            class="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-xs transition">
+            <span class="text-sm shrink-0">🛡️</span>
+            <span class="sidebar-label truncate">Admin SDM</span>
+          </a>
+          <a href="staff.html"
+            class="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-600 font-bold text-xs transition">
+            <span class="text-sm shrink-0">📋</span>
+            <span class="sidebar-label truncate">Panel Staff</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- PROFIL GURU & LOGOUT -->
+      <div class="p-3 border-t border-orange-100 space-y-2">
+        <div class="px-3 py-2 rounded-2xl bg-orange-50/70 border border-orange-100 flex items-center gap-2.5 overflow-hidden">
+          <div class="w-8 h-8 rounded-xl bg-orange-500 text-white font-black text-xs flex items-center justify-center shrink-0">
+            G
+          </div>
+          <div class="sidebar-label min-w-0">
+            <div id="guru-profile-name" class="text-xs font-extrabold text-slate-800 truncate">-</div>
+            <div id="guru-profile-id" class="text-[10px] font-bold text-orange-600 truncate">ID: -</div>
+          </div>
+        </div>
+
+        <button id="btn-logout" type="button"
+          class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-2xl bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-700 font-extrabold text-xs transition">
+          <span class="shrink-0">🚪</span>
+          <span class="sidebar-label">Keluar</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- KONTEN KANAN -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- TOP HEADER MOBILE & DESKTOP -->
+      <header class="sticky top-0 z-20 bg-[#FFFDF9]/90 backdrop-blur-md border-b border-orange-100 px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <button id="btn-open-mobile-sidebar" type="button"
+            class="lg:hidden w-9 h-9 rounded-xl border border-orange-200 bg-white text-orange-700 flex items-center justify-center font-black text-base shrink-0">
+            ☰
+          </button>
+          <div class="min-w-0">
+            <h1 id="page-header-title" class="text-base sm:text-lg font-black text-slate-800 truncate">Siswa Bimbingan &amp; Presensi</h1>
+            <p class="text-[11px] font-semibold text-slate-500 truncate">Periode Aktif: <span id="header-bulan-aktif" class="font-extrabold text-orange-600">-</span></p>
+          </div>
+        </div>
+
+        <a href="input-soal.html"
+          class="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-2 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 transition shrink-0">
+          <span>✍️</span><span class="hidden sm:inline">Buka Studio Soal</span>
+        </a>
+      </header>
+
+      <main class="flex-1 max-w-4xl w-full mx-auto px-4 pt-6 pb-16 space-y-6">
+
+        <!-- SUB-VIEW 1: SISWA BIMBINGAN & PRESENSI -->
+        <section id="subview-bimbingan" class="space-y-5">
+          <div class="bg-white border-[1.5px] border-orange-100 shadow-lg shadow-orange-500/5 rounded-[2rem] p-5 sm:p-7 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-orange-50 pb-4">
+              <div>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-extrabold mb-1">
+                  <span>👨‍🏫</span><span>Hasil Plotting Staff</span>
+                </span>
+                <h2 class="text-lg sm:text-xl font-black text-slate-800">Daftar Siswa Bimbingan Anda (<span id="total-siswa-bimbingan">0</span>)</h2>
+              </div>
+              <input id="search-bimbingan" type="text" placeholder="🔍 Cari nama atau kelas siswa..."
+                class="px-3.5 py-2 rounded-xl border border-orange-200 text-xs font-bold bg-[#FFFDF9] focus:outline-none focus:border-orange-400 sm:w-60" />
+            </div>
+
+            <div id="list-siswa-bimbingan" class="space-y-3">
+              <div class="text-center py-8 text-xs font-bold text-slate-400">Memuat daftar siswa bimbingan dari Firestore...</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SUB-VIEW 2: RIWAYAT MENGAJAR GURU -->
+        <section id="subview-riwayat" class="hidden space-y-5">
+          <div class="bg-white border-[1.5px] border-orange-100 shadow-lg shadow-orange-500/5 rounded-[2rem] p-5 sm:p-7 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-orange-50 pb-4">
+              <div>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-extrabold mb-1">
+                  <span>🕒</span><span>Rekap Pertemuan</span>
+                </span>
+                <h2 class="text-lg sm:text-xl font-black text-slate-800">Riwayat Mengajar Anda</h2>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <select id="filter-bulan-riwayat"
+                  class="px-3 py-2 rounded-xl border border-orange-200 bg-[#FFFDF9] text-xs font-extrabold text-orange-700 focus:outline-none">
+                </select>
+                <button id="btn-refresh-riwayat" type="button"
+                  class="px-3 py-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs font-extrabold transition">
+                  🔄 Refresh
+                </button>
+              </div>
+            </div>
+
+            <div id="list-riwayat-mengajar" class="space-y-3">
+              <div class="text-center py-8 text-xs font-bold text-slate-400">Memuat riwayat mengajar...</div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged, signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, collection, query, where, getDocs, getDoc, doc, addDoc, serverTimestamp, onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Kunci jembatan otomatis ke input-soal.html agar guru tidak perlu input kode 2x
+    const STUDIO_SOAL_KEY = "MEGAMATH_DEV_2026_SECURE";
+
+    function showCustomModal({ type = 'info', title = '', message = '', confirmText = 'OK', cancelText = 'Batal', showCancel = false }) {
+      return new Promise((resolve) => {
+        const overlay = document.getElementById('mm-modal-overlay');
+        const box = document.getElementById('mm-modal-box');
+        const iconEl = document.getElementById('mm-modal-icon');
+        const titleEl = document.getElementById('mm-modal-title');
+        const msgEl = document.getElementById('mm-modal-message');
+        const actionsEl = document.getElementById('mm-modal-actions');
+
+        const styles = {
+          success: { icon: '✅', iconBg: 'bg-emerald-100 text-emerald-600', border: 'border-emerald-200', btnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20' },
+          error: { icon: '❌', iconBg: 'bg-rose-100 text-rose-600', border: 'border-rose-200', btnClass: 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20' },
+          warning: { icon: '⚠️', iconBg: 'bg-amber-100 text-amber-600', border: 'border-amber-200', btnClass: 'bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-orange-500/25' },
+          confirm: { icon: '🤔', iconBg: 'bg-orange-100 text-orange-600', border: 'border-orange-200', btnClass: 'bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white shadow-orange-500/25' }
+        };
+
+        const cfg = styles[type] || styles.warning;
+        box.className = `modal-pop bg-white border-[1.5px] ${cfg.border} shadow-2xl rounded-[2rem] max-w-sm w-full p-6 sm:p-7 text-center space-y-4`;
+        iconEl.className = `w-16 h-16 mx-auto rounded-2xl ${cfg.iconBg} flex items-center justify-center text-3xl`;
+        iconEl.textContent = cfg.icon;
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        actionsEl.innerHTML = '';
+
+        const closeWith = (val) => { overlay.classList.add('hidden'); resolve(val); };
+
+        if (showCancel) {
+          const btnCancel = document.createElement('button');
+          btnCancel.type = 'button';
+          btnCancel.className = 'flex-1 py-3 px-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-extrabold text-xs sm:text-sm transition';
+          btnCancel.textContent = cancelText;
+          btnCancel.onclick = () => closeWith(false);
+          actionsEl.appendChild(btnCancel);
+        }
+
+        const btnOk = document.createElement('button');
+        btnOk.type = 'button';
+        btnOk.className = `flex-1 py-3 px-4 rounded-2xl ${cfg.btnClass} font-extrabold text-xs sm:text-sm shadow-lg transition`;
+        btnOk.textContent = confirmText;
+        btnOk.onclick = () => closeWith(true);
+        actionsEl.appendChild(btnOk);
+
+        overlay.classList.remove('hidden');
+        btnOk.focus();
+      });
+    }
+
+    const mmAlert = (title, message, type = 'warning') => showCustomModal({ type, title, message, confirmText: 'Mengerti', showCancel: false });
+    const mmConfirm = (title, message, confirmText = 'Ya, Lanjutkan') =>
+      showCustomModal({ type: 'confirm', title, message, confirmText, cancelText: 'Batal', showCancel: true });
+
+    async function initFirebaseSafely() {
+      const cfgMod = await import("./firebase-config.js");
+      const rawCfg = cfgMod.firebaseConfig || cfgMod.default || window.firebaseConfig;
+
+      let app;
+      if (cfgMod.app) {
+        app = cfgMod.app;
+      } else if (getApps().length) {
+        app = getApp();
+      } else if (rawCfg) {
+        app = initializeApp(rawCfg);
+      } else {
+        throw new Error("File firebase-config.js tidak ditemukan atau belum mengekspor konfigurasi Firebase.");
+      }
+
+      return {
+        auth: cfgMod.auth || getAuth(app),
+        db: cfgMod.db || getFirestore(app)
+      };
+    }
+
+    function pad2(n) { return n < 10 ? '0' + n : String(n); }
+    function getTodayStr() {
+      const now = new Date();
+      return `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+    }
+    function getCurrentTimeStr() {
+      const now = new Date();
+      return `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+    }
+    function getCurrentMonthStr() {
+      return getTodayStr().slice(0, 7);
+    }
+    function getRecentMonths(count = 6) {
+      const arr = [];
+      const now = new Date();
+      for (let i = 0; i < count; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        arr.push(`${d.getFullYear()}-${pad2(d.getMonth() + 1)}`);
+      }
+      return arr;
+    }
+    function sanitizeWa62(raw) {
+      let digits = String(raw || '').replace(/\D/g, '');
+      while (digits.startsWith('0')) digits = digits.slice(1);
+      if (!digits) return '';
+      return digits.startsWith('62') ? digits : '62' + digits;
+    }
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function escapeAttr(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    let auth, db;
+    let currentGuru = null;
+    let listBimbingan = [];
+    let siswaDetailMap = {};
+    let sesiBulanIniMap = {};
+    let pendingPresensiSiswa = null;
+    let unsubscribePlotting = null;
+    let isSidebarCollapsed = false;
+
+    // ========================================================================
+    // INTERAKSI COLLAPSIBLE SIDEBAR & SUBMENU GURU
+    // ========================================================================
+    const sidebarPanel = document.getElementById('sidebar-panel');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+    const collapseIcon = document.getElementById('collapse-icon');
+
+    document.getElementById('btn-collapse-sidebar').addEventListener('click', () => {
+      isSidebarCollapsed = !isSidebarCollapsed;
+      if (isSidebarCollapsed) {
+        sidebarPanel.classList.remove('w-64');
+        sidebarPanel.classList.add('w-20');
+        collapseIcon.textContent = '▶';
+        document.querySelectorAll('.sidebar-label').forEach(el => el.classList.add('hidden'));
+      } else {
+        sidebarPanel.classList.remove('w-20');
+        sidebarPanel.classList.add('w-64');
+        collapseIcon.textContent = '◀';
+        document.querySelectorAll('.sidebar-label').forEach(el => el.classList.remove('hidden'));
+      }
+    });
+
+    function openMobileSidebar() {
+      sidebarPanel.classList.remove('-translate-x-full');
+      sidebarBackdrop.classList.remove('hidden');
+    }
+    function closeMobileSidebar() {
+      sidebarPanel.classList.add('-translate-x-full');
+      sidebarBackdrop.classList.add('hidden');
+    }
+    document.getElementById('btn-open-mobile-sidebar').addEventListener('click', openMobileSidebar);
+    document.getElementById('btn-close-mobile-sidebar').addEventListener('click', closeMobileSidebar);
+    sidebarBackdrop.addEventListener('click', closeMobileSidebar);
+
+    // Toggle lipat/buka submenu GURU
+    document.getElementById('btn-toggle-group-guru').addEventListener('click', () => {
+      const list = document.getElementById('submenu-guru-list');
+      const chev = document.getElementById('group-guru-chevron');
+      list.classList.toggle('hidden');
+      chev.style.transform = list.classList.contains('hidden') ? 'rotate(-90deg)' : 'rotate(0deg)';
+    });
+
+    // Navigasi antar sub-halaman di dalam Portal Guru
+    const SUB_ACTIVE_CLS = 'nav-sub-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-white font-extrabold text-xs shadow-md shadow-orange-500/20 transition';
+    const SUB_IDLE_CLS = 'nav-sub-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-white hover:bg-orange-50 text-slate-600 border border-transparent hover:border-orange-100 font-extrabold text-xs transition';
+
+    function switchSubtab(tab) {
+      closeMobileSidebar();
+      document.querySelectorAll('.nav-sub-btn').forEach(btn => {
+        btn.className = (btn.dataset.subtab === tab) ? SUB_ACTIVE_CLS : SUB_IDLE_CLS;
+      });
+
+      if (tab === 'bimbingan') {
+        document.getElementById('subview-bimbingan').classList.remove('hidden');
+        document.getElementById('subview-riwayat').classList.add('hidden');
+        document.getElementById('page-header-title').textContent = 'Siswa Bimbingan & Presensi';
+      } else if (tab === 'riwayat') {
+        document.getElementById('subview-bimbingan').classList.add('hidden');
+        document.getElementById('subview-riwayat').classList.remove('hidden');
+        document.getElementById('page-header-title').textContent = 'Riwayat Mengajar Anda';
+        loadRiwayatMengajar();
+      }
+    }
+
+    document.querySelectorAll('.nav-sub-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchSubtab(btn.dataset.subtab));
+    });
+
+    // ========================================================================
+    // INISIALISASI FIREBASE & ROUTE GUARD GURU
+    // ========================================================================
+    try {
+      const fb = await initFirebaseSafely();
+      auth = fb.auth;
+      db = fb.db;
+
+      document.getElementById('btn-logout').addEventListener('click', async () => {
+        const ok = await mmConfirm('Keluar dari Portal Guru?', 'Sesi login kamu akan diakhiri dan kembali ke halaman login.', 'Ya, Keluar');
+        if (!ok) return;
+        if (unsubscribePlotting) unsubscribePlotting();
+        sessionStorage.removeItem('mm_guru_key');
+        await signOut(auth);
+        window.location.replace('login.html');
+      });
+
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          window.location.replace('login.html');
+          return;
+        }
+
+        try {
+          const userSnap = await getDoc(doc(db, 'users', user.uid));
+          if (!userSnap.exists() || !userSnap.data().status_aktif) {
+            window.location.replace('login.html?err=unauthorized');
+            return;
+          }
+
+          const uData = userSnap.data();
+          if (uData.role !== 'guru' && uData.role !== 'admin') {
+            window.location.replace('login.html?err=unauthorized');
+            return;
+          }
+
+          currentGuru = {
+            uid: user.uid,
+            id_user: uData.id_user || '-',
+            nama: uData.nama || 'Guru Mega Math',
+            role: uData.role
+          };
+
+          // Set otomatis kunci Studio Soal agar saat klik "Input Soal" tidak perlu login 2x
+          sessionStorage.setItem('mm_guru_key', STUDIO_SOAL_KEY);
+
+          document.getElementById('view-loading').classList.add('hidden');
+          document.getElementById('view-app').classList.remove('hidden');
+          document.getElementById('guru-profile-name').textContent = currentGuru.nama;
+          document.getElementById('guru-profile-id').textContent = `ID: ${currentGuru.id_user}`;
+          document.getElementById('header-bulan-aktif').textContent = getCurrentMonthStr();
+
+          if (currentGuru.role === 'admin') {
+            document.getElementById('admin-shortcut-group').classList.remove('hidden');
+          }
+
+          populateFilterBulanRiwayat();
+          await refreshDetailSiswaDanSesi();
+          listenSiswaBimbingan();
+        } catch (err) {
+          await mmAlert('Gagal Memverifikasi Sesi', err.message, 'error');
+          window.location.replace('login.html');
+        }
+      });
+
+      // Muat detail nomor WA Ortu siswa & hitungan sesi bulan berjalan
+      async function refreshDetailSiswaDanSesi() {
+        const bulan = getCurrentMonthStr();
+        const [siswaSnap, presSnap] = await Promise.all([
+          getDocs(collection(db, 'siswa')),
+          getDocs(query(collection(db, 'presensi'), where('bulan', '==', bulan)))
+        ]);
+
+        siswaDetailMap = {};
+        siswaSnap.forEach(d => {
+          const s = d.data();
+          siswaDetailMap[d.id] = {
+            noReg: s.noReg || d.id,
+            nama: s.nama || d.id,
+            kelas: s.kelas || '-',
+            namaOrtu: s.namaOrtu || '',
+            waOrtu: sanitizeWa62(s.waOrtu || '')
+          };
+        });
+
+        sesiBulanIniMap = {};
+        presSnap.forEach(d => {
+          const p = d.data();
+          const reg = String(p.noReg || '');
+          if (reg) sesiBulanIniMap[reg] = (sesiBulanIniMap[reg] || 0) + 1;
+        });
+      }
+
+      // Listener Realtime Siswa yang di-plotting ke Guru ini
+      function listenSiswaBimbingan() {
+        if (unsubscribePlotting) unsubscribePlotting();
+        const q = query(
+          collection(db, 'plotting_guru_siswa'),
+          where('guru_uid', '==', currentGuru.uid),
+          where('status_aktif', '==', true)
+        );
+
+        unsubscribePlotting = onSnapshot(q, (snap) => {
+          listBimbingan = [];
+          snap.forEach(d => listBimbingan.push({ id: d.id, ...d.data() }));
+          listBimbingan.sort((a, b) => (a.siswa_nama || '').localeCompare(b.siswa_nama || ''));
+          document.getElementById('total-siswa-bimbingan').textContent = listBimbingan.length;
+          renderSiswaBimbingan();
+        }, (err) => {
+          document.getElementById('list-siswa-bimbingan').innerHTML =
+            `<div class="text-center py-6 text-xs font-bold text-rose-600">Gagal memuat daftar siswa: ${escapeHtml(err.message)}</div>`;
+        });
+      }
+
+      function renderSiswaBimbingan() {
+        const kw = document.getElementById('search-bimbingan').value.toLowerCase().trim();
+        const container = document.getElementById('list-siswa-bimbingan');
+
+        const filtered = listBimbingan.filter(item =>
+          (item.siswa_nama || '').toLowerCase().includes(kw) ||
+          (item.siswa_kelas || '').toLowerCase().includes(kw) ||
+          (item.siswa_id || '').toLowerCase().includes(kw)
+        );
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-8 space-y-1">
+              <div class="text-2xl">📭</div>
+              <p class="text-xs font-extrabold text-slate-600">Belum ada siswa yang di-plotting ke akun Anda.</p>
+              <p class="text-[11px] font-semibold text-slate-400">Hubungi Staff Operasional untuk menambahkan siswa bimbingan.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = filtered.map(item => {
+          const detail = siswaDetailMap[item.siswa_id] || {};
+          const noReg = detail.noReg || item.siswa_id;
+          const nama = detail.nama || item.siswa_nama;
+          const kelas = detail.kelas || item.siswa_kelas || '-';
+          const jmlSesi = sesiBulanIniMap[noReg] || 0;
+
+          const waMsg = encodeURIComponent(
+            `Halo Ayah/Bunda${detail.namaOrtu ? ' (' + detail.namaOrtu + ')' : ''}, saya Kak *${currentGuru.nama}* pengajar Mega Math untuk ananda *${nama}* (${kelas}).`
+          );
+          const waHref = detail.waOrtu ? `https://wa.me/${detail.waOrtu}?text=${waMsg}` : '';
+
+          return `
+            <div class="p-4 rounded-2xl border border-orange-100 bg-[#FFFDF9] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="space-y-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="px-2.5 py-0.5 rounded-md bg-orange-100 text-orange-800 text-[10px] font-black">${escapeHtml(noReg)}</span>
+                  <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-extrabold">${escapeHtml(kelas)}</span>
+                  <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold">
+                    Hadir Bulan Ini: ${jmlSesi}x
+                  </span>
+                </div>
+                <div class="text-sm sm:text-base font-black text-slate-800 truncate">${escapeHtml(nama)}</div>
+              </div>
+
+              <div class="flex items-center gap-2 shrink-0">
+                ${waHref ? `
+                  <a href="${waHref}" target="_blank" rel="noopener noreferrer"
+                    class="px-3.5 py-2 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-extrabold transition">
+                    💬 WA Ortu
+                  </a>
+                ` : ''}
+                <button type="button"
+                  data-noreg="${escapeAttr(noReg)}"
+                  data-nama="${escapeAttr(nama)}"
+                  data-kelas="${escapeAttr(kelas)}"
+                  class="btn-catat-presensi px-4 py-2 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white text-xs font-extrabold shadow-sm transition">
+                  ✅ Catat Presensi
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        container.querySelectorAll('.btn-catat-presensi').forEach(btn => {
+          btn.addEventListener('click', () => openPresensiModal({
+            noReg: btn.dataset.noreg,
+            nama: btn.dataset.nama,
+            kelas: btn.dataset.kelas
+          }));
+        });
+      }
+
+      document.getElementById('search-bimbingan').addEventListener('input', renderSiswaBimbingan);
+
+      // ========================================================================
+      // MODAL & SIMPAN PRESENSI PERTEMUAN KE FIRESTORE
+      // ========================================================================
+      function openPresensiModal(siswaObj) {
+        pendingPresensiSiswa = siswaObj;
+        document.getElementById('pres-siswa-nama').textContent = siswaObj.nama;
+        document.getElementById('pres-siswa-meta').textContent = `${siswaObj.noReg} • ${siswaObj.kelas}`;
+        document.getElementById('pres-guru-nama').textContent = `${currentGuru.nama} (${currentGuru.id_user})`;
+        document.getElementById('pres-tanggal').value = getTodayStr();
+        document.getElementById('pres-jam').value = getCurrentTimeStr();
+        document.getElementById('pres-catatan').value = '';
+
+        document.getElementById('modal-presensi').classList.remove('hidden');
+      }
+
+      function closePresensiModal() {
+        pendingPresensiSiswa = null;
+        document.getElementById('modal-presensi').classList.add('hidden');
+      }
+
+      document.getElementById('btn-tutup-presensi').addEventListener('click', closePresensiModal);
+
+      document.getElementById('form-submit-presensi').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!pendingPresensiSiswa || !currentGuru) return;
+
+        const tanggal = document.getElementById('pres-tanggal').value;
+        const jam = document.getElementById('pres-jam').value;
+        const catatan = document.getElementById('pres-catatan').value.trim();
+        const bulan = tanggal.slice(0, 7);
+
+        const btn = document.getElementById('btn-submit-presensi');
+        btn.disabled = true;
+        btn.textContent = '⏳ Menyimpan Presensi...';
+
+        try {
+          await addDoc(collection(db, 'presensi'), {
+            noReg: pendingPresensiSiswa.noReg,
+            nama: pendingPresensiSiswa.nama,
+            kelas: pendingPresensiSiswa.kelas,
+            tanggal: tanggal,
+            jam: jam,
+            bulan: bulan,
+            catatan: catatan,
+            guru_uid: currentGuru.uid,
+            guru_id: currentGuru.id_user,
+            guru_nama: currentGuru.nama,
+            created_at: serverTimestamp()
+          });
+
+          const namaSaved = pendingPresensiSiswa.nama;
+          closePresensiModal();
+          await refreshDetailSiswaDanSesi();
+          renderSiswaBimbingan();
+          await mmAlert('Presensi Berhasil Dicatat!', `Kehadiran ${namaSaved} pada tanggal ${tanggal} pukul ${jam} WIB telah tersimpan.`, 'success');
+        } catch (err) {
+          await mmAlert('Gagal Menyimpan Presensi', err.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '✅ Simpan Presensi Pertemuan';
+        }
+      });
+
+      // ========================================================================
+      // RIWAYAT MENGAJAR GURU
+      // ========================================================================
+      function populateFilterBulanRiwayat() {
+        const sel = document.getElementById('filter-bulan-riwayat');
+        const months = getRecentMonths(6);
+        sel.innerHTML = months.map(m => `<option value="${m}">${m}</option>`).join('');
+      }
+
+      async function loadRiwayatMengajar() {
+        const bulan = document.getElementById('filter-bulan-riwayat').value || getCurrentMonthStr();
+        const container = document.getElementById('list-riwayat-mengajar');
+        container.innerHTML = `<div class="text-center py-6 text-xs font-bold text-slate-400">Memuat riwayat mengajar bulan ${bulan}...</div>`;
+
+        try {
+          const q = query(
+            collection(db, 'presensi'),
+            where('guru_uid', '==', currentGuru.uid),
+            where('bulan', '==', bulan)
+          );
+          const snap = await getDocs(q);
+          const rows = [];
+          snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
+          rows.sort((a, b) => `${b.tanggal} ${b.jam}`.localeCompare(`${a.tanggal} ${a.jam}`));
+
+          if (rows.length === 0) {
+            container.innerHTML = `<div class="text-center py-8 text-xs font-bold text-slate-400">Belum ada catatan mengajar pada bulan ${bulan}.</div>`;
+            return;
+          }
+
+          container.innerHTML = rows.map(r => `
+            <div class="p-4 rounded-2xl border border-orange-100 bg-[#FFFDF9] space-y-1">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="text-sm font-black text-slate-800">${escapeHtml(r.nama)} <span class="text-xs font-bold text-orange-600">(${escapeHtml(r.noReg)})</span></div>
+                <span class="px-2.5 py-0.5 rounded-lg bg-emerald-100 text-emerald-700 text-[10px] font-extrabold">
+                  📅 ${escapeHtml(r.tanggal)} • ⏰ ${escapeHtml(r.jam)} WIB
+                </span>
+              </div>
+              ${r.catatan ? `<p class="text-xs font-semibold text-slate-600">📝 ${escapeHtml(r.catatan)}</p>` : ''}
+            </div>
+          `).join('');
+        } catch (err) {
+          container.innerHTML = `<div class="text-center py-6 text-xs font-bold text-rose-600">Gagal memuat riwayat: ${escapeHtml(err.message)}</div>`;
+        }
+      }
+
+      document.getElementById('filter-bulan-riwayat').addEventListener('change', loadRiwayatMengajar);
+      document.getElementById('btn-refresh-riwayat').addEventListener('click', loadRiwayatMengajar);
+
+    } catch (initErr) {
+      await mmAlert('Konfigurasi Firebase Bermasalah', `Detail error:\n${initErr.message}`, 'error');
+    }
+  </script>
+</body>
+</html>
